@@ -1,8 +1,12 @@
-import { getAllWordsFromDB, saveWordToDB } from "../db/vocab";
+import {
+  getAllWordsFromDB,
+  saveWordToDB,
+} from "../../repositories/vocabularyRepository";
 import { Request, Response } from "express";
 
 async function getAllWordsController(req: Request, res: Response) {
   const { data, error } = await getAllWordsFromDB();
+
   if (error) {
     console.error(error);
     res.send(error);
@@ -13,7 +17,7 @@ async function getAllWordsController(req: Request, res: Response) {
 
 async function saveNewWordController(req: Request, res: Response) {
   const { word, translation } = req.body;
-  const error = await saveWordToDB(word, translation);
+  const { error } = await saveWordToDB({ word, translation });
   if (error) {
     console.error(error);
     res.send(error);

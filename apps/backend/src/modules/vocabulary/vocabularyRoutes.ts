@@ -3,7 +3,7 @@ const router = express.Router();
 import {
   getAllWordsController,
   saveNewWordController,
-} from "./../controllers/vocabController";
+} from "./vocabularyController";
 
 router.get("/words", getAllWordsController);
 

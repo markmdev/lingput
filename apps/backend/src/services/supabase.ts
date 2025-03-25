@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import dotenv from "dotenv";
+import { Database } from "../types/supabase";
 dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -8,6 +9,6 @@ if (!supabaseUrl || !supabaseApiKey) {
   throw new Error("Invalid supabase credentials");
 }
 
-const supabase = createClient(supabaseUrl, supabaseApiKey);
+const supabase = createClient<Database>(supabaseUrl, supabaseApiKey);
 
 export default supabase;

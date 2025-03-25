@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
-import vocabRouter from "./routes/vocab";
+import vocabRouter from "./modules/vocabulary/vocabularyRoutes";
 
 const app = express();
 const port = process.env.PORT;
