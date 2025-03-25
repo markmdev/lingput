@@ -1,6 +1,6 @@
-const client = require("./client");
+import client from "../services/supabase";
 
-async function saveWord(word, translation) {
+async function saveWordToDB(word: string, translation: string) {
   const { error } = await client.from("vocabulary").insert({
     word,
     translation,
@@ -9,13 +9,10 @@ async function saveWord(word, translation) {
   return error;
 }
 
-async function getAllWords() {
+async function getAllWordsFromDB() {
   const { data, error } = await client.from("vocabulary").select();
 
   return { data, error };
 }
 
-module.exports = {
-  saveWord,
-  getAllWords,
-};
+export { saveWordToDB, getAllWordsFromDB };
