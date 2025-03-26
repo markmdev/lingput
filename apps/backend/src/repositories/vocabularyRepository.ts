@@ -1,4 +1,3 @@
-import { PostgrestError } from "@supabase/supabase-js";
 import {
   NewVocabulary,
   Vocabulary,
@@ -6,16 +5,26 @@ import {
 import client from "../services/supabase";
 import { DBResponse } from "../types/repositories";
 
-async function saveWordToDB(word: NewVocabulary): DBResponse<null> {
-  const { error } = await client.from("vocabulary").insert(word);
+export class VocabularyRepository {
+  async saveWordToDB(word: NewVocabulary): DBResponse<null> {
+    const { error } = await client.from("vocabulary").insert(word);
 
-  return { data: null, error };
+    return { data: null, error };
+  }
+
+  async getAllWordsFromDB(): DBResponse<Vocabulary[]> {
+    const { data, error } = await client.from("vocabulary").select();
+
+    return { data, error };
+  }
+
+  async deleteWord(wordId: number): DBResponse<Vocabulary[]> {
+    const { data, error } = await client
+      .from("vocabulary")
+      .delete()
+      .eq("id", wordId)
+      .select();
+    console.log(data, error);
+    return { data, error };
+  }
 }
-
-async function getAllWordsFromDB(): DBResponse<Vocabulary[]> {
-  const { data, error } = await client.from("vocabulary").select();
-
-  return { data, error };
-}
-
-export { saveWordToDB, getAllWordsFromDB };
