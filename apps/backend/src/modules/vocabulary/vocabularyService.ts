@@ -22,6 +22,11 @@ export class VocabularyService {
     return error;
   }
 
+  async saveManyWords(words: NewVocabulary[]): Promise<PostgrestError | null> {
+    const { error } = await vocabularyRepository.saveManyWordsToDB(words);
+    return error;
+  }
+
   async deleteWord(wordId: number): Promise<void> {
     const { data, error } = await vocabularyRepository.deleteWord(wordId);
     if (error) {

@@ -23,6 +23,33 @@ async function saveNewWordController(req: Request, res: Response) {
   }
 }
 
+async function saveManyWordsController(req: Request, res: Response) {
+  const { words } = req.body;
+  if (!Array.isArray(words)) {
+    res.status(400).json({
+      error: "The request body must be an array of objects.",
+    });
+    return;
+  }
+
+  const allWordsValid = words.every(
+    (wordObj) => wordObj.word && wordObj.translation
+  );
+  if (!allWordsValid) {
+    res.status(400).json({
+      error: "Each word must have a 'word' and 'translation' property.",
+    });
+    return;
+  }
+
+  const error = await vocabularyService.saveManyWords(words);
+  if (error) {
+    res.status(500).json({ error: `Failed to save many words: ${error}` });
+  } else {
+    res.status(201).send("Success");
+  }
+}
+
 async function deleteWordController(req: Request, res: Response) {
   try {
     const wordId = parseInt(req.params.id);
@@ -34,4 +61,9 @@ async function deleteWordController(req: Request, res: Response) {
   }
 }
 
-export { getAllWordsController, saveNewWordController, deleteWordController };
+export {
+  getAllWordsController,
+  saveNewWordController,
+  saveManyWordsController,
+  deleteWordController,
+};

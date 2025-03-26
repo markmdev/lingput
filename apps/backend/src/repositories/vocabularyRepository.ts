@@ -12,6 +12,12 @@ export class VocabularyRepository {
     return { data: null, error };
   }
 
+  async saveManyWordsToDB(words: NewVocabulary[]): DBResponse<null> {
+    const { error } = await client.from("vocabulary").insert(words);
+
+    return { data: null, error };
+  }
+
   async getAllWordsFromDB(): DBResponse<Vocabulary[]> {
     const { data, error } = await client.from("vocabulary").select();
 
@@ -24,7 +30,6 @@ export class VocabularyRepository {
       .delete()
       .eq("id", wordId)
       .select();
-    console.log(data, error);
     return { data, error };
   }
 }
