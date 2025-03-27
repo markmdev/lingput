@@ -1,9 +1,6 @@
-import {
-  NewVocabulary,
-  Vocabulary,
-} from "../modules/vocabulary/vocabulary.types";
-import client from "../services/supabase";
-import { DBResponse } from "../types/repositories";
+import { NewVocabulary, Vocabulary } from "./vocabulary.types";
+import client from "../../services/supabase";
+import { DBResponse } from "../../types/repositories";
 
 export class VocabularyRepository {
   async saveWordToDB(word: NewVocabulary): DBResponse<null> {

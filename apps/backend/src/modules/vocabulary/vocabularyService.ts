@@ -1,6 +1,6 @@
 import { PostgrestError } from "@supabase/supabase-js";
 import { NewVocabulary, Vocabulary } from "./vocabulary.types";
-import { VocabularyRepository } from "../../repositories/vocabularyRepository";
+import { VocabularyRepository } from "./vocabularyRepository";
 
 const vocabularyRepository = new VocabularyRepository();
 
