@@ -3,15 +3,51 @@ import { StoriesRepository } from "./storiesRepository";
 import { VocabularyService } from "../vocabulary/vocabularyService";
 import { StorageResponse } from "../../types/repositories";
 import { Base64 } from "../../types/types";
+import combineAudioFromBase64 from "./audio";
 
 const vocabularyService = new VocabularyService();
 const storiesRepository = new StoriesRepository();
 
 export class StoriesService {
-  async generateStory(): Promise<string> {
+  async generateFullStoryExperience() {
     const words = await vocabularyService.getWords();
     const targetLanguageWords = words.map((word) => word.word);
+    const story = await this.generateStory(targetLanguageWords);
+    const translationChunks = await this.translateChunks(story);
+    await this.createAudioForStory(translationChunks);
+  }
 
+  async createAudioForStory(
+    translationChunks: { chunk: string; translatedChunk: string }[]
+  ) {
+    const germanChunks = translationChunks.map((chunk) => chunk.chunk);
+    const translationChunksOnly = translationChunks.map(
+      (chunk) => chunk.translatedChunk
+    );
+    // using Promise.All get a list of base64 strings of audio files after text to speech
+    const germanAudioBase64 = await Promise.all(
+      germanChunks.map((chunk) => this.textToSpeech(chunk, true))
+    );
+
+    const transitionAudioBase64 = await this.textToSpeech(
+      "Now listen to the story with translation.",
+      false
+    );
+
+    const translationAudioBase64 = await Promise.all(
+      translationChunks.flatMap((chunk) => [
+        this.textToSpeech(chunk.chunk, true),
+        this.textToSpeech(chunk.translatedChunk, false),
+      ])
+    );
+
+    await combineAudioFromBase64(
+      [germanAudioBase64, [transitionAudioBase64], translationAudioBase64],
+      "test.mp3"
+    );
+  }
+
+  async generateStory(targetLanguageWords: string[]): Promise<string> {
     const story = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -55,7 +91,7 @@ export class StoriesService {
     return cleanedStoryText;
   }
 
-  async translateStory(
+  async translateChunks(
     story: string
   ): Promise<{ chunk: string; translatedChunk: string }[]> {
     const response = await openai.responses.create({
