@@ -3,30 +3,28 @@ import { StoriesRepository } from "./storiesRepository";
 import { VocabularyService } from "../vocabulary/vocabularyService";
 import { StorageResponse } from "../../types/repositories";
 import { Base64 } from "../../types/types";
-import combineAudioFromBase64 from "./audio";
+import { combineAudioFromBase64, generateSilence } from "./audio";
 
 const vocabularyService = new VocabularyService();
 const storiesRepository = new StoriesRepository();
 
 export class StoriesService {
-  async generateFullStoryExperience() {
+  async generateFullStoryExperience(subject: string = "") {
     const words = await vocabularyService.getWords();
     const targetLanguageWords = words.map((word) => word.word);
-    const story = await this.generateStory(targetLanguageWords);
+    const story = await this.generateStory(targetLanguageWords, subject);
     const translationChunks = await this.translateChunks(story);
-    await this.createAudioForStory(translationChunks);
+    const audio = await this.createAudioForStory(translationChunks);
+    const fileName = await this.saveStoryToStorage(audio);
+    return fileName;
   }
 
   async createAudioForStory(
     translationChunks: { chunk: string; translatedChunk: string }[]
-  ) {
-    const germanChunks = translationChunks.map((chunk) => chunk.chunk);
-    const translationChunksOnly = translationChunks.map(
-      (chunk) => chunk.translatedChunk
-    );
+  ): Promise<Base64> {
     // using Promise.All get a list of base64 strings of audio files after text to speech
     const germanAudioBase64 = await Promise.all(
-      germanChunks.map((chunk) => this.textToSpeech(chunk, true))
+      translationChunks.map((chunk) => this.textToSpeech(chunk.chunk, true))
     );
 
     const transitionAudioBase64 = await this.textToSpeech(
@@ -34,20 +32,31 @@ export class StoriesService {
       false
     );
 
+    const longSilenceBase64 = await generateSilence(2);
+    const shortSilenceBase64 = await generateSilence(1);
+
     const translationAudioBase64 = await Promise.all(
       translationChunks.flatMap((chunk) => [
         this.textToSpeech(chunk.chunk, true),
+        longSilenceBase64,
         this.textToSpeech(chunk.translatedChunk, false),
+        shortSilenceBase64,
       ])
     );
 
-    await combineAudioFromBase64(
-      [germanAudioBase64, [transitionAudioBase64], translationAudioBase64],
-      "test.mp3"
-    );
+    const combinedAudioBase64 = await combineAudioFromBase64([
+      germanAudioBase64,
+      [transitionAudioBase64],
+      translationAudioBase64,
+    ]);
+
+    return combinedAudioBase64;
   }
 
-  async generateStory(targetLanguageWords: string[]): Promise<string> {
+  async generateStory(
+    targetLanguageWords: string[],
+    subject: string
+  ): Promise<string> {
     const story = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -69,9 +78,11 @@ export class StoriesService {
             - Avoid formulaic expressions
             - Use natural flow and variations in sentence structure
             - Always use specific personal details, to make the text look like it was written by a human. Add such details, that only a real human being could include in the text.
+            4. Use various grammar structures, to practice all grammar rules.
 
             Create a story that is engaging and interesting to read.
-            Story should be 2 sentences long.
+            Here is a subject of the story:
+            ${subject}
             `,
         },
         {

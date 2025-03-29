@@ -4,9 +4,10 @@ const storiesService = new StoriesService();
 
 export class StoriesController {
   async generateStory(req: Request, res: Response) {
-    const audio = await storiesService.generateFullStoryExperience();
+    const { subject } = req.body;
+    const filename = await storiesService.generateFullStoryExperience(subject);
 
-    res.status(200).json({ audio });
+    res.status(200).json({ filename });
   }
 }
 
