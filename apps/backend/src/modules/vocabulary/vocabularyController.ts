@@ -13,8 +13,12 @@ async function getAllWordsController(req: Request, res: Response) {
 }
 
 async function saveNewWordController(req: Request, res: Response) {
-  const { word, translation } = req.body;
-  const error = await vocabularyService.saveNewWord({ word, translation });
+  const { word, translation, article } = req.body;
+  const error = await vocabularyService.saveNewWord({
+    word,
+    translation,
+    article,
+  });
   if (error) {
     console.error(error);
     res.status(500).json({ error: `Failed to save new word: ${error}` });
