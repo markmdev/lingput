@@ -4,37 +4,78 @@ import { VocabularyService } from "../vocabulary/vocabularyService";
 import { StorageResponse } from "../../types/repositories";
 import { Base64 } from "../../types/types";
 import { combineAudioFromBase64, generateSilence } from "./audio";
-import {
-  Lemma,
-  lemmatizeAndTranslate,
-  LemmatizedText,
-} from "./storiesLemmatize";
+import { Lemma, lemmatizeAndTranslate } from "./storiesLemmatize";
 
 const vocabularyService = new VocabularyService();
 const storiesRepository = new StoriesRepository();
 
 export class StoriesService {
-  async generateFullStoryExperience(subject: string = "") {
+  public async generateFullStoryExperience(subject: string = "") {
     const words = await vocabularyService.getWords();
     const targetLanguageWords = words.map((word) => word.word);
-    const { story, newWords } = await this.generateStory(
-      targetLanguageWords,
-      subject
+    const story = await this.generateStory(targetLanguageWords, subject);
+
+    const cleanedStoryText = story.replace(/\n/g, "");
+    const lemmatizedWordsFromStory = await lemmatizeAndTranslate(
+      cleanedStoryText
     );
-    console.log("story", story);
+    const newLemmasFromStory = this.extractNewLemmasFromStory(
+      lemmatizedWordsFromStory.lemmas,
+      targetLanguageWords
+    );
+    const translatedLemmas = await this.translateLemmas(newLemmasFromStory);
+    const newWords = this.getNewWordsFromLemmas(
+      translatedLemmas,
+      newLemmasFromStory
+    );
+
+    console.log("story", cleanedStoryText);
     console.log("newWords", newWords);
-    return { story, newWords };
-    const translationChunks = await this.translateChunks(story);
-    const audio = await this.createAudioForStory(translationChunks);
+    // return { story, newWords };
+    const translationChunks = await this.translateChunks(cleanedStoryText);
+    const audio = await this.createAudioForStory(translationChunks, newWords);
     const fileName = await this.saveStoryToStorage(audio);
     return fileName;
   }
 
-  async createAudioForStory(
-    translationChunks: { chunk: string; translatedChunk: string }[]
+  private extractNewLemmasFromStory(
+    lemmas: Lemma[],
+    knownWords: string[]
+  ): Lemma[] {
+    return lemmas.filter(
+      (lemma: Lemma) =>
+        !knownWords.some(
+          (targetWord) => targetWord.toLowerCase() === lemma.lemma.toLowerCase()
+        )
+    );
+  }
+
+  private getNewWordsFromLemmas(
+    lemmas: { lemma: string; translation: string }[],
+    lemmasFromStory: Lemma[]
+  ): { lemma: string; translation: string; article: string | null }[] {
+    return lemmas.map((lemma) => ({
+      lemma: lemma.lemma,
+      translation: lemma.translation,
+      article:
+        lemmasFromStory.find((word) => word.lemma === lemma.lemma)?.article ??
+        null,
+    }));
+  }
+
+  private async createAudioForStory(
+    translationChunks: { chunk: string; translatedChunk: string }[],
+    newWords: { lemma: string; translation: string; article: string | null }[]
   ): Promise<Base64> {
+    const longSilenceBase64 = await generateSilence(2);
+    const shortSilenceBase64 = await generateSilence(1);
+    const veryShortSilenceBase64 = await generateSilence(0.3);
+
     const germanAudioBase64 = await Promise.all(
-      translationChunks.map((chunk) => this.textToSpeech(chunk.chunk, true))
+      translationChunks.flatMap((chunk) => [
+        this.textToSpeech(chunk.chunk, true),
+        veryShortSilenceBase64,
+      ])
     );
 
     const transitionAudioBase64 = await this.textToSpeech(
@@ -42,8 +83,10 @@ export class StoriesService {
       false
     );
 
-    const longSilenceBase64 = await generateSilence(2);
-    const shortSilenceBase64 = await generateSilence(1);
+    const translationTransitionAudioBase64 = await this.textToSpeech(
+      "Now listen to the new vocabulary and try to remember it.",
+      false
+    );
 
     const translationAudioBase64 = await Promise.all(
       translationChunks.flatMap((chunk) => [
@@ -54,22 +97,30 @@ export class StoriesService {
       ])
     );
 
+    const newWordsAudioBase64 = await Promise.all(
+      newWords.flatMap((word) => [
+        this.textToSpeech(`${word.article ?? ""} ${word.lemma}`, true),
+        longSilenceBase64,
+        this.textToSpeech(word.translation, false),
+        shortSilenceBase64,
+      ])
+    );
+
     const combinedAudioBase64 = await combineAudioFromBase64([
       germanAudioBase64,
       [transitionAudioBase64],
       translationAudioBase64,
+      [translationTransitionAudioBase64],
+      newWordsAudioBase64,
     ]);
 
     return combinedAudioBase64;
   }
 
-  async generateStory(
+  private async generateStory(
     targetLanguageWords: string[],
     subject: string
-  ): Promise<{
-    story: string;
-    newWords: { lemma: string; translation: string; article: string | null }[];
-  }> {
+  ): Promise<string> {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -110,29 +161,10 @@ export class StoriesService {
     if (!story) {
       throw new Error("No story text returned");
     }
-    // remove \n symbols
-    const cleanedStoryText = story.replace(/\n/g, "");
-    const lemmatizedWordsFromStory = await lemmatizeAndTranslate(
-      cleanedStoryText
-    );
-    const newWordsFromStory = lemmatizedWordsFromStory.lemmas.filter(
-      (lemma: Lemma) =>
-        !targetLanguageWords.some(
-          (targetWord) => targetWord.toLowerCase() === lemma.lemma.toLowerCase()
-        )
-    );
-    const translatedLemmas = await this.translateLemmas(newWordsFromStory);
-    const newWords = translatedLemmas.map((lemma) => ({
-      lemma: lemma.lemma,
-      translation: lemma.translation,
-      article:
-        newWordsFromStory.find((word) => word.lemma === lemma.lemma)?.article ??
-        null,
-    }));
-    return { story: cleanedStoryText, newWords };
+    return story;
   }
 
-  async translateLemmas(
+  private async translateLemmas(
     lemmas: Lemma[]
   ): Promise<{ lemma: string; translation: string }[]> {
     const response = await openai.responses.create({
@@ -148,7 +180,7 @@ export class StoriesService {
             }))
           )}
           Translate only the words, not the sentences. Sentence is just for context. Translate in the context of the sentence.
-          Don't change the form of the word.
+          Don't change the form of the word. Don't include proper names in your response. If you find word like "Max" or "Berlin", just don't translate them and don't include them in your response.
           `,
         },
       ],
@@ -187,7 +219,7 @@ export class StoriesService {
     return JSON.parse(content).lemmas;
   }
 
-  async translateChunks(
+  private async translateChunks(
     story: string
   ): Promise<{ chunk: string; translatedChunk: string }[]> {
     const response = await openai.responses.create({
@@ -252,7 +284,10 @@ export class StoriesService {
     return result.chunks;
   }
 
-  async textToSpeech(text: string, isTargetLanguage: boolean): Promise<Base64> {
+  private async textToSpeech(
+    text: string,
+    isTargetLanguage: boolean
+  ): Promise<Base64> {
     const instructions = isTargetLanguage
       ? "Speak as you are voiceover a story for 'Comprehensible Input' method of learning. You must speak in a slow pace. Speak expressively. The language is German"
       : "Calm voice, narrator style. The language is English";
@@ -268,7 +303,9 @@ export class StoriesService {
     return base64;
   }
 
-  async saveStoryToStorage(story: Base64): Promise<StorageResponse<string>> {
+  public async saveStoryToStorage(
+    story: Base64
+  ): Promise<StorageResponse<string>> {
     const fileName = await storiesRepository.saveStoryToStorage(story);
     return fileName;
   }
