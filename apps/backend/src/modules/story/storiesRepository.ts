@@ -1,6 +1,7 @@
 import client from "../../services/supabase";
 import { DBResponse, StorageResponse } from "../../types/repositories";
 import { Base64 } from "../../types/types";
+import { Story, StoryDB } from "./story.types";
 
 function getRandomFileName(extension: string) {
   return `${Date.now()}-${Math.random()
@@ -17,8 +18,21 @@ function base64ToArrayBuffer(base64: Base64) {
 }
 
 export class StoriesRepository {
-  // save story to storage (.mp3)
-  async saveStoryToStorage(story: Base64): StorageResponse<string> {
+  async saveStoryToDB(story: Story): DBResponse<StoryDB> {
+    const { data, error } = await client
+      .from("story")
+      .insert({
+        story: story.story,
+        translation: story.translation,
+        audio_url: story.audioUrl,
+      })
+      .select()
+      .single();
+    return { data, error };
+  }
+
+  // save story audio to storage (.mp3)
+  async saveStoryAudioToStorage(story: Base64): StorageResponse {
     const fileName = getRandomFileName("mp3");
     // story to ArrayBuffer
     const arrayBuffer = base64ToArrayBuffer(story);
@@ -28,10 +42,6 @@ export class StoriesRepository {
         contentType: "audio/mpeg",
       });
 
-    if (error) {
-      return { data: null, error };
-    }
-
-    return { data: fileName, error: null };
+    return { data, error };
   }
 }

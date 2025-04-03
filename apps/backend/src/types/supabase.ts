@@ -34,38 +34,6 @@ export type Database = {
   };
   public: {
     Tables: {
-      new_word: {
-        Row: {
-          article: string | null;
-          id: number;
-          story_id: number;
-          translation: string;
-          word: string;
-        };
-        Insert: {
-          article?: string | null;
-          id?: number;
-          story_id: number;
-          translation: string;
-          word: string;
-        };
-        Update: {
-          article?: string | null;
-          id?: number;
-          story_id?: number;
-          translation?: string;
-          word?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "new_word_story_id_fkey";
-            columns: ["story_id"];
-            isOneToOne: false;
-            referencedRelation: "story";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
       story: {
         Row: {
           audio_url: string;
@@ -87,23 +55,67 @@ export type Database = {
         };
         Relationships: [];
       };
-      vocabulary: {
+      unknown_word: {
         Row: {
           article: string | null;
+          example_sentence: string;
           id: number;
+          story_id: number;
           translation: string;
+          translation_example_sentence: string;
           word: string;
         };
         Insert: {
           article?: string | null;
+          example_sentence: string;
           id?: number;
+          story_id: number;
           translation: string;
+          translation_example_sentence: string;
           word: string;
         };
         Update: {
           article?: string | null;
+          example_sentence?: string;
+          id?: number;
+          story_id?: number;
+          translation?: string;
+          translation_example_sentence?: string;
+          word?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "unknown_word_story_id_fkey";
+            columns: ["story_id"];
+            isOneToOne: false;
+            referencedRelation: "story";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      vocabulary: {
+        Row: {
+          article: string | null;
+          example_sentence: string | null;
+          id: number;
+          translation: string;
+          translation_example_sentence: string | null;
+          word: string;
+        };
+        Insert: {
+          article?: string | null;
+          example_sentence?: string | null;
+          id?: number;
+          translation: string;
+          translation_example_sentence?: string | null;
+          word: string;
+        };
+        Update: {
+          article?: string | null;
+          example_sentence?: string | null;
           id?: number;
           translation?: string;
+          translation_example_sentence?: string | null;
           word?: string;
         };
         Relationships: [];

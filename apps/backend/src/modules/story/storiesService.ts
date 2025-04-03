@@ -1,47 +1,55 @@
 import openai from "../../services/openaiClient";
 import { StoriesRepository } from "./storiesRepository";
 import { VocabularyService } from "../vocabulary/vocabularyService";
-import { StorageResponse } from "../../types/repositories";
 import { Base64 } from "../../types/types";
 import { combineAudioFromBase64, generateSilence } from "./audio";
-import { Lemma, lemmatizeAndTranslate } from "./storiesLemmatize";
+import { Lemma, lemmatize } from "./storiesLemmatize";
+import { Story, StoryDB } from "./story.types";
+import { UnknownWordDraft } from "../unknownWord/unknownWord.types";
 
 const vocabularyService = new VocabularyService();
 const storiesRepository = new StoriesRepository();
 
 export class StoriesService {
-  public async generateFullStoryExperience(subject: string = "") {
+  public async generateFullStoryExperience(
+    subject: string = ""
+  ): Promise<Story> {
     const words = await vocabularyService.getWords();
     const targetLanguageWords = words.map((word) => word.word);
     const story = await this.generateStory(targetLanguageWords, subject);
 
     const cleanedStoryText = story.replace(/\n/g, "");
-    const lemmatizedWordsFromStory = await lemmatizeAndTranslate(
-      cleanedStoryText
-    );
-    const newLemmasFromStory = this.extractNewLemmasFromStory(
-      lemmatizedWordsFromStory.lemmas,
+    const lemmatizedWordsFromStory = await lemmatize(cleanedStoryText);
+    const unknownLemmasFromStory = this.extractUnknownLemmasFromStory(
+      lemmatizedWordsFromStory,
       targetLanguageWords
     );
-    const translatedLemmas = await this.translateLemmas(newLemmasFromStory);
-    const newWords = this.getNewWordsFromLemmas(
-      translatedLemmas,
-      newLemmasFromStory
+    const translatedUnknownLemmas = await this.translateLemmas(
+      unknownLemmasFromStory
+    );
+    const unknownWords = this.convertUnknownLemmasToWords(
+      translatedUnknownLemmas,
+      unknownLemmasFromStory
     );
 
-    console.log("story", cleanedStoryText);
-    console.log("newWords", newWords);
-    // return { story, newWords };
     const translationChunks = await this.translateChunks(cleanedStoryText);
     const fullTranslation = translationChunks
       .map((chunk) => chunk.translatedChunk)
       .join(" ");
-    const audio = await this.createAudioForStory(translationChunks, newWords);
-    const fileName = await this.saveStoryToStorage(audio);
-    return fileName;
+    const audio = await this.createAudioForStory(
+      translationChunks,
+      unknownWords
+    );
+    const audioUrl = await this.saveStoryAudioToStorage(audio);
+    return {
+      story: cleanedStoryText,
+      translation: fullTranslation,
+      unknownWords,
+      audioUrl,
+    };
   }
 
-  private extractNewLemmasFromStory(
+  private extractUnknownLemmasFromStory(
     lemmas: Lemma[],
     knownWords: string[]
   ): Lemma[] {
@@ -53,22 +61,29 @@ export class StoriesService {
     );
   }
 
-  private getNewWordsFromLemmas(
-    lemmas: { lemma: string; translation: string }[],
+  private convertUnknownLemmasToWords(
+    lemmas: {
+      lemma: string;
+      translation: string;
+      example_sentence: string;
+      translation_example_sentence: string;
+    }[],
     lemmasFromStory: Lemma[]
-  ): { lemma: string; translation: string; article: string | null }[] {
+  ): UnknownWordDraft[] {
     return lemmas.map((lemma) => ({
-      lemma: lemma.lemma,
+      word: lemma.lemma,
       translation: lemma.translation,
       article:
         lemmasFromStory.find((word) => word.lemma === lemma.lemma)?.article ??
         null,
+      example_sentence: lemma.example_sentence,
+      translation_example_sentence: lemma.translation_example_sentence,
     }));
   }
 
   private async createAudioForStory(
     translationChunks: { chunk: string; translatedChunk: string }[],
-    newWords: { lemma: string; translation: string; article: string | null }[]
+    newWords: UnknownWordDraft[]
   ): Promise<Base64> {
     const longSilenceBase64 = await generateSilence(2);
     const shortSilenceBase64 = await generateSilence(1);
@@ -102,9 +117,13 @@ export class StoriesService {
 
     const newWordsAudioBase64 = await Promise.all(
       newWords.flatMap((word) => [
-        this.textToSpeech(`${word.article ?? ""} ${word.lemma}`, true),
+        this.textToSpeech(`${word.article ?? ""} ${word.word}`, true),
         longSilenceBase64,
         this.textToSpeech(word.translation, false),
+        shortSilenceBase64,
+        this.textToSpeech(word.example_sentence, true),
+        longSilenceBase64,
+        this.textToSpeech(word.translation_example_sentence, false),
         shortSilenceBase64,
       ])
     );
@@ -167,25 +186,44 @@ export class StoriesService {
     return story;
   }
 
-  private async translateLemmas(
-    lemmas: Lemma[]
-  ): Promise<{ lemma: string; translation: string }[]> {
+  private async translateLemmas(lemmas: Lemma[]): Promise<
+    {
+      lemma: string;
+      translation: string;
+      example_sentence: string;
+      translation_example_sentence: string;
+    }[]
+  > {
     const response = await openai.responses.create({
       model: "gpt-4o",
       input: [
         {
           role: "system",
-          content: `You are a helpful translator. Your task is to translate the following lemmas to English:
-          ${JSON.stringify(
+          content: `You are a helpful and context-aware translator. Your task is to translate the following lemmas (base word forms) into natural English, using the sentence as context.
+
+          For each lemma:
+          - Translate **only the lemma**, not the sentence.
+          - Use the **sentence only as context** to choose the most appropriate meaning.
+          - Consider the lemma’s **part of speech** (e.g., noun, verb, adjective).
+          - If the word has multiple meanings, provide the **most likely one** in this context. You may include **multiple translations**, separated by commas.
+          - Avoid literal or overly generic translations if a more specific or idiomatic meaning fits better.
+          - Keep the lemma in its base form.
+          - Do **not** include proper names (e.g., Max, Berlin) in the response — skip them entirely.
+
+          In addition, for each lemma:
+          - Create a **simple original example sentence** in German using the lemma naturally.
+          - Then provide the **English translation** of your example sentence.
+          - The example sentence should be short, natural, and helpful for learners. Do not copy from the input sentence — generate a **new** one.
+          `,
+        },
+        {
+          role: "user",
+          content: `Here are the lemmas: ${JSON.stringify(
             lemmas.map((lemma) => ({
               lemma: lemma.lemma,
               sentence: lemma.sentence,
             }))
-          )}
-          Translate only the words, not the sentences. Sentence is just for context. Translate in the context of the sentence.
-          Don't change the form of the word. Don't include proper names in your response. If you find word like "Max" or "Berlin", just don't translate them and don't include them in your response.
-          You can include more than one translation for the same word, if they have different meanings. In this case, separate them with a comma.
-          `,
+          )}`,
         },
       ],
       text: {
@@ -202,8 +240,15 @@ export class StoriesService {
                   properties: {
                     lemma: { type: "string" },
                     translation: { type: "string" },
+                    example_sentence: { type: "string" },
+                    translation_example_sentence: { type: "string" },
                   },
-                  required: ["lemma", "translation"],
+                  required: [
+                    "lemma",
+                    "translation",
+                    "example_sentence",
+                    "translation_example_sentence",
+                  ],
                   additionalProperties: false,
                 },
               },
@@ -307,10 +352,27 @@ export class StoriesService {
     return base64;
   }
 
-  public async saveStoryToStorage(
-    story: Base64
-  ): Promise<StorageResponse<string>> {
-    const fileName = await storiesRepository.saveStoryToStorage(story);
-    return fileName;
+  public async saveStoryAudioToStorage(storyAudio: Base64): Promise<string> {
+    const response = await storiesRepository.saveStoryAudioToStorage(
+      storyAudio
+    );
+    if (response.error) {
+      throw new Error("Error saving story audio to storage");
+    }
+    if (!response.data) {
+      throw new Error("No file name returned from storage service");
+    }
+    return response.data.fullPath;
+  }
+
+  public async saveStoryToDB(story: Story): Promise<StoryDB> {
+    const response = await storiesRepository.saveStoryToDB(story);
+    if (response.error) {
+      throw new Error("Error saving story to database");
+    }
+    if (!response.data) {
+      throw new Error("No story returned from database");
+    }
+    return response.data;
   }
 }

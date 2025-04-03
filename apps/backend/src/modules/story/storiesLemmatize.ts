@@ -6,15 +6,9 @@ export type Lemma = {
   sentence: string;
 };
 
-export type LemmatizedText = {
-  lemmas: Lemma[];
-};
-
-export async function lemmatizeAndTranslate(
-  text: string
-): Promise<LemmatizedText> {
+export async function lemmatize(text: string): Promise<Lemma[]> {
   const response = await axios.post("http://localhost:8000/lemmatize", {
     text,
   });
-  return response.data;
+  return response.data.lemmas;
 }
