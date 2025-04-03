@@ -34,24 +34,77 @@ export type Database = {
   };
   public: {
     Tables: {
+      new_word: {
+        Row: {
+          article: string | null;
+          id: number;
+          story_id: number;
+          translation: string;
+          word: string;
+        };
+        Insert: {
+          article?: string | null;
+          id?: number;
+          story_id: number;
+          translation: string;
+          word: string;
+        };
+        Update: {
+          article?: string | null;
+          id?: number;
+          story_id?: number;
+          translation?: string;
+          word?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "new_word_story_id_fkey";
+            columns: ["story_id"];
+            isOneToOne: false;
+            referencedRelation: "story";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      story: {
+        Row: {
+          audio_url: string;
+          id: number;
+          story: string;
+          translation: string;
+        };
+        Insert: {
+          audio_url: string;
+          id?: number;
+          story: string;
+          translation: string;
+        };
+        Update: {
+          audio_url?: string;
+          id?: number;
+          story?: string;
+          translation?: string;
+        };
+        Relationships: [];
+      };
       vocabulary: {
         Row: {
+          article: string | null;
           id: number;
           translation: string;
           word: string;
-          article: string;
         };
         Insert: {
+          article?: string | null;
           id?: number;
           translation: string;
           word: string;
-          article: string;
         };
         Update: {
+          article?: string | null;
           id?: number;
           translation?: string;
           word?: string;
-          article?: string;
         };
         Relationships: [];
       };
