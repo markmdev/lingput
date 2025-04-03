@@ -181,6 +181,7 @@ export class StoriesService {
           )}
           Translate only the words, not the sentences. Sentence is just for context. Translate in the context of the sentence.
           Don't change the form of the word. Don't include proper names in your response. If you find word like "Max" or "Berlin", just don't translate them and don't include them in your response.
+          You can include more than one translation for the same word, if they have different meanings. In this case, separate them with a comma.
           `,
         },
       ],
