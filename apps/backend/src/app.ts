@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import vocabRouter from "./modules/vocabulary/vocabularyRoutes";
-import storiesRouter from "./modules/stories/storiesRoutes";
+import storiesRouter from "./modules/story/storiesRoutes";
 const app = express();
 const port = process.env.PORT;
 

@@ -33,6 +33,9 @@ export class StoriesService {
     console.log("newWords", newWords);
     // return { story, newWords };
     const translationChunks = await this.translateChunks(cleanedStoryText);
+    const fullTranslation = translationChunks
+      .map((chunk) => chunk.translatedChunk)
+      .join(" ");
     const audio = await this.createAudioForStory(translationChunks, newWords);
     const fileName = await this.saveStoryToStorage(audio);
     return fileName;
