@@ -32,7 +32,9 @@ export class StoriesRepository {
   }
 
   // save story audio to storage (.mp3)
-  async saveStoryAudioToStorage(story: Base64): StorageResponse {
+  async saveStoryAudioToStorage(
+    story: Base64
+  ): Promise<StorageResponse<{ id: string; path: string; fullPath: string }>> {
     const fileName = getRandomFileName("mp3");
     // story to ArrayBuffer
     const arrayBuffer = base64ToArrayBuffer(story);
