@@ -60,7 +60,9 @@ export type Database = {
           article: string | null;
           example_sentence: string;
           id: number;
+          status: Database["public"]["Enums"]["unknown_word_status"];
           story_id: number;
+          times_seen: number;
           translation: string;
           translation_example_sentence: string;
           word: string;
@@ -69,7 +71,9 @@ export type Database = {
           article?: string | null;
           example_sentence: string;
           id?: number;
+          status?: Database["public"]["Enums"]["unknown_word_status"];
           story_id: number;
+          times_seen?: number;
           translation: string;
           translation_example_sentence: string;
           word: string;
@@ -78,7 +82,9 @@ export type Database = {
           article?: string | null;
           example_sentence?: string;
           id?: number;
+          status?: Database["public"]["Enums"]["unknown_word_status"];
           story_id?: number;
+          times_seen?: number;
           translation?: string;
           translation_example_sentence?: string;
           word?: string;
@@ -128,7 +134,7 @@ export type Database = {
       [_ in never]: never;
     };
     Enums: {
-      [_ in never]: never;
+      unknown_word_status: "learning" | "learned";
     };
     CompositeTypes: {
       [_ in never]: never;
