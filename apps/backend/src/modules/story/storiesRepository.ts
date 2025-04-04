@@ -18,6 +18,11 @@ function base64ToArrayBuffer(base64: Base64) {
 }
 
 export class StoriesRepository {
+  async getAllStories(): DBResponse<StoryDB[]> {
+    const { data, error } = await client.from("story").select();
+    return { data, error };
+  }
+
   async saveStoryToDB(story: Story): DBResponse<StoryDB> {
     const { data, error } = await client
       .from("story")

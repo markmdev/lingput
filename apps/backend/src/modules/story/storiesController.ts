@@ -15,6 +15,12 @@ export class StoriesController {
     );
     res.status(200).json({ story: savedStory, unknownWords });
   }
+
+  async getAllStories(req: Request, res: Response) {
+    const stories = await storiesService.getAllStories();
+    res.status(200).json(stories);
+  }
+
 }
 
 export default StoriesController;

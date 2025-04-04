@@ -375,4 +375,14 @@ export class StoriesService {
     }
     return response.data;
   }
+
+  public async getAllStories(): Promise<StoryDB[]> {
+    const response = await storiesRepository.getAllStories();
+    if (response.error) {
+      console.error(response.error);
+      throw new Error("Error getting all stories");
+    }
+    return response.data ?? [];
+  }
+
 }

@@ -6,5 +6,5 @@ const router = Router();
 const storiesController = new StoriesController();
 
 router.post("/generate", storiesController.generateStory);
-
+router.get("/", storiesController.getAllStories);
 export default router;
