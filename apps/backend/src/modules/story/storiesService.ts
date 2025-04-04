@@ -362,7 +362,7 @@ export class StoriesService {
     if (!response.data) {
       throw new Error("No file name returned from storage service");
     }
-    return response.data.fullPath;
+    return response.data.path;
   }
 
   public async saveStoryToDB(story: Story): Promise<StoryDB> {
