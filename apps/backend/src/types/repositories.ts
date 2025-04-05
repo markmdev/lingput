@@ -6,11 +6,7 @@ export type DBResponse<Type> = Promise<{
   error: PostgrestError | null;
 }>;
 
-export type StorageResponse = Promise<{
-  data: {
-    id: string;
-    path: string;
-    fullPath: string;
-  } | null;
+export type StorageResponse<Type> = Promise<{
+  data: Type | null;
   error: StorageError | null;
 }>;
