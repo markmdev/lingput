@@ -385,4 +385,25 @@ export class StoriesService {
     return response.data ?? [];
   }
 
+  public async getStorySignedAudioUrl(storyId: number): Promise<string> {
+    const story = await storiesRepository.getStoryById(storyId);
+    if (story.error) {
+      throw new Error("Error getting story");
+    }
+    if (!story.data) {
+      throw new Error("No story returned from database");
+    }
+    const response = await storiesRepository.getSignedStoryAudioUrl(
+      story.data.audio_url
+    );
+    if (response.error) {
+      throw new Error("Error getting signed story audio url");
+    }
+    if (!response.data) {
+      throw new Error(
+        "No signed story audio url returned from storage service"
+      );
+    }
+    return response.data.signedUrl;
+  }
 }

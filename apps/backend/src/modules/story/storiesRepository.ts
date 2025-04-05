@@ -51,4 +51,22 @@ export class StoriesRepository {
 
     return { data, error };
   }
+
+  async getSignedStoryAudioUrl(
+    audioPath: string
+  ): Promise<StorageResponse<{ signedUrl: string }>> {
+    const { data, error } = await client.storage
+      .from("stories")
+      .createSignedUrl(audioPath, 60 * 60);
+    return { data, error };
+  }
+
+  async getStoryById(storyId: number): DBResponse<StoryDB> {
+    const { data, error } = await client
+      .from("story")
+      .select()
+      .eq("id", storyId)
+      .single();
+    return { data, error };
+  }
 }
