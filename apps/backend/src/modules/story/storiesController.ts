@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { StoriesService } from "./storiesService";
 import { UnknownWordService } from "../unknownWord/unknownWordService";
-import { StoryAudioStorageService } from "./storyAudioStorageService";
+import { StoryAudioStorageService } from "./services/storyAudioStorageService";
 const storiesService = new StoriesService();
 const unknownWordService = new UnknownWordService();
 const storyAudioStorageService = new StoryAudioStorageService();

@@ -1,6 +1,6 @@
-import { Lemma } from "./story.types";
+import { Lemma } from "../story.types";
 import axios from "axios";
-import openai from "../../services/openaiClient";
+import openai from "../../../services/openaiClient";
 
 export class LemmatizationService {
   async lemmatize(text: string): Promise<Lemma[]> {

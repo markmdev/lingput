@@ -1,4 +1,4 @@
-import openai from "../../services/openaiClient";
+import openai from "../../../services/openaiClient";
 
 export class TranslationService {
   async translateChunks(
