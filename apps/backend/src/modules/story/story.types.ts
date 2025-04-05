@@ -9,3 +9,9 @@ export type Story = {
 };
 
 export type StoryDB = Database["public"]["Tables"]["story"]["Row"];
+
+export type Lemma = {
+  lemma: string;
+  article: string | null;
+  sentence: string;
+};

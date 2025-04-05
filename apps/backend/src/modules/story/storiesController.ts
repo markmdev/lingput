@@ -1,8 +1,10 @@
 import { Request, Response } from "express";
 import { StoriesService } from "./storiesService";
 import { UnknownWordService } from "../unknownWord/unknownWordService";
+import { StoryAudioStorageService } from "./storyAudioStorageService";
 const storiesService = new StoriesService();
 const unknownWordService = new UnknownWordService();
+const storyAudioStorageService = new StoryAudioStorageService();
 
 export class StoriesController {
   async generateStory(req: Request, res: Response) {
@@ -23,7 +25,7 @@ export class StoriesController {
 
   async getStorySignedAudioUrl(req: Request, res: Response) {
     const { storyId } = req.params;
-    const signedUrl = await storiesService.getStorySignedAudioUrl(
+    const signedUrl = await storyAudioStorageService.getStoryAudioUrl(
       parseInt(storyId)
     );
     res.status(200).json({ signedUrl });
