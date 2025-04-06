@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Story {
+  id              Int           @id @default(autoincrement())
+  storyText       String
+  translationText String
+  audioUrl        String
+  unknownWords    UnknownWord[]
+}
+
+model UnknownWord {
+  id                         Int        @id @default(autoincrement())
+  word                       String
+  translation                String
+  article                    String?
+  exampleSentence            String
+  exampleSentenceTranslation String
+  timesSeen                  Int        @default(1)
+  status                     WordStatus @default(learning)
+  story                      Story      @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  storyId                    Int
+}
+
+model UserVocabulary {
+  id                         Int     @id @default(autoincrement())
+  word                       String
+  translation                String
+  article                    String?
+  exampleSentence            String?
+  exampleSentenceTranslation String?
+}
+
+enum WordStatus {
+  learning
+  learned
+}

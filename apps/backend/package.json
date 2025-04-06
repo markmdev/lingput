@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^6.5.0",
     "@supabase/supabase-js": "^2.49.3",
     "@types/uuid": "^10.0.0",
     "axios": "^1.8.4",
@@ -28,6 +29,7 @@
     "@types/fluent-ffmpeg": "^2.1.27",
     "@types/node": "^22.13.13",
     "nodemon": "^3.1.9",
+    "prisma": "^6.5.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   }
