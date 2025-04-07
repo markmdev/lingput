@@ -1,4 +1,4 @@
-import { Lemma } from "../story.types";
+import { Lemma, LemmaWithTranslation } from "../story.types";
 import axios from "axios";
 import openai from "../../../services/openaiClient";
 
@@ -10,14 +10,7 @@ export class LemmatizationService {
     return response.data.lemmas;
   }
 
-  async translateLemmas(lemmas: Lemma[]): Promise<
-    {
-      lemma: string;
-      translation: string;
-      example_sentence: string;
-      translation_example_sentence: string;
-    }[]
-  > {
+  async translateLemmas(lemmas: Lemma[]): Promise<LemmaWithTranslation[]> {
     const response = await openai.responses.create({
       model: "gpt-4o",
       input: [
@@ -64,13 +57,13 @@ export class LemmatizationService {
                   properties: {
                     lemma: { type: "string" },
                     translation: { type: "string" },
-                    example_sentence: { type: "string" },
-                    translation_example_sentence: { type: "string" },
+                    exampleSentence: { type: "string" },
+                    exampleSentenceTranslation: { type: "string" },
                   },
                   required: [
                     "lemma",
                     "translation",
-                    "example_sentence",
+                    "exampleSentence",
                     "translation_example_sentence",
                   ],
                   additionalProperties: false,

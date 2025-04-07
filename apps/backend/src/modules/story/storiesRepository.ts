@@ -1,7 +1,10 @@
 import client from "../../services/supabase";
 import { DBResponse, StorageResponse } from "../../types/repositories";
 import { Base64 } from "../../types/types";
-import { Story, StoryDB } from "./story.types";
+import { CreateStoryDTO } from "./story.types";
+import { Prisma, PrismaClient, Story } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 function getRandomFileName(extension: string) {
   return `${Date.now()}-${Math.random()
@@ -18,22 +21,16 @@ function base64ToArrayBuffer(base64: Base64) {
 }
 
 export class StoriesRepository {
-  async getAllStories(): DBResponse<StoryDB[]> {
-    const { data, error } = await client.from("story").select();
-    return { data, error };
+  async getAllStories(): Promise<Story[]> {
+    return prisma.story.findMany();
   }
 
-  async saveStoryToDB(story: Story): DBResponse<StoryDB> {
-    const { data, error } = await client
-      .from("story")
-      .insert({
-        story: story.story,
-        translation: story.translation,
-        audio_url: story.audioUrl,
-      })
-      .select()
-      .single();
-    return { data, error };
+  async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
+    const { unknownWords, ...storyWithoutUnknownWords } = story;
+    const savedStory = await prisma.story.create({
+      data: storyWithoutUnknownWords,
+    });
+    return savedStory;
   }
 
   // save story audio to storage (.mp3)
@@ -61,12 +58,14 @@ export class StoriesRepository {
     return { data, error };
   }
 
-  async getStoryById(storyId: number): DBResponse<StoryDB> {
-    const { data, error } = await client
-      .from("story")
-      .select()
-      .eq("id", storyId)
-      .single();
-    return { data, error };
+  async getStoryById(storyId: number): Promise<Story | null> {
+    const story = await prisma.story.findFirst({
+      where: {
+        id: {
+          equals: storyId,
+        },
+      },
+    });
+    return story;
   }
 }

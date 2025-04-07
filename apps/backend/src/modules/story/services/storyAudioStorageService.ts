@@ -15,14 +15,11 @@ export class StoryAudioStorageService {
 
   public async getStoryAudioUrl(storyId: number): Promise<string> {
     const story = await storiesRepository.getStoryById(storyId);
-    if (story.error) {
-      throw new Error("Error getting story");
-    }
-    if (!story.data) {
-      throw new Error("No story returned from database");
+    if (!story) {
+      throw new Error("Story not found");
     }
     const response = await storiesRepository.getSignedStoryAudioUrl(
-      story.data.audio_url
+      story.audioUrl
     );
     if (response.error) {
       throw new Error("Error getting signed story audio url");

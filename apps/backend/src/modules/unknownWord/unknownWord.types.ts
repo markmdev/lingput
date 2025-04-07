@@ -1,15 +1,20 @@
-import { Database } from "../../types/supabase";
+export type CreateUnknownWordDTO = {
+  word: string;
+  translation: string;
+  article: string | null;
+  exampleSentence: string;
+  exampleSentenceTranslation: string;
+  storyId: number | null;
+  timesSeen?: 1;
+  status?: "learning";
+};
 
-export type UnknownWordDraft = Omit<
-  Database["public"]["Tables"]["unknown_word"]["Insert"],
-  "story_id"
->;
+export type CreateUnknownWordWithStoryIdDTO = Omit<
+  CreateUnknownWordDTO,
+  "storyId"
+> & { storyId: number };
 
-export type UnknownWord = UnknownWordDraft & { story_id: number };
-
-export type UnknownWordDB = Database["public"]["Tables"]["unknown_word"]["Row"];
-
-export function isUnknownWordDB(word: any): word is UnknownWordDB {
+export function isUnknownWordDB(word: any): word is CreateUnknownWordDTO {
   return (
     typeof word === "object" &&
     typeof word.id === "number" &&

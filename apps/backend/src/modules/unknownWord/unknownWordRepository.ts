@@ -1,49 +1,60 @@
-import client from "../../services/supabase";
-import { DBResponse } from "../../types/repositories";
-import { UnknownWord, UnknownWordDB } from "./unknownWord.types";
+import { CreateUnknownWordWithStoryIdDTO } from "./unknownWord.types";
+import { PrismaClient, UnknownWord } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export class UnknownWordRepository {
   async saveUnknownWords(
-    unknownWords: UnknownWord[]
-  ): DBResponse<UnknownWordDB[]> {
-    const { data, error } = await client
-      .from("unknown_word")
-      .insert(unknownWords)
-      .select();
-    return { data, error };
+    unknownWords: CreateUnknownWordWithStoryIdDTO[]
+  ): Promise<UnknownWord[]> {
+    const response = await prisma.unknownWord.createManyAndReturn({
+      data: unknownWords,
+    });
+    return response;
   }
 
   async markAsLearned(wordId: number) {
-    const { data, error } = await client
-      .from("unknown_word")
-      .update({ status: "learned" })
-      .eq("id", wordId);
-    return { data, error };
+    const response = await prisma.unknownWord.update({
+      where: {
+        id: wordId,
+      },
+      data: {
+        status: "learned",
+      },
+    });
+    return response;
   }
 
   async markAsLearning(wordId: number) {
-    const { data, error } = await client
-      .from("unknown_word")
-      .update({ status: "learning" })
-      .eq("id", wordId);
-    return { data, error };
+    const response = await prisma.unknownWord.update({
+      where: {
+        id: wordId,
+      },
+      data: {
+        status: "learning",
+      },
+    });
+    return response;
   }
 
-  async getUnknownWords(): Promise<DBResponse<UnknownWordDB[]>> {
-    const { data, error } = await client.from("unknown_word").select("*");
-    return { data, error };
+  async getUnknownWords(): Promise<UnknownWord[]> {
+    const response = await prisma.unknownWord.findMany();
+    return response;
   }
 
   async updateTimesSeen(
     wordId: number,
     timesSeen: number
-  ): Promise<DBResponse<UnknownWordDB>> {
-    const { data, error } = await client
-      .from("unknown_word")
-      .update({ times_seen: timesSeen })
-      .eq("id", wordId)
-      .select()
-      .single();
-    return { data, error };
+  ): Promise<UnknownWord> {
+    const response = await prisma.unknownWord.update({
+      where: {
+        id: wordId,
+      },
+      data: {
+        timesSeen,
+      },
+    });
+
+    return response;
   }
 }

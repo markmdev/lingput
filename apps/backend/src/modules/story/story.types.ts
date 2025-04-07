@@ -1,17 +1,21 @@
-import { Database } from "../../types/supabase";
-import { UnknownWordDraft } from "../unknownWord/unknownWord.types";
+import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
 
-export type Story = {
-  story: string;
-  translation: string;
-  unknownWords: UnknownWordDraft[];
+export type CreateStoryDTO = {
+  storyText: string;
+  translationText: string;
   audioUrl: string;
+  unknownWords: CreateUnknownWordDTO[];
 };
-
-export type StoryDB = Database["public"]["Tables"]["story"]["Row"];
 
 export type Lemma = {
   lemma: string;
   article: string | null;
   sentence: string;
+};
+
+export type LemmaWithTranslation = {
+  lemma: string;
+  translation: string;
+  exampleSentence: string;
+  exampleSentenceTranslation: string;
 };

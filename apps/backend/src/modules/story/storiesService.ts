@@ -3,12 +3,13 @@ import { VocabularyService } from "../vocabulary/vocabularyService";
 import { Base64 } from "../../types/types";
 import { combineAudioFromBase64, generateSilence } from "./audio";
 import { LemmatizationService } from "./services/lemmatizationService";
-import { Story, StoryDB, Lemma } from "./story.types";
-import { UnknownWordDraft } from "../unknownWord/unknownWord.types";
+import { CreateStoryDTO, Lemma, LemmaWithTranslation } from "./story.types";
 import { TranslationService } from "./services/translationService";
 import { TextToSpeechService } from "./services/textToSpeechService";
 import { StoryAudioStorageService } from "./services/storyAudioStorageService";
 import { StoryGeneratorService } from "./services/storyGeneratorService";
+import { Story } from "@prisma/client";
+import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
 const vocabularyService = new VocabularyService();
 const storiesRepository = new StoriesRepository();
 const storyGeneratorService = new StoryGeneratorService();
@@ -16,10 +17,11 @@ const lemmatizationService = new LemmatizationService();
 const translationService = new TranslationService();
 const textToSpeechService = new TextToSpeechService();
 const storyAudioStorageService = new StoryAudioStorageService();
+
 export class StoriesService {
   public async generateFullStoryExperience(
     subject: string = ""
-  ): Promise<Story> {
+  ): Promise<CreateStoryDTO> {
     const words = await vocabularyService.getWords();
     const targetLanguageWords = words.map((word) => word.word);
     const story = await storyGeneratorService.generateStory(
@@ -55,10 +57,10 @@ export class StoriesService {
     );
     const audioUrl = await storyAudioStorageService.saveToStorage(audio);
     return {
-      story: cleanedStoryText,
-      translation: fullTranslation,
-      unknownWords,
+      storyText: cleanedStoryText,
+      translationText: fullTranslation,
       audioUrl,
+      unknownWords,
     };
   }
 
@@ -75,28 +77,24 @@ export class StoriesService {
   }
 
   private convertUnknownLemmasToWords(
-    lemmas: {
-      lemma: string;
-      translation: string;
-      example_sentence: string;
-      translation_example_sentence: string;
-    }[],
+    lemmasWithTranslation: LemmaWithTranslation[],
     lemmasFromStory: Lemma[]
-  ): UnknownWordDraft[] {
-    return lemmas.map((lemma) => ({
+  ): CreateUnknownWordDTO[] {
+    return lemmasWithTranslation.map((lemma) => ({
       word: lemma.lemma,
       translation: lemma.translation,
       article:
         lemmasFromStory.find((word) => word.lemma === lemma.lemma)?.article ??
         null,
-      example_sentence: lemma.example_sentence,
-      translation_example_sentence: lemma.translation_example_sentence,
+      exampleSentence: lemma.exampleSentence,
+      exampleSentenceTranslation: lemma.exampleSentenceTranslation,
+      storyId: null,
     }));
   }
 
   private async createAudioForStory(
     translationChunks: { chunk: string; translatedChunk: string }[],
-    newWords: UnknownWordDraft[]
+    newWords: CreateUnknownWordDTO[]
   ): Promise<Base64> {
     const longSilenceBase64 = await generateSilence(2);
     const shortSilenceBase64 = await generateSilence(1);
@@ -138,10 +136,10 @@ export class StoriesService {
         longSilenceBase64,
         textToSpeechService.textToSpeech(word.translation, false),
         shortSilenceBase64,
-        textToSpeechService.textToSpeech(word.example_sentence, true),
+        textToSpeechService.textToSpeech(word.exampleSentence, true),
         longSilenceBase64,
         textToSpeechService.textToSpeech(
-          word.translation_example_sentence,
+          word.exampleSentenceTranslation,
           false
         ),
         shortSilenceBase64,
@@ -159,23 +157,11 @@ export class StoriesService {
     return combinedAudioBase64;
   }
 
-  public async saveStoryToDB(story: Story): Promise<StoryDB> {
-    const response = await storiesRepository.saveStoryToDB(story);
-    if (response.error) {
-      throw new Error("Error saving story to database");
-    }
-    if (!response.data) {
-      throw new Error("No story returned from database");
-    }
-    return response.data;
+  public async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
+    return await storiesRepository.saveStoryToDB(story);
   }
 
-  public async getAllStories(): Promise<StoryDB[]> {
-    const response = await storiesRepository.getAllStories();
-    if (response.error) {
-      console.error(response.error);
-      throw new Error("Error getting all stories");
-    }
-    return response.data ?? [];
+  public async getAllStories(): Promise<Story[]> {
+    return await storiesRepository.getAllStories();
   }
 }

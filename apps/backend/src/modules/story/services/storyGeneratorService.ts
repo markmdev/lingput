@@ -31,7 +31,7 @@ export class StoryGeneratorService {
                 Create a story that is engaging and interesting to read.
                 Here is a subject of the story:
                 ${subject}
-                Make it 5 sentences long.
+                Make it 2 sentences long.
                 `,
         },
         {
