@@ -29,12 +29,10 @@ model UnknownWord {
 }
 
 model UserVocabulary {
-  id                         Int     @id @default(autoincrement())
-  word                       String
-  translation                String
-  article                    String?
-  exampleSentence            String?
-  exampleSentenceTranslation String?
+  id          Int     @id @default(autoincrement())
+  word        String
+  translation String
+  article     String?
 }
 
 enum WordStatus {

@@ -1,28 +1,34 @@
-import { NewVocabulary, Vocabulary } from "./vocabulary.types";
-import client from "../../services/supabase";
-import { DBResponse } from "../../types/repositories";
+import { PrismaClient, UserVocabulary } from "@prisma/client";
+import { UserVocabularyDTO } from "./vocabulary.types";
+
+const prisma = new PrismaClient();
 
 export class VocabularyRepository {
-  async saveWordToDB(word: NewVocabulary): DBResponse<null> {
-    const { error } = await client.from("vocabulary").insert(word);
+  async saveWordToDB(word: UserVocabularyDTO): Promise<UserVocabulary> {
+    const newWord = await prisma.userVocabulary.create({
+      data: word,
+    });
 
-    return { data: null, error };
+    return newWord;
   }
 
-  async saveManyWordsToDB(words: NewVocabulary[]): DBResponse<null> {
-    const { error } = await client.from("vocabulary").insert(words);
+  async saveManyWordsToDB(words: UserVocabularyDTO[]): Promise<UserVocabulary[]> {
+    const newWords = await prisma.userVocabulary.createManyAndReturn({
+      data: words,
+    });
 
-    return { data: null, error };
+    return newWords;
   }
 
-  async getAllWordsFromDB(): DBResponse<Vocabulary[]> {
-    const { data, error } = await client.from("vocabulary").select();
-
-    return { data, error };
+  async getAllWordsFromDB(): Promise<UserVocabulary[]> {
+    return prisma.userVocabulary.findMany();
   }
 
-  async deleteWord(wordId: number): DBResponse<Vocabulary[]> {
-    const { data, error } = await client.from("vocabulary").delete().eq("id", wordId).select();
-    return { data, error };
+  async deleteWord(wordId: number): Promise<UserVocabulary> {
+    return prisma.userVocabulary.delete({
+      where: {
+        id: wordId,
+      },
+    });
   }
 }

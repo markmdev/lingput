@@ -1,18 +1,15 @@
 import express from "express";
 const router = express.Router();
-import {
-  deleteWordController,
-  getAllWordsController,
-  saveManyWordsController,
-  saveNewWordController,
-} from "./vocabularyController";
+import { VocabularyController } from "./vocabularyController";
 
-router.get("/words", getAllWordsController);
+const vocabularyController = new VocabularyController();
 
-router.post("/words", saveNewWordController);
+router.get("/words", vocabularyController.getAllWordsController);
 
-router.post("/words/list", saveManyWordsController);
+router.post("/words", vocabularyController.saveNewWordController);
 
-router.delete("/words/:id", deleteWordController);
+router.post("/words/list", vocabularyController.saveManyWordsController);
+
+router.delete("/words/:id", vocabularyController.deleteWordController);
 
 export default router;

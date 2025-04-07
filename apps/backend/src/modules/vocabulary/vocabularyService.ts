@@ -1,39 +1,28 @@
-import { PostgrestError } from "@supabase/supabase-js";
-import { NewVocabulary, Vocabulary } from "./vocabulary.types";
+import { UserVocabularyDTO } from "./vocabulary.types";
 import { VocabularyRepository } from "./vocabularyRepository";
+import { UserVocabulary } from "@prisma/client";
 
 const vocabularyRepository = new VocabularyRepository();
 
 export class VocabularyService {
-  async getWords(): Promise<Vocabulary[]> {
-    const { data, error } = await vocabularyRepository.getAllWordsFromDB();
+  async getWords(): Promise<UserVocabularyDTO[]> {
+    const words = await vocabularyRepository.getAllWordsFromDB();
 
-    if (error) {
-      throw new Error(error.message);
-    } else if (!data) {
-      throw new Error("Empty data from DB");
-    } else {
-      return data;
-    }
+    return words;
   }
 
-  async saveNewWord(word: NewVocabulary): Promise<PostgrestError | null> {
-    const { error } = await vocabularyRepository.saveWordToDB(word);
-    return error;
+  async saveNewWord(word: UserVocabularyDTO): Promise<UserVocabulary> {
+    const newWord = await vocabularyRepository.saveWordToDB(word);
+    return newWord;
   }
 
-  async saveManyWords(words: NewVocabulary[]): Promise<PostgrestError | null> {
-    const { error } = await vocabularyRepository.saveManyWordsToDB(words);
-    return error;
+  async saveManyWords(words: UserVocabularyDTO[]): Promise<UserVocabulary[]> {
+    const newWords = await vocabularyRepository.saveManyWordsToDB(words);
+    return newWords;
   }
 
-  async deleteWord(wordId: number): Promise<void> {
-    const { data, error } = await vocabularyRepository.deleteWord(wordId);
-    if (error) {
-      throw new Error(error.message);
-    }
-    if (!data || data.length === 0) {
-      throw new Error(`Word with id ${wordId} not found`);
-    }
+  async deleteWord(wordId: number): Promise<UserVocabulary> {
+    const deletedWord = await vocabularyRepository.deleteWord(wordId);
+    return deletedWord;
   }
 }
