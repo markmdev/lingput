@@ -13,13 +13,3 @@ export type CreateUnknownWordWithStoryIdDTO = Omit<
   CreateUnknownWordDTO,
   "storyId"
 > & { storyId: number };
-
-export function isUnknownWordDB(word: any): word is CreateUnknownWordDTO {
-  return (
-    typeof word === "object" &&
-    typeof word.id === "number" &&
-    typeof word.word === "string" &&
-    typeof word.times_seen === "number" &&
-    typeof word.story_id === "number"
-  );
-}

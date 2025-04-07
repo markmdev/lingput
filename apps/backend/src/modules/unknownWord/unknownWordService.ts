@@ -1,7 +1,6 @@
 import {
   CreateUnknownWordDTO,
   CreateUnknownWordWithStoryIdDTO,
-  isUnknownWordDB,
 } from "./unknownWord.types";
 import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
