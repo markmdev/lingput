@@ -60,7 +60,7 @@ export class LemmatizationService {
                     exampleSentence: { type: "string" },
                     exampleSentenceTranslation: { type: "string" },
                   },
-                  required: ["lemma", "translation", "exampleSentence", "translation_example_sentence"],
+                  required: ["lemma", "translation", "exampleSentence", "exampleSentenceTranslation"],
                   additionalProperties: false,
                 },
               },
