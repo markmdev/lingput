@@ -30,19 +30,17 @@ export class StoriesService {
     );
 
     const cleanedStoryText = story.replace(/\n/g, "");
-    const lemmatizedWordsFromStory = await lemmatizationService.lemmatize(
-      cleanedStoryText
-    );
-    const unknownLemmasFromStory = this.extractUnknownLemmasFromStory(
-      lemmatizedWordsFromStory,
+    const storyLemmas = await lemmatizationService.lemmatize(cleanedStoryText);
+    const unknownLemmas = this.filterUnknownLemmas(
+      storyLemmas,
       targetLanguageWords
     );
     const translatedUnknownLemmas = await lemmatizationService.translateLemmas(
-      unknownLemmasFromStory
+      unknownLemmas
     );
-    const unknownWords = this.convertUnknownLemmasToWords(
+    const unknownWords = this.mapUnknownLemmasToCreateUnknownWordDTO(
       translatedUnknownLemmas,
-      unknownLemmasFromStory
+      unknownLemmas
     );
 
     const translationChunks = await translationService.translateChunks(
@@ -64,11 +62,11 @@ export class StoriesService {
     };
   }
 
-  private extractUnknownLemmasFromStory(
-    lemmas: Lemma[],
+  private filterUnknownLemmas(
+    storyLemmas: Lemma[],
     knownWords: string[]
   ): Lemma[] {
-    return lemmas.filter(
+    return storyLemmas.filter(
       (lemma: Lemma) =>
         !knownWords.some(
           (targetWord) => targetWord.toLowerCase() === lemma.lemma.toLowerCase()
@@ -76,15 +74,15 @@ export class StoriesService {
     );
   }
 
-  private convertUnknownLemmasToWords(
-    lemmasWithTranslation: LemmaWithTranslation[],
-    lemmasFromStory: Lemma[]
+  private mapUnknownLemmasToCreateUnknownWordDTO(
+    translatedUnknownLemmas: LemmaWithTranslation[],
+    originalLemmas: Lemma[]
   ): CreateUnknownWordDTO[] {
-    return lemmasWithTranslation.map((lemma) => ({
+    return translatedUnknownLemmas.map((lemma) => ({
       word: lemma.lemma,
       translation: lemma.translation,
       article:
-        lemmasFromStory.find((word) => word.lemma === lemma.lemma)?.article ??
+        originalLemmas.find((word) => word.lemma === lemma.lemma)?.article ??
         null,
       exampleSentence: lemma.exampleSentence,
       exampleSentenceTranslation: lemma.exampleSentenceTranslation,
