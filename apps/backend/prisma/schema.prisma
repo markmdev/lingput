@@ -24,8 +24,7 @@ model UnknownWord {
   exampleSentenceTranslation String
   timesSeen                  Int        @default(1)
   status                     WordStatus @default(learning)
-  story                      Story      @relation(fields: [storyId], references: [id], onDelete: Cascade)
-  storyId                    Int
+  stories                    Story[]
 }
 
 model UserVocabulary {

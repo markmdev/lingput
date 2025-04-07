@@ -1,4 +1,4 @@
-import { CreateUnknownWordDTO, CreateUnknownWordWithStoryIdDTO } from "./unknownWord.types";
+import { CreateUnknownWordDTO } from "./unknownWord.types";
 import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
 
@@ -9,9 +9,9 @@ export class UnknownWordService {
     const existingWords = await unknownWordRepository.getUnknownWords();
     const existingWordsMap = this.createWordsMap(existingWords);
 
-    const { wordsToSave, wordsToUpdate } = this.partitionWords(unknownWords, existingWordsMap, storyId);
+    const { wordsToSave, wordsToUpdate } = this.partitionWords(unknownWords, existingWordsMap);
 
-    const updatedWords = await this.updateExistingWords(wordsToUpdate);
+    const updatedWords = await this.updateExistingWords(wordsToUpdate, storyId);
     const savedWords = await unknownWordRepository.saveUnknownWords(wordsToSave);
 
     return [...updatedWords, ...savedWords];
@@ -23,13 +23,12 @@ export class UnknownWordService {
 
   private partitionWords(
     unknownWords: CreateUnknownWordDTO[],
-    existingWordsMap: Map<string, UnknownWord>,
-    storyId: number
+    existingWordsMap: Map<string, UnknownWord>
   ): {
-    wordsToSave: CreateUnknownWordWithStoryIdDTO[];
+    wordsToSave: CreateUnknownWordDTO[];
     wordsToUpdate: UnknownWord[];
   } {
-    const wordsToSave: CreateUnknownWordWithStoryIdDTO[] = [];
+    const wordsToSave: CreateUnknownWordDTO[] = [];
     const wordsToUpdate: UnknownWord[] = [];
 
     for (const word of unknownWords) {
@@ -40,15 +39,17 @@ export class UnknownWordService {
           timesSeen: existingWord.timesSeen + 1,
         });
       } else {
-        wordsToSave.push({ ...word, storyId });
+        wordsToSave.push(word);
       }
     }
 
     return { wordsToSave, wordsToUpdate };
   }
 
-  private async updateExistingWords(wordsToUpdate: UnknownWord[]): Promise<UnknownWord[]> {
-    const tasks = wordsToUpdate.map((word) => unknownWordRepository.updateTimesSeen(word.id, word.timesSeen));
+  private async updateExistingWords(wordsToUpdate: UnknownWord[], storyId: number): Promise<UnknownWord[]> {
+    const tasks = wordsToUpdate.map((word) =>
+      unknownWordRepository.updateTimesSeenAndConnectStory(word.id, word.timesSeen, storyId)
+    );
 
     return await Promise.all(tasks);
   }

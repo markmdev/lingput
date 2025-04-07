@@ -1,7 +1,7 @@
 import client from "../../services/supabase";
 import { DBResponse, StorageResponse } from "../../types/repositories";
 import { Base64 } from "../../types/types";
-import { CreateStoryDTO } from "./story.types";
+import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
 import { Prisma, PrismaClient, Story } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -56,5 +56,20 @@ export class StoriesRepository {
       },
     });
     return story;
+  }
+
+  async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {
+    const response = await prisma.story.update({
+      where: { id: storyId },
+      data: {
+        unknownWords: {
+          connect: wordIds,
+        },
+      },
+      include: {
+        unknownWords: true,
+      },
+    });
+    return response;
   }
 }

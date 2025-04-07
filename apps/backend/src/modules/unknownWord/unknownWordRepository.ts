@@ -1,10 +1,10 @@
-import { CreateUnknownWordWithStoryIdDTO } from "./unknownWord.types";
+import { CreateUnknownWordDTO } from "./unknownWord.types";
 import { PrismaClient, UnknownWord } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export class UnknownWordRepository {
-  async saveUnknownWords(unknownWords: CreateUnknownWordWithStoryIdDTO[]): Promise<UnknownWord[]> {
+  async saveUnknownWords(unknownWords: CreateUnknownWordDTO[]): Promise<UnknownWord[]> {
     const response = await prisma.unknownWord.createManyAndReturn({
       data: unknownWords,
     });
@@ -40,13 +40,16 @@ export class UnknownWordRepository {
     return response;
   }
 
-  async updateTimesSeen(wordId: number, timesSeen: number): Promise<UnknownWord> {
+  async updateTimesSeenAndConnectStory(wordId: number, timesSeen: number, storyId: number): Promise<UnknownWord> {
     const response = await prisma.unknownWord.update({
       where: {
         id: wordId,
       },
       data: {
         timesSeen,
+        stories: {
+          connect: { id: storyId },
+        },
       },
     });
 

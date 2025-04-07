@@ -1,3 +1,4 @@
+import { Story, UnknownWord } from "@prisma/client";
 import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
 
 export type CreateStoryDTO = {
@@ -19,3 +20,5 @@ export type LemmaWithTranslation = {
   exampleSentence: string;
   exampleSentenceTranslation: string;
 };
+
+export type StoryWithUnknownWords = Story & { unknownWords: UnknownWord[] };

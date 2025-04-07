@@ -3,7 +3,7 @@ import { VocabularyService } from "../vocabulary/vocabularyService";
 import { Base64 } from "../../types/types";
 import { combineAudioFromBase64, generateSilence } from "./audio";
 import { LemmatizationService } from "./services/lemmatizationService";
-import { CreateStoryDTO, Lemma, LemmaWithTranslation } from "./story.types";
+import { CreateStoryDTO, Lemma, LemmaWithTranslation, StoryWithUnknownWords } from "./story.types";
 import { TranslationService } from "./services/translationService";
 import { TextToSpeechService } from "./services/textToSpeechService";
 import { StoryAudioStorageService } from "./services/storyAudioStorageService";
@@ -58,7 +58,6 @@ export class StoriesService {
       article: originalLemmas.find((word) => word.lemma === lemma.lemma)?.article ?? null,
       exampleSentence: lemma.exampleSentence,
       exampleSentenceTranslation: lemma.exampleSentenceTranslation,
-      storyId: null,
     }));
   }
 
@@ -126,5 +125,9 @@ export class StoriesService {
 
   public async getAllStories(): Promise<Story[]> {
     return await storiesRepository.getAllStories();
+  }
+
+  async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {
+    return await storiesRepository.connectUnknownWords(storyId, wordIds);
   }
 }
