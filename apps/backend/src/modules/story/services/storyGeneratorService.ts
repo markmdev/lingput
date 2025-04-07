@@ -1,10 +1,7 @@
 import openai from "../../../services/openaiClient";
 
 export class StoryGeneratorService {
-  async generateStory(
-    targetLanguageWords: string[],
-    subject: string
-  ): Promise<string> {
+  async generateStory(targetLanguageWords: string[], subject: string): Promise<string> {
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [

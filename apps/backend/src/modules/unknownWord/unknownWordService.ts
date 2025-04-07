@@ -1,30 +1,18 @@
-import {
-  CreateUnknownWordDTO,
-  CreateUnknownWordWithStoryIdDTO,
-} from "./unknownWord.types";
+import { CreateUnknownWordDTO, CreateUnknownWordWithStoryIdDTO } from "./unknownWord.types";
 import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
 
 const unknownWordRepository = new UnknownWordRepository();
 
 export class UnknownWordService {
-  async saveUnknownWords(
-    unknownWords: CreateUnknownWordDTO[],
-    storyId: number
-  ): Promise<UnknownWord[]> {
+  async saveUnknownWords(unknownWords: CreateUnknownWordDTO[], storyId: number): Promise<UnknownWord[]> {
     const existingWords = await unknownWordRepository.getUnknownWords();
     const existingWordsMap = this.createWordsMap(existingWords);
 
-    const { wordsToSave, wordsToUpdate } = this.partitionWords(
-      unknownWords,
-      existingWordsMap,
-      storyId
-    );
+    const { wordsToSave, wordsToUpdate } = this.partitionWords(unknownWords, existingWordsMap, storyId);
 
     const updatedWords = await this.updateExistingWords(wordsToUpdate);
-    const savedWords = await unknownWordRepository.saveUnknownWords(
-      wordsToSave
-    );
+    const savedWords = await unknownWordRepository.saveUnknownWords(wordsToSave);
 
     return [...updatedWords, ...savedWords];
   }
@@ -59,12 +47,8 @@ export class UnknownWordService {
     return { wordsToSave, wordsToUpdate };
   }
 
-  private async updateExistingWords(
-    wordsToUpdate: UnknownWord[]
-  ): Promise<UnknownWord[]> {
-    const tasks = wordsToUpdate.map((word) =>
-      unknownWordRepository.updateTimesSeen(word.id, word.timesSeen)
-    );
+  private async updateExistingWords(wordsToUpdate: UnknownWord[]): Promise<UnknownWord[]> {
+    const tasks = wordsToUpdate.map((word) => unknownWordRepository.updateTimesSeen(word.id, word.timesSeen));
 
     return await Promise.all(tasks);
   }

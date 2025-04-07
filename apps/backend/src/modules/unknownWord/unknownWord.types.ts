@@ -9,7 +9,4 @@ export type CreateUnknownWordDTO = {
   status?: "learning";
 };
 
-export type CreateUnknownWordWithStoryIdDTO = Omit<
-  CreateUnknownWordDTO,
-  "storyId"
-> & { storyId: number };
+export type CreateUnknownWordWithStoryIdDTO = Omit<CreateUnknownWordDTO, "storyId"> & { storyId: number };

@@ -4,9 +4,7 @@ import { PrismaClient, UnknownWord } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export class UnknownWordRepository {
-  async saveUnknownWords(
-    unknownWords: CreateUnknownWordWithStoryIdDTO[]
-  ): Promise<UnknownWord[]> {
+  async saveUnknownWords(unknownWords: CreateUnknownWordWithStoryIdDTO[]): Promise<UnknownWord[]> {
     const response = await prisma.unknownWord.createManyAndReturn({
       data: unknownWords,
     });
@@ -42,10 +40,7 @@ export class UnknownWordRepository {
     return response;
   }
 
-  async updateTimesSeen(
-    wordId: number,
-    timesSeen: number
-  ): Promise<UnknownWord> {
+  async updateTimesSeen(wordId: number, timesSeen: number): Promise<UnknownWord> {
     const response = await prisma.unknownWord.update({
       where: {
         id: wordId,

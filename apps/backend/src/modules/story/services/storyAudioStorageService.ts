@@ -18,16 +18,12 @@ export class StoryAudioStorageService {
     if (!story) {
       throw new Error("Story not found");
     }
-    const response = await storiesRepository.getSignedStoryAudioUrl(
-      story.audioUrl
-    );
+    const response = await storiesRepository.getSignedStoryAudioUrl(story.audioUrl);
     if (response.error) {
       throw new Error("Error getting signed story audio url");
     }
     if (!response.data) {
-      throw new Error(
-        "No signed story audio url returned from storage service"
-      );
+      throw new Error("No signed story audio url returned from storage service");
     }
     return response.data.signedUrl;
   }

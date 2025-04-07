@@ -12,9 +12,7 @@ import { spawn } from "child_process";
  * @param base64AudioFiles - Array of base64 strings representing audio files.
  * @returns A promise that resolves to the base64 encoded combined audio.
  */
-export async function combineAudioFromBase64(
-  base64AudioFiles: Base64[][]
-): Promise<Base64> {
+export async function combineAudioFromBase64(base64AudioFiles: Base64[][]): Promise<Base64> {
   // Use the system temporary directory to store intermediate files.
   const tmpDir = os.tmpdir();
   const tempFiles: string[] = [];
@@ -39,14 +37,10 @@ export async function combineAudioFromBase64(
 
       // Create the concat filter string for the inputs.
       const filterString =
-        tempFiles.map((_, index) => `[${index}:a]`).join("") +
-        `concat=n=${tempFiles.length}:v=0:a=1[outa]`;
+        tempFiles.map((_, index) => `[${index}:a]`).join("") + `concat=n=${tempFiles.length}:v=0:a=1[outa]`;
 
       // Configure ffmpeg to use the concat filter and set the format.
-      command
-        .complexFilter(filterString)
-        .outputOptions("-map", "[outa]")
-        .format("mp3");
+      command.complexFilter(filterString).outputOptions("-map", "[outa]").format("mp3");
 
       // Pipe the output to a stream instead of a file.
       const outputStream = command.pipe();
@@ -81,9 +75,7 @@ export async function combineAudioFromBase64(
   }
 }
 
-export function generateSilence(
-  durationSeconds: number = 0.5
-): Promise<Base64> {
+export function generateSilence(durationSeconds: number = 0.5): Promise<Base64> {
   return new Promise((resolve, reject) => {
     const args = [
       "-nostdin", // Prevent ffmpeg from reading from stdin

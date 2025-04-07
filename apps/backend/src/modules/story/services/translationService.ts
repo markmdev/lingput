@@ -1,9 +1,7 @@
 import openai from "../../../services/openaiClient";
 
 export class TranslationService {
-  async translateChunks(
-    story: string
-  ): Promise<{ chunk: string; translatedChunk: string }[]> {
+  async translateChunks(story: string): Promise<{ chunk: string; translatedChunk: string }[]> {
     const response = await openai.responses.create({
       model: "gpt-4o",
       input: [

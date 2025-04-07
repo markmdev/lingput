@@ -11,10 +11,7 @@ export class StoriesController {
     const { subject } = req.body;
     const story = await storiesService.generateFullStoryExperience(subject);
     const savedStory = await storiesService.saveStoryToDB(story);
-    const unknownWords = await unknownWordService.saveUnknownWords(
-      story.unknownWords,
-      savedStory.id
-    );
+    const unknownWords = await unknownWordService.saveUnknownWords(story.unknownWords, savedStory.id);
     res.status(200).json({ story: savedStory, unknownWords });
   }
 
@@ -25,9 +22,7 @@ export class StoriesController {
 
   async getStorySignedAudioUrl(req: Request, res: Response) {
     const { storyId } = req.params;
-    const signedUrl = await storyAudioStorageService.getStoryAudioUrl(
-      parseInt(storyId)
-    );
+    const signedUrl = await storyAudioStorageService.getStoryAudioUrl(parseInt(storyId));
     res.status(200).json({ signedUrl });
   }
 }

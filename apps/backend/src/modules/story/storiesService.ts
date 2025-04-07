@@ -19,40 +19,20 @@ const textToSpeechService = new TextToSpeechService();
 const storyAudioStorageService = new StoryAudioStorageService();
 
 export class StoriesService {
-  public async generateFullStoryExperience(
-    subject: string = ""
-  ): Promise<CreateStoryDTO> {
+  public async generateFullStoryExperience(subject: string = ""): Promise<CreateStoryDTO> {
     const words = await vocabularyService.getWords();
     const targetLanguageWords = words.map((word) => word.word);
-    const story = await storyGeneratorService.generateStory(
-      targetLanguageWords,
-      subject
-    );
+    const story = await storyGeneratorService.generateStory(targetLanguageWords, subject);
 
     const cleanedStoryText = story.replace(/\n/g, "");
     const storyLemmas = await lemmatizationService.lemmatize(cleanedStoryText);
-    const unknownLemmas = this.filterUnknownLemmas(
-      storyLemmas,
-      targetLanguageWords
-    );
-    const translatedUnknownLemmas = await lemmatizationService.translateLemmas(
-      unknownLemmas
-    );
-    const unknownWords = this.mapUnknownLemmasToCreateUnknownWordDTO(
-      translatedUnknownLemmas,
-      unknownLemmas
-    );
+    const unknownLemmas = this.filterUnknownLemmas(storyLemmas, targetLanguageWords);
+    const translatedUnknownLemmas = await lemmatizationService.translateLemmas(unknownLemmas);
+    const unknownWords = this.mapUnknownLemmasToCreateUnknownWordDTO(translatedUnknownLemmas, unknownLemmas);
 
-    const translationChunks = await translationService.translateChunks(
-      cleanedStoryText
-    );
-    const fullTranslation = translationChunks
-      .map((chunk) => chunk.translatedChunk)
-      .join(" ");
-    const audio = await this.createAudioForStory(
-      translationChunks,
-      unknownWords
-    );
+    const translationChunks = await translationService.translateChunks(cleanedStoryText);
+    const fullTranslation = translationChunks.map((chunk) => chunk.translatedChunk).join(" ");
+    const audio = await this.createAudioForStory(translationChunks, unknownWords);
     const audioUrl = await storyAudioStorageService.saveToStorage(audio);
     return {
       storyText: cleanedStoryText,
@@ -62,15 +42,9 @@ export class StoriesService {
     };
   }
 
-  private filterUnknownLemmas(
-    storyLemmas: Lemma[],
-    knownWords: string[]
-  ): Lemma[] {
+  private filterUnknownLemmas(storyLemmas: Lemma[], knownWords: string[]): Lemma[] {
     return storyLemmas.filter(
-      (lemma: Lemma) =>
-        !knownWords.some(
-          (targetWord) => targetWord.toLowerCase() === lemma.lemma.toLowerCase()
-        )
+      (lemma: Lemma) => !knownWords.some((targetWord) => targetWord.toLowerCase() === lemma.lemma.toLowerCase())
     );
   }
 
@@ -81,9 +55,7 @@ export class StoriesService {
     return translatedUnknownLemmas.map((lemma) => ({
       word: lemma.lemma,
       translation: lemma.translation,
-      article:
-        originalLemmas.find((word) => word.lemma === lemma.lemma)?.article ??
-        null,
+      article: originalLemmas.find((word) => word.lemma === lemma.lemma)?.article ?? null,
       exampleSentence: lemma.exampleSentence,
       exampleSentenceTranslation: lemma.exampleSentenceTranslation,
       storyId: null,
@@ -110,11 +82,10 @@ export class StoriesService {
       false
     );
 
-    const translationTransitionAudioBase64 =
-      await textToSpeechService.textToSpeech(
-        "Now listen to the new vocabulary and try to remember it.",
-        false
-      );
+    const translationTransitionAudioBase64 = await textToSpeechService.textToSpeech(
+      "Now listen to the new vocabulary and try to remember it.",
+      false
+    );
 
     const translationAudioBase64 = await Promise.all(
       translationChunks.flatMap((chunk) => [
@@ -127,19 +98,13 @@ export class StoriesService {
 
     const newWordsAudioBase64 = await Promise.all(
       newWords.flatMap((word) => [
-        textToSpeechService.textToSpeech(
-          `${word.article ?? ""} ${word.word}`,
-          true
-        ),
+        textToSpeechService.textToSpeech(`${word.article ?? ""} ${word.word}`, true),
         longSilenceBase64,
         textToSpeechService.textToSpeech(word.translation, false),
         shortSilenceBase64,
         textToSpeechService.textToSpeech(word.exampleSentence, true),
         longSilenceBase64,
-        textToSpeechService.textToSpeech(
-          word.exampleSentenceTranslation,
-          false
-        ),
+        textToSpeechService.textToSpeech(word.exampleSentenceTranslation, false),
         shortSilenceBase64,
       ])
     );

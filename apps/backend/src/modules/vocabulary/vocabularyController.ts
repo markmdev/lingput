@@ -36,9 +36,7 @@ async function saveManyWordsController(req: Request, res: Response) {
     return;
   }
 
-  const allWordsValid = words.every(
-    (wordObj) => wordObj.word && wordObj.translation
-  );
+  const allWordsValid = words.every((wordObj) => wordObj.word && wordObj.translation);
   if (!allWordsValid) {
     res.status(400).json({
       error: "Each word must have a 'word' and 'translation' property.",
@@ -65,9 +63,4 @@ async function deleteWordController(req: Request, res: Response) {
   }
 }
 
-export {
-  getAllWordsController,
-  saveNewWordController,
-  saveManyWordsController,
-  deleteWordController,
-};
+export { getAllWordsController, saveNewWordController, saveManyWordsController, deleteWordController };

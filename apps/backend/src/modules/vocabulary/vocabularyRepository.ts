@@ -22,11 +22,7 @@ export class VocabularyRepository {
   }
 
   async deleteWord(wordId: number): DBResponse<Vocabulary[]> {
-    const { data, error } = await client
-      .from("vocabulary")
-      .delete()
-      .eq("id", wordId)
-      .select();
+    const { data, error } = await client.from("vocabulary").delete().eq("id", wordId).select();
     return { data, error };
   }
 }
