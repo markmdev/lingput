@@ -1,30 +1,14 @@
-import { Base64 } from "../../../types/types";
+import { Base64 } from "@/types/types";
 import { StoriesRepository } from "../storiesRepository";
 const storiesRepository = new StoriesRepository();
 export class StoryAudioStorageService {
   public async saveToStorage(audio: Base64): Promise<string> {
-    const response = await storiesRepository.saveStoryAudioToStorage(audio);
-    if (response.error) {
-      throw new Error("Error saving story audio to storage");
-    }
-    if (!response.data) {
-      throw new Error("No file name returned from storage service");
-    }
-    return response.data.path;
+    return await storiesRepository.saveStoryAudioToStorage(audio);
   }
 
   public async getStoryAudioUrl(storyId: number): Promise<string> {
     const story = await storiesRepository.getStoryById(storyId);
-    if (!story) {
-      throw new Error("Story not found");
-    }
-    const response = await storiesRepository.getSignedStoryAudioUrl(story.audioUrl);
-    if (response.error) {
-      throw new Error("Error getting signed story audio url");
-    }
-    if (!response.data) {
-      throw new Error("No signed story audio url returned from storage service");
-    }
-    return response.data.signedUrl;
+
+    return await storiesRepository.getSignedStoryAudioUrl(story.audioUrl, storyId);
   }
 }

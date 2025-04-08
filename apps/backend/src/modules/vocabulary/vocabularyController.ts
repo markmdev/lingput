@@ -5,27 +5,14 @@ const vocabularyService = new VocabularyService();
 
 export class VocabularyController {
   async getAllWordsController(req: Request, res: Response) {
-    try {
-      const words = await vocabularyService.getWords();
-      res.status(200).send(words);
-    } catch (error) {
-      res.status(500).json({ error: `Failed to get all words: ${error}` });
-    }
+    const words = await vocabularyService.getWords();
+    res.status(200).send(words);
   }
 
   async saveNewWordController(req: Request, res: Response) {
     const { word, translation, article } = req.body;
-    const error = await vocabularyService.saveNewWord({
-      word,
-      translation,
-      article,
-    });
-    if (error) {
-      console.error(error);
-      res.status(500).json({ error: `Failed to save new word: ${error}` });
-    } else {
-      res.status(201).send("Success");
-    }
+    const newWord = await vocabularyService.saveNewWord({ word, translation, article });
+    res.status(201).send(newWord);
   }
 
   async saveManyWordsController(req: Request, res: Response) {
@@ -45,22 +32,13 @@ export class VocabularyController {
       return;
     }
 
-    const error = await vocabularyService.saveManyWords(words);
-    if (error) {
-      res.status(500).json({ error: `Failed to save many words: ${error}` });
-    } else {
-      res.status(201).send("Success");
-    }
+    const savedWords = await vocabularyService.saveManyWords(words);
+    res.status(201).send(savedWords);
   }
 
   async deleteWordController(req: Request, res: Response) {
-    try {
-      const wordId = parseInt(req.params.id);
-      await vocabularyService.deleteWord(wordId);
-      res.status(204).send();
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: `Failed to delete a word: ${error}` });
-    }
+    const wordId = parseInt(req.params.id);
+    await vocabularyService.deleteWord(wordId);
+    res.status(204).send();
   }
 }

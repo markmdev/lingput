@@ -1,8 +1,10 @@
 import client from "../../services/supabase";
-import { DBResponse, StorageResponse } from "../../types/repositories";
 import { Base64 } from "../../types/types";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
-import { Prisma, PrismaClient, Story } from "@prisma/client";
+import { PrismaClient, Story } from "@prisma/client";
+import { StorageError } from "@/errors/StorageError";
+import { NotFoundError } from "@/errors/NotFoundError";
+import { PrismaError } from "@/errors/PrismaError";
 
 const prisma = new PrismaClient();
 
@@ -17,21 +19,27 @@ function base64ToArrayBuffer(base64: Base64) {
 
 export class StoriesRepository {
   async getAllStories(): Promise<Story[]> {
-    return prisma.story.findMany();
+    try {
+      return prisma.story.findMany();
+    } catch (error) {
+      throw new PrismaError("Can't get all stories", {}, error);
+    }
   }
 
   async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
     const { unknownWords, ...storyWithoutUnknownWords } = story;
-    const savedStory = await prisma.story.create({
-      data: storyWithoutUnknownWords,
-    });
-    return savedStory;
+    try {
+      const savedStory = await prisma.story.create({
+        data: storyWithoutUnknownWords,
+      });
+      return savedStory;
+    } catch (error) {
+      throw new PrismaError("Can't save story to db", { story }, error);
+    }
   }
 
   // save story audio to storage (.mp3)
-  async saveStoryAudioToStorage(
-    story: Base64
-  ): Promise<StorageResponse<{ id: string; path: string; fullPath: string }>> {
+  async saveStoryAudioToStorage(story: Base64): Promise<string> {
     const fileName = getRandomFileName("mp3");
     // story to ArrayBuffer
     const arrayBuffer = base64ToArrayBuffer(story);
@@ -39,37 +47,61 @@ export class StoriesRepository {
       contentType: "audio/mpeg",
     });
 
-    return { data, error };
+    if (error) {
+      throw new StorageError("Can't save story audio to storage");
+    }
+    if (!data) {
+      throw new StorageError("Story audio wasn't saved");
+    }
+
+    return data.path;
   }
 
-  async getSignedStoryAudioUrl(audioPath: string): Promise<StorageResponse<{ signedUrl: string }>> {
+  async getSignedStoryAudioUrl(audioPath: string, storyId: number): Promise<string> {
     const { data, error } = await client.storage.from("stories").createSignedUrl(audioPath, 60 * 60);
-    return { data, error };
+    if (error) {
+      throw new StorageError("Can't get story audio", { storyId, audioPath });
+    }
+    if (!data) {
+      throw new NotFoundError("Story audio", { storyId, audioPath });
+    }
+    return data.signedUrl;
   }
 
-  async getStoryById(storyId: number): Promise<Story | null> {
-    const story = await prisma.story.findFirst({
-      where: {
-        id: {
-          equals: storyId,
+  async getStoryById(storyId: number): Promise<Story> {
+    try {
+      const story = await prisma.story.findFirst({
+        where: {
+          id: {
+            equals: storyId,
+          },
         },
-      },
-    });
-    return story;
+      });
+      if (!story) {
+        throw new NotFoundError("Story", { storyId });
+      }
+      return story;
+    } catch (error) {
+      throw new PrismaError("Can't get story by id", { storyId }, error);
+    }
   }
 
   async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {
-    const response = await prisma.story.update({
-      where: { id: storyId },
-      data: {
-        unknownWords: {
-          connect: wordIds,
+    try {
+      const response = await prisma.story.update({
+        where: { id: storyId },
+        data: {
+          unknownWords: {
+            connect: wordIds,
+          },
         },
-      },
-      include: {
-        unknownWords: true,
-      },
-    });
-    return response;
+        include: {
+          unknownWords: true,
+        },
+      });
+      return response;
+    } catch (error) {
+      throw new PrismaError("Can't connect unknown words", { storyId, wordIds }, error);
+    }
   }
 }

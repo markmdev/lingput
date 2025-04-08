@@ -6,23 +6,18 @@ const vocabularyRepository = new VocabularyRepository();
 
 export class VocabularyService {
   async getWords(): Promise<UserVocabularyDTO[]> {
-    const words = await vocabularyRepository.getAllWordsFromDB();
-
-    return words;
+    return vocabularyRepository.getAllWordsFromDB();
   }
 
   async saveNewWord(word: UserVocabularyDTO): Promise<UserVocabulary> {
-    const newWord = await vocabularyRepository.saveWordToDB(word);
-    return newWord;
+    return vocabularyRepository.saveWordToDB(word);
   }
 
   async saveManyWords(words: UserVocabularyDTO[]): Promise<UserVocabulary[]> {
-    const newWords = await vocabularyRepository.saveManyWordsToDB(words);
-    return newWords;
+    return vocabularyRepository.saveManyWordsToDB(words);
   }
 
   async deleteWord(wordId: number): Promise<UserVocabulary> {
-    const deletedWord = await vocabularyRepository.deleteWord(wordId);
-    return deletedWord;
+    return vocabularyRepository.deleteWord(wordId);
   }
 }

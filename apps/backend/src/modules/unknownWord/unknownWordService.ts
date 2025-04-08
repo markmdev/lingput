@@ -55,14 +55,10 @@ export class UnknownWordService {
   }
 
   async markAsLearned(wordId: number) {
-    const response = await unknownWordRepository.markAsLearned(wordId);
-
-    return null;
+    await unknownWordRepository.markAsLearned(wordId);
   }
 
   async markAsLearning(wordId: number) {
-    const response = await unknownWordRepository.markAsLearning(wordId);
-
-    return null;
+    await unknownWordRepository.markAsLearning(wordId);
   }
 }

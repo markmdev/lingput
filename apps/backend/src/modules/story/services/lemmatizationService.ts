@@ -1,6 +1,12 @@
 import { Lemma, LemmaWithTranslation } from "../story.types";
 import axios from "axios";
-import openai from "../../../services/openaiClient";
+import openai from "@/services/openaiClient";
+import { OpenAIError } from "@/errors/OpenAIError";
+import { Response as OpenAIResponse } from "openai/resources/responses/responses";
+
+type OpenAILemmasResponse = {
+  lemmas: LemmaWithTranslation[];
+};
 
 export class LemmatizationService {
   async lemmatize(text: string): Promise<Lemma[]> {
@@ -11,12 +17,14 @@ export class LemmatizationService {
   }
 
   async translateLemmas(lemmas: Lemma[]): Promise<LemmaWithTranslation[]> {
-    const response = await openai.responses.create({
-      model: "gpt-4o",
-      input: [
-        {
-          role: "system",
-          content: `You are a helpful and context-aware translator. Your task is to translate the following lemmas (base word forms) into natural English, using the sentence as context.
+    let response: OpenAIResponse;
+    try {
+      response = await openai.responses.create({
+        model: "gpt-4o",
+        input: [
+          {
+            role: "system",
+            content: `You are a helpful and context-aware translator. Your task is to translate the following lemmas (base word forms) into natural English, using the sentence as context.
 
           For each lemma:
           - Translate **only the lemma**, not the sentence.
@@ -32,51 +40,70 @@ export class LemmatizationService {
           - Then provide the **English translation** of your example sentence.
           - The example sentence should be short, natural, and helpful for learners. Do not copy from the input sentence — generate a **new** one.
           `,
-        },
-        {
-          role: "user",
-          content: `Here are the lemmas: ${JSON.stringify(
-            lemmas.map((lemma) => ({
-              lemma: lemma.lemma,
-              sentence: lemma.sentence,
-            }))
-          )}`,
-        },
-      ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "translation",
-          schema: {
-            type: "object",
-            properties: {
-              lemmas: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    lemma: { type: "string" },
-                    translation: { type: "string" },
-                    exampleSentence: { type: "string" },
-                    exampleSentenceTranslation: { type: "string" },
+          },
+          {
+            role: "user",
+            content: `Here are the lemmas: ${JSON.stringify(
+              lemmas.map((lemma) => ({
+                lemma: lemma.lemma,
+                sentence: lemma.sentence,
+              }))
+            )}`,
+          },
+        ],
+        text: {
+          format: {
+            type: "json_schema",
+            name: "translation",
+            schema: {
+              type: "object",
+              properties: {
+                lemmas: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      lemma: { type: "string" },
+                      translation: { type: "string" },
+                      exampleSentence: { type: "string" },
+                      exampleSentenceTranslation: { type: "string" },
+                    },
+                    required: ["lemma", "translation", "exampleSentence", "exampleSentenceTranslation"],
+                    additionalProperties: false,
                   },
-                  required: ["lemma", "translation", "exampleSentence", "exampleSentenceTranslation"],
-                  additionalProperties: false,
                 },
               },
+              required: ["lemmas"],
+              additionalProperties: false,
             },
-            required: ["lemmas"],
-            additionalProperties: false,
           },
         },
-      },
-    });
-
-    const content = response.output_text;
-    if (!content) {
-      throw new Error("No content returned from translation service");
+      });
+    } catch (error) {
+      throw new OpenAIError("Can't translate lemmas", { lemmas }, error);
     }
 
-    return JSON.parse(content).lemmas;
+    const content = response.output_text;
+
+    if (!content) {
+      throw new OpenAIError("Can't translate lemmas", { lemmas });
+    }
+
+    const result = this.parseResponseContent(content);
+
+    return result.lemmas;
+  }
+
+  private parseResponseContent(content: string): OpenAILemmasResponse {
+    let result: OpenAILemmasResponse;
+    try {
+      result = JSON.parse(content) as OpenAILemmasResponse;
+    } catch (error) {
+      throw new OpenAIError("Invalid response format, try again", { content }, error);
+    }
+    if (!result.lemmas || !Array.isArray(result.lemmas)) {
+      throw new OpenAIError("Invalid response format, try again", { content, result });
+    }
+    return result;
   }
 }

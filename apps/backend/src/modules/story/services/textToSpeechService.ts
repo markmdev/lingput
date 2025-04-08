@@ -1,5 +1,5 @@
-import openai from "../../../services/openaiClient";
-import { Base64 } from "../../../types/types";
+import openai from "@/services/openaiClient";
+import { Base64 } from "@/types/types";
 
 export class TextToSpeechService {
   async textToSpeech(text: string, isTargetLanguage: boolean): Promise<Base64> {

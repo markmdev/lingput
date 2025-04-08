@@ -1,13 +1,17 @@
-import openai from "../../../services/openaiClient";
+import { OpenAIError } from "@/errors/OpenAIError";
+import openai from "@/services/openaiClient";
+import { ChatCompletion } from "openai/resources/chat/completions";
 
 export class StoryGeneratorService {
   async generateStory(targetLanguageWords: string[], subject: string): Promise<string> {
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: `
+    let response: ChatCompletion;
+    try {
+      response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `
                 You are given a list of German words that I've learned. I want to practice reading now. I want you to create a story in German. But this story should meet some requirements:
     
                 1. 98% of the words in the story should be the words from the list I provided. Other words should be new to me, but similar by level of difficulty. It means that from 20 words in the story, 19 should be from the list, and 1 should be new. This is very important.
@@ -30,17 +34,20 @@ export class StoryGeneratorService {
                 ${subject}
                 Make it 2 sentences long.
                 `,
-        },
-        {
-          role: "user",
-          content: `Here are the words: ${targetLanguageWords.join(", ")}`,
-        },
-      ],
-    });
+          },
+          {
+            role: "user",
+            content: `Here are the words: ${targetLanguageWords.join(", ")}`,
+          },
+        ],
+      });
+    } catch (error) {
+      throw new OpenAIError("Can't generate a story", { targetLanguageWords, subject }, error);
+    }
 
     const story = response.choices[0].message.content;
     if (!story) {
-      throw new Error("No story text returned");
+      throw new OpenAIError("Can't generate a story", { targetLanguageWords, subject });
     }
     return story;
   }
