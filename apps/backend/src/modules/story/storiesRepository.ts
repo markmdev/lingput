@@ -70,11 +70,9 @@ export class StoriesRepository {
 
   async getStoryById(storyId: number): Promise<Story> {
     try {
-      const story = await prisma.story.findFirst({
+      const story = await prisma.story.findUnique({
         where: {
-          id: {
-            equals: storyId,
-          },
+          id: storyId,
         },
       });
       if (!story) {
