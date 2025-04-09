@@ -1,3 +1,11 @@
+declare global {
+  namespace Express {
+    interface Request {
+      validatedData?: any;
+    }
+  }
+}
+
 import dotenv from "dotenv";
 dotenv.config();
 import express from "express";

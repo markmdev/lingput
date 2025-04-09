@@ -7,6 +7,7 @@ import {
   PrismaClientUnknownRequestError,
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
+import { BadRequestError } from "@/errors/BadRequestError";
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   console.log(err);
@@ -25,6 +26,10 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   ) {
     res.status(502).json({ error: "Database error" });
     return;
+  }
+
+  if (err instanceof BadRequestError) {
+    res.status(400).json({ errors: err.errors });
   }
 
   res.status(500).json({ error: "Unknown server error" });
