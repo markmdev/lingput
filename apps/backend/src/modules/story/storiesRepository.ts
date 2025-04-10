@@ -18,9 +18,13 @@ function base64ToArrayBuffer(base64: Base64) {
 }
 
 export class StoriesRepository {
-  async getAllStories(): Promise<Story[]> {
+  async getAllStories(userId: number): Promise<Story[]> {
     try {
-      return prisma.story.findMany();
+      return prisma.story.findMany({
+        where: {
+          userId,
+        },
+      });
     } catch (error) {
       throw new PrismaError("Can't get all stories", {}, error);
     }
@@ -69,19 +73,15 @@ export class StoriesRepository {
   }
 
   async getStoryById(storyId: number): Promise<Story> {
-    try {
-      const story = await prisma.story.findUnique({
-        where: {
-          id: storyId,
-        },
-      });
-      if (!story) {
-        throw new NotFoundError("Story", { storyId });
-      }
-      return story;
-    } catch (error) {
-      throw new PrismaError("Can't get story by id", { storyId }, error);
+    const story = await prisma.story.findUnique({
+      where: {
+        id: storyId,
+      },
+    });
+    if (!story) {
+      throw new NotFoundError("Story", { storyId });
     }
+    return story;
   }
 
   async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {

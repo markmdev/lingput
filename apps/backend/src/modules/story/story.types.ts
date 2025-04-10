@@ -6,6 +6,7 @@ export type CreateStoryDTO = {
   translationText: string;
   audioUrl: string;
   unknownWords: CreateUnknownWordDTO[];
+  userId: number;
 };
 
 export type Lemma = {

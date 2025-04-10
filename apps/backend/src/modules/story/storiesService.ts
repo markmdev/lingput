@@ -10,6 +10,7 @@ import { StoryAudioStorageService } from "./services/storyAudioStorageService";
 import { StoryGeneratorService } from "./services/storyGeneratorService";
 import { Story } from "@prisma/client";
 import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
+import { NotFoundError } from "@/errors/NotFoundError";
 const vocabularyService = new VocabularyService();
 const storiesRepository = new StoriesRepository();
 const storyGeneratorService = new StoryGeneratorService();
@@ -19,7 +20,7 @@ const textToSpeechService = new TextToSpeechService();
 const storyAudioStorageService = new StoryAudioStorageService();
 
 export class StoriesService {
-  public async generateFullStoryExperience(subject: string = ""): Promise<CreateStoryDTO> {
+  public async generateFullStoryExperience(userId: number, subject: string = ""): Promise<CreateStoryDTO> {
     const words = await vocabularyService.getWords();
     const targetLanguageWords = words.map((word) => word.word);
     const story = await storyGeneratorService.generateStory(targetLanguageWords, subject);
@@ -39,6 +40,7 @@ export class StoriesService {
       translationText: fullTranslation,
       audioUrl,
       unknownWords,
+      userId,
     };
   }
 
@@ -123,11 +125,18 @@ export class StoriesService {
     return await storiesRepository.saveStoryToDB(story);
   }
 
-  public async getAllStories(): Promise<Story[]> {
-    return await storiesRepository.getAllStories();
+  public async getAllStories(userId: number): Promise<Story[]> {
+    return await storiesRepository.getAllStories(userId);
   }
 
   async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {
     return await storiesRepository.connectUnknownWords(storyId, wordIds);
+  }
+
+  async getStoryById(storyId: number, userId: number): Promise<Story> {
+    const story = await storiesRepository.getStoryById(storyId);
+    if (!story) throw new NotFoundError("Story");
+    if (story.userId !== userId) throw new NotFoundError("Story");
+    return story;
   }
 }

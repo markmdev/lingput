@@ -12,8 +12,8 @@ const storyAudioStorageService = new StoryAudioStorageService();
 export class StoriesController {
   generateStory = async (req: Request, res: Response) => {
     const { subject } = validateData(storySubjectRequestSchema, req.body);
-
-    const story = await storiesService.generateFullStoryExperience(subject);
+    const user = req.user;
+    const story = await storiesService.generateFullStoryExperience(user.userId, subject);
     const savedStory = await storiesService.saveStoryToDB(story);
     const unknownWords = await unknownWordService.saveUnknownWords(story.unknownWords, savedStory.id);
     const unknownWordIds = this.extractUnknownWordIds(unknownWords);
@@ -23,14 +23,23 @@ export class StoriesController {
   };
 
   getAllStories = async (req: Request, res: Response) => {
-    const stories = await storiesService.getAllStories();
+    const user = req.user;
+    const stories = await storiesService.getAllStories(user.userId);
     res.status(200).json(stories);
   };
 
-  getStorySignedAudioUrl = async (req: Request, res: Response) => {
+  // getStorySignedAudioUrl = async (req: Request, res: Response) => {
+  //   const { storyId } = req.params;
+  //   const signedUrl = await storyAudioStorageService.getStoryAudioUrl(parseInt(storyId));
+  //   res.status(200).json({ signedUrl });
+  // };
+
+  getStoryById = async (req: Request, res: Response) => {
+    const user = req.user;
     const { storyId } = req.params;
-    const signedUrl = await storyAudioStorageService.getStoryAudioUrl(parseInt(storyId));
-    res.status(200).json({ signedUrl });
+
+    const story = await storiesService.getStoryById(parseInt(storyId), user.userId);
+    res.status(200).json(story);
   };
 
   private extractUnknownWordIds(unknownWords: UnknownWord[]): { id: number }[] {

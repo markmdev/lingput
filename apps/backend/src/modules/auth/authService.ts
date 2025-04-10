@@ -1,5 +1,6 @@
+import { AuthError } from "@/errors/AuthError";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "secretkey";
 
@@ -17,7 +18,13 @@ export class AuthService {
   }
 
   verifyToken(token: string) {
-    const user = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (typeof decoded === "string") {
+      throw new AuthError("Invalid token");
+    }
+
+    const user = decoded as JwtPayload & { userId: number };
     return user;
   }
 }

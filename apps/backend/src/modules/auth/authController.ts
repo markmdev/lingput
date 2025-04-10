@@ -49,4 +49,9 @@ export class AuthController {
       })
       .send();
   }
+
+  async logout(req: Request, res: Response) {
+    res.clearCookie("token");
+    res.send();
+  }
 }
