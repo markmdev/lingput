@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { UnknownWordController } from "./unknownWordController";
 import { asyncHandler } from "@/middlewares/asyncHandler";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 const router = Router();
 
 const unknownWordController = new UnknownWordController();
 
-router.post("/mark-as-learned/:wordId", asyncHandler(unknownWordController.markAsLearned));
-router.post("/mark-as-learning/:wordId", asyncHandler(unknownWordController.markAsLearning));
+router.post("/mark-as-learned/:wordId", authMiddleware, asyncHandler(unknownWordController.markAsLearned));
+router.post("/mark-as-learning/:wordId", authMiddleware, asyncHandler(unknownWordController.markAsLearning));
 
 export default router;

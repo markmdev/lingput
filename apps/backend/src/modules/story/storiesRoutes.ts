@@ -7,8 +7,8 @@ const router = Router();
 
 const storiesController = new StoriesController();
 
-router.post("/generate", asyncHandler(storiesController.generateStory));
+router.post("/generate", authMiddleware, asyncHandler(storiesController.generateStory));
 router.get("/", authMiddleware, asyncHandler(storiesController.getAllStories));
-router.get("/:storyId/audio", asyncHandler(storiesController.getStorySignedAudioUrl));
+router.get("/:storyId/audio", authMiddleware, asyncHandler(storiesController.getStorySignedAudioUrl));
 
 export default router;
