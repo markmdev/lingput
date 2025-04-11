@@ -31,10 +31,9 @@ export class StoriesRepository {
   }
 
   async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
-    const { unknownWords, ...storyWithoutUnknownWords } = story;
     try {
       const savedStory = await prisma.story.create({
-        data: storyWithoutUnknownWords,
+        data: story,
       });
       return savedStory;
     } catch (error) {

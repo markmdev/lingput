@@ -5,7 +5,6 @@ export type CreateStoryDTO = {
   storyText: string;
   translationText: string;
   audioUrl: string;
-  unknownWords: CreateUnknownWordDTO[];
   userId: number;
 };
 

@@ -13,13 +13,13 @@ export class StoriesController {
   generateStory = async (req: Request, res: Response) => {
     const { subject } = validateData(storySubjectRequestSchema, req.body);
     const user = req.user;
-    const story = await storiesService.generateFullStoryExperience(user.userId, subject);
+    const { story, unknownWords } = await storiesService.generateFullStoryExperience(user.userId, subject);
     const savedStory = await storiesService.saveStoryToDB(story);
-    const unknownWords = await unknownWordService.saveUnknownWords(story.unknownWords, savedStory.id);
-    const unknownWordIds = this.extractUnknownWordIds(unknownWords);
+    const savedUnknownWords = await unknownWordService.saveUnknownWords(unknownWords, savedStory.id);
+    const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
     const storyWithUnknownWords = await storiesService.connectUnknownWords(savedStory.id, unknownWordIds);
 
-    res.status(200).json({ story: savedStory, unknownWords: storyWithUnknownWords.unknownWords });
+    res.status(200).json({ story: storyWithUnknownWords });
   };
 
   getAllStories = async (req: Request, res: Response) => {

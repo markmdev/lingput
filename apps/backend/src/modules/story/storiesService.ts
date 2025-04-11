@@ -20,7 +20,10 @@ const textToSpeechService = new TextToSpeechService();
 const storyAudioStorageService = new StoryAudioStorageService();
 
 export class StoriesService {
-  public async generateFullStoryExperience(userId: number, subject: string = ""): Promise<CreateStoryDTO> {
+  public async generateFullStoryExperience(
+    userId: number,
+    subject: string = ""
+  ): Promise<{ story: CreateStoryDTO; unknownWords: CreateUnknownWordDTO[] }> {
     const words = await vocabularyService.getWords();
     const targetLanguageWords = words.map((word) => word.word);
     const story = await storyGeneratorService.generateStory(targetLanguageWords, subject);
@@ -36,11 +39,13 @@ export class StoriesService {
     const audio = await this.createAudioForStory(translationChunks, unknownWords);
     const audioUrl = await storyAudioStorageService.saveToStorage(audio);
     return {
-      storyText: cleanedStoryText,
-      translationText: fullTranslation,
-      audioUrl,
+      story: {
+        storyText: cleanedStoryText,
+        translationText: fullTranslation,
+        audioUrl,
+        userId,
+      },
       unknownWords,
-      userId,
     };
   }
 
