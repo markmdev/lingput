@@ -1,8 +1,7 @@
-import { PrismaClient, UserVocabulary } from "@prisma/client";
+import { UserVocabulary } from "@prisma/client";
 import { UserVocabularyDTO } from "./vocabulary.types";
+import { prisma } from "@/services/prisma";
 import { PrismaError } from "@/errors/PrismaError";
-
-const prisma = new PrismaClient();
 
 export class VocabularyRepository {
   async saveWordToDB(word: UserVocabularyDTO): Promise<UserVocabulary> {

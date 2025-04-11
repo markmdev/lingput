@@ -1,13 +1,11 @@
 import client from "@/services/supabase";
 import { Base64 } from "@/types/types";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
-import { PrismaClient, Story } from "@prisma/client";
+import { Story } from "@prisma/client";
 import { StorageError } from "@/errors/StorageError";
 import { NotFoundError } from "@/errors/NotFoundError";
 import { PrismaError } from "@/errors/PrismaError";
-
-const prisma = new PrismaClient();
-
+import { prisma } from "@/services/prisma";
 function getRandomFileName(extension: string) {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${extension}`;
 }

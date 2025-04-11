@@ -1,8 +1,7 @@
 import { PrismaError } from "@/errors/PrismaError";
 import { CreateUnknownWordDTO } from "./unknownWord.types";
-import { PrismaClient, UnknownWord } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { UnknownWord } from "@prisma/client";
+import { prisma } from "@/services/prisma";
 
 export class UnknownWordRepository {
   async saveUnknownWords(unknownWords: CreateUnknownWordDTO[]): Promise<UnknownWord[]> {
