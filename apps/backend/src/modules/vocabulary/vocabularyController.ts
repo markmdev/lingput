@@ -6,13 +6,13 @@ const vocabularyService = new VocabularyService();
 export class VocabularyController {
   async getAllWordsController(req: Request, res: Response) {
     const words = await vocabularyService.getWords();
-    res.status(200).send(words);
+    res.status(200).json({ words });
   }
 
   async saveNewWordController(req: Request, res: Response) {
     const { word, translation, article } = req.body;
     const newWord = await vocabularyService.saveNewWord({ word, translation, article });
-    res.status(201).send(newWord);
+    res.status(201).json({ newWord });
   }
 
   async saveManyWordsController(req: Request, res: Response) {
@@ -33,12 +33,12 @@ export class VocabularyController {
     }
 
     const savedWords = await vocabularyService.saveManyWords(words);
-    res.status(201).send(savedWords);
+    res.status(201).json({ savedWords });
   }
 
   async deleteWordController(req: Request, res: Response) {
     const wordId = parseInt(req.params.id);
     await vocabularyService.deleteWord(wordId);
-    res.status(204).send();
+    res.status(204).json({ status: "success" });
   }
 }
