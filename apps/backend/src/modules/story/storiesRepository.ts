@@ -24,6 +24,9 @@ export class StoriesRepository {
         where: {
           userId,
         },
+        include: {
+          unknownWords: true,
+        },
       });
     } catch (error) {
       throw new PrismaError("Can't get all stories", {}, error);
@@ -75,6 +78,9 @@ export class StoriesRepository {
     const story = await prisma.story.findUnique({
       where: {
         id: storyId,
+      },
+      include: {
+        unknownWords: true,
       },
     });
     if (!story) {
