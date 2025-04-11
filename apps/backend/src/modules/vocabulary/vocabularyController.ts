@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
 import { VocabularyService } from "./vocabularyService";
+import { formatResponse } from "@/middlewares/responseFormatter";
 
 const vocabularyService = new VocabularyService();
 
 export class VocabularyController {
   async getAllWordsController(req: Request, res: Response) {
     const words = await vocabularyService.getWords();
-    res.status(200).json({ words });
+    res.status(200).json(formatResponse(words));
   }
 
   async saveNewWordController(req: Request, res: Response) {
     const { word, translation, article } = req.body;
     const newWord = await vocabularyService.saveNewWord({ word, translation, article });
-    res.status(201).json({ newWord });
+    res.status(201).json(formatResponse(newWord));
   }
 
   async saveManyWordsController(req: Request, res: Response) {

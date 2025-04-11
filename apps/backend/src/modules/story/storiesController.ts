@@ -5,6 +5,7 @@ import { StoryAudioStorageService } from "./services/storyAudioStorageService";
 import { UnknownWord } from "@prisma/client";
 import { validateData } from "@/validation/validateData";
 import { storySubjectRequestSchema } from "./schemas/storySubjectSchema";
+import { formatResponse } from "@/middlewares/responseFormatter";
 const storiesService = new StoriesService();
 const unknownWordService = new UnknownWordService();
 const storyAudioStorageService = new StoryAudioStorageService();
@@ -19,13 +20,13 @@ export class StoriesController {
     const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
     const storyWithUnknownWords = await storiesService.connectUnknownWords(savedStory.id, unknownWordIds);
 
-    res.status(200).json({ story: storyWithUnknownWords });
+    res.status(200).json(formatResponse(storyWithUnknownWords));
   };
 
   getAllStories = async (req: Request, res: Response) => {
     const user = req.user;
     const stories = await storiesService.getAllStories(user.userId);
-    res.status(200).json(stories);
+    res.status(200).json(formatResponse(stories));
   };
 
   // getStorySignedAudioUrl = async (req: Request, res: Response) => {
@@ -39,7 +40,7 @@ export class StoriesController {
     const { storyId } = req.params;
 
     const story = await storiesService.getStoryById(parseInt(storyId), user.userId);
-    res.status(200).json(story);
+    res.status(200).json(formatResponse(story));
   };
 
   private extractUnknownWordIds(unknownWords: UnknownWord[]): { id: number }[] {
