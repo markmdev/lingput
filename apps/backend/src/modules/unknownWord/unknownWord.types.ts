@@ -1,4 +1,4 @@
-export type CreateUnknownWordDTO = {
+export interface CreateUnknownWordDTO {
   word: string;
   translation: string;
   article: string | null;
@@ -6,4 +6,4 @@ export type CreateUnknownWordDTO = {
   exampleSentenceTranslation: string;
   timesSeen?: 1;
   status?: "learning";
-};
+}

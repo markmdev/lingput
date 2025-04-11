@@ -1,24 +1,25 @@
 import { Story, UnknownWord } from "@prisma/client";
-import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
 
-export type CreateStoryDTO = {
+export interface CreateStoryDTO {
   storyText: string;
   translationText: string;
   audioUrl: string;
   userId: number;
-};
+}
 
-export type Lemma = {
+export interface Lemma {
   lemma: string;
   article: string | null;
   sentence: string;
-};
+}
 
-export type LemmaWithTranslation = {
+export interface LemmaWithTranslation {
   lemma: string;
   translation: string;
   exampleSentence: string;
   exampleSentenceTranslation: string;
-};
+}
 
-export type StoryWithUnknownWords = Story & { unknownWords: UnknownWord[] };
+export interface StoryWithUnknownWords extends Story {
+  unknownWords: UnknownWord[];
+}
