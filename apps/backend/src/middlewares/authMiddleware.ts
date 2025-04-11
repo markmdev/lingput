@@ -1,4 +1,4 @@
-import { AuthError } from "@/errors/AuthError";
+import { AuthError } from "@/errors/auth/AuthError";
 import { AuthService } from "@/modules/auth/authService";
 import { Request, Response, NextFunction } from "express";
 

@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import { UserRepository } from "../user/userRepository";
 import { AuthService } from "./authService";
-
+import { RegisterError } from "@/errors/auth/RegisterError";
+import { LoginError } from "@/errors/auth/LoginError";
 const userRepository = new UserRepository();
 const authService = new AuthService();
 export class AuthController {
@@ -9,7 +10,7 @@ export class AuthController {
     const { email, password } = req.body;
     const existingUser = await userRepository.getUserByEmail(email);
     if (existingUser) {
-      res.status(400).json({ error: "Email already exists" });
+      throw new RegisterError("Email already exists");
     }
 
     const hashedPassword = await authService.hashPassword(password);
@@ -29,14 +30,12 @@ export class AuthController {
     const { email, password } = req.body;
     const user = await userRepository.getUserByEmail(email);
     if (!user) {
-      res.status(400).json({ error: "Invalid email or password" });
-      return;
+      throw new LoginError("Invalid email or password");
     }
 
     const checkPassword = await authService.comparePassword(password, user.password);
     if (!checkPassword) {
-      res.status(400).json({ error: "Invalid email or password" });
-      return;
+      throw new LoginError("Invalid email or password");
     }
 
     const token = authService.generateToken(user.id);
