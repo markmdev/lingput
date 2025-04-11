@@ -5,6 +5,11 @@ import { RegisterError } from "@/errors/auth/RegisterError";
 import { LoginError } from "@/errors/auth/LoginError";
 const userRepository = new UserRepository();
 const authService = new AuthService();
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET is not defined");
+}
+
 export class AuthController {
   async register(req: Request, res: Response) {
     const { email, password } = req.body;
