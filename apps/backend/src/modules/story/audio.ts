@@ -3,7 +3,7 @@ import { promises as fs } from "fs";
 import * as path from "path";
 import * as os from "os";
 import { v4 as uuidv4 } from "uuid";
-import { Base64 } from "../../types/types";
+import { Base64 } from "@/types/types";
 import { spawn } from "child_process";
 
 /**
