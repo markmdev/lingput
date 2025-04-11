@@ -32,7 +32,7 @@ export class StoriesController {
   // getStorySignedAudioUrl = async (req: Request, res: Response) => {
   //   const { storyId } = req.params;
   //   const signedUrl = await storyAudioStorageService.getStoryAudioUrl(parseInt(storyId));
-  //   res.status(200).json({ signedUrl });
+  //   res.status(200).json(formatResponse(signedUrl));
   // };
 
   getStoryById = async (req: Request, res: Response) => {

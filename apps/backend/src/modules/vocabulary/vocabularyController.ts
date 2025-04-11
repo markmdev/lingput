@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { VocabularyService } from "./vocabularyService";
 import { formatResponse } from "@/middlewares/responseFormatter";
-
+import { BadRequestError } from "@/errors/BadRequestError";
 const vocabularyService = new VocabularyService();
 
 export class VocabularyController {
@@ -19,27 +19,21 @@ export class VocabularyController {
   async saveManyWordsController(req: Request, res: Response) {
     const { words } = req.body;
     if (!Array.isArray(words)) {
-      res.status(400).json({
-        error: "The request body must be an array of objects.",
-      });
-      return;
+      throw new BadRequestError("The request body must be an array of objects.");
     }
 
     const allWordsValid = words.every((wordObj) => wordObj.word && wordObj.translation);
     if (!allWordsValid) {
-      res.status(400).json({
-        error: "Each word must have a 'word' and 'translation' property.",
-      });
-      return;
+      throw new BadRequestError("Each word must have a 'word' and 'translation' property.");
     }
 
     const savedWords = await vocabularyService.saveManyWords(words);
-    res.status(201).json({ savedWords });
+    res.status(201).json(formatResponse(savedWords));
   }
 
   async deleteWordController(req: Request, res: Response) {
     const wordId = parseInt(req.params.id);
     await vocabularyService.deleteWord(wordId);
-    res.status(204).json({ status: "success" });
+    res.status(204).json(formatResponse({ status: "success" }));
   }
 }
