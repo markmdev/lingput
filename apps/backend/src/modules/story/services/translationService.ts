@@ -1,5 +1,5 @@
 import { OpenAIError } from "@/errors/OpenAIError";
-import openai from "../../../services/openaiClient";
+import openai from "@/services/openaiClient";
 import { Response as OpenAIResponse } from "openai/resources/responses/responses";
 
 type ChunkTranslation = {

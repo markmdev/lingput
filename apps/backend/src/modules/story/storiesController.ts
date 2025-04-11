@@ -3,7 +3,7 @@ import { StoriesService } from "./storiesService";
 import { UnknownWordService } from "../unknownWord/unknownWordService";
 import { StoryAudioStorageService } from "./services/storyAudioStorageService";
 import { UnknownWord } from "@prisma/client";
-import { validateData } from "../../validation/validateData";
+import { validateData } from "@/validation/validateData";
 import { storySubjectRequestSchema } from "./schemas/storySubjectSchema";
 const storiesService = new StoriesService();
 const unknownWordService = new UnknownWordService();

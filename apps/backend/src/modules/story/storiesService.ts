@@ -1,6 +1,6 @@
 import { StoriesRepository } from "./storiesRepository";
 import { VocabularyService } from "../vocabulary/vocabularyService";
-import { Base64 } from "../../types/types";
+import { Base64 } from "@/types/types";
 import { combineAudioFromBase64, generateSilence } from "./audio";
 import { LemmatizationService } from "./services/lemmatizationService";
 import { CreateStoryDTO, Lemma, LemmaWithTranslation, StoryWithUnknownWords } from "./story.types";

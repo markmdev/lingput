@@ -1,5 +1,5 @@
-import client from "../../services/supabase";
-import { Base64 } from "../../types/types";
+import client from "@/services/supabase";
+import { Base64 } from "@/types/types";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
 import { PrismaClient, Story } from "@prisma/client";
 import { StorageError } from "@/errors/StorageError";
