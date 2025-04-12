@@ -1,5 +1,5 @@
 import { Base64 } from "@/types/types";
-import { StoriesRepository } from "../storiesRepository";
+import { StoriesRepository } from "../../storiesRepository";
 const storiesRepository = new StoriesRepository();
 export class StoryAudioStorageService {
   public async saveToStorage(audio: Base64): Promise<string> {

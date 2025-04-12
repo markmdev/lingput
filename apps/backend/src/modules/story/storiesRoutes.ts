@@ -1,15 +1,15 @@
 import { Router } from "express";
-import StoriesController from "./storiesController";
 import { asyncHandler } from "@/middlewares/asyncHandler";
 import { authMiddleware } from "@/middlewares/authMiddleware";
+import { createStoriesController } from "./storiesControllerFactory";
 
 const router = Router();
 
-const storiesController = new StoriesController();
+const storyController = createStoriesController();
 
-router.post("/generate", authMiddleware, asyncHandler(storiesController.generateStory));
-router.get("/", authMiddleware, asyncHandler(storiesController.getAllStories));
-router.get("/:storyId", authMiddleware, asyncHandler(storiesController.getStoryById));
-// router.get("/:storyId/audio", authMiddleware, asyncHandler(storiesController.getStorySignedAudioUrl));
+router.post("/generate", authMiddleware, asyncHandler(storyController.generateStory));
+router.get("/", authMiddleware, asyncHandler(storyController.getAllStories));
+router.get("/:storyId", authMiddleware, asyncHandler(storyController.getStoryById));
+// router.get("/:storyId/audio", authMiddleware, asyncHandler(storyController.getStorySignedAudioUrl));
 
 export default router;

@@ -1,4 +1,4 @@
-import { Lemma, LemmaWithTranslation } from "../story.types";
+import { Lemma, LemmaWithTranslation } from "../../story.types";
 import axios from "axios";
 import openai from "@/services/openaiClient";
 import { OpenAIError } from "@/errors/OpenAIError";

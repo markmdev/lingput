@@ -2,7 +2,7 @@ import { OpenAIError } from "@/errors/OpenAIError";
 import openai from "@/services/openaiClient";
 import { Response as OpenAIResponse } from "openai/resources/responses/responses";
 
-type ChunkTranslation = {
+export type ChunkTranslation = {
   chunk: string;
   translatedChunk: string;
 };

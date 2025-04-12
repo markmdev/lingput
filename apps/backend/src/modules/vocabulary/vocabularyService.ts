@@ -5,7 +5,7 @@ import { UserVocabulary } from "@prisma/client";
 const vocabularyRepository = new VocabularyRepository();
 
 export class VocabularyService {
-  async getWords(): Promise<UserVocabularyDTO[]> {
+  async getWords(): Promise<UserVocabulary[]> {
     return vocabularyRepository.getAllWordsFromDB();
   }
 
