@@ -34,13 +34,16 @@ model UserVocabulary {
   word        String
   translation String
   article     String?
+  user        User    @relation(fields: [userId], references: [id])
+  userId      Int
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  password String
-  stories  Story[]
+  id             Int              @id @default(autoincrement())
+  email          String           @unique
+  password       String
+  stories        Story[]
+  userVocabulary UserVocabulary[]
 }
 
 enum WordStatus {

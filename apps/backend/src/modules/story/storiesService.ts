@@ -19,7 +19,10 @@ export class StoriesService {
     userId: number,
     subject: string = ""
   ): Promise<{ story: CreateStoryDTO; unknownWords: CreateUnknownWordDTO[] }> {
-    const { story, fullTranslation, translationChunks, knownWords } = await this.storyAssembler.assemble(subject);
+    const { story, fullTranslation, translationChunks, knownWords } = await this.storyAssembler.assemble(
+      subject,
+      userId
+    );
     const unknownWords = await this.lemmaAssembler.assemble(story, knownWords);
     const audioUrl = await this.audioAssembler.assemble(translationChunks, unknownWords);
 

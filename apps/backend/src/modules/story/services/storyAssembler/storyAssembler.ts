@@ -10,13 +10,16 @@ export class StoryAssembler {
     private translationService: TranslationService
   ) {}
 
-  async assemble(subject: string): Promise<{
+  async assemble(
+    subject: string,
+    userId: number
+  ): Promise<{
     story: string;
     knownWords: UserVocabulary[];
     fullTranslation: string;
     translationChunks: ChunkTranslation[];
   }> {
-    const knownWords = await this.vocabularyService.getWords();
+    const knownWords = await this.vocabularyService.getWords(userId);
     const knownWordsList = knownWords.map((word) => word.word);
     const story = await this.storyGeneratorService.generateStory(knownWordsList, subject);
     const cleanedStoryText = story.replace(/\n/g, "");

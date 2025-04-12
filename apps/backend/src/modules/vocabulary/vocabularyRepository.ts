@@ -1,10 +1,10 @@
 import { UserVocabulary } from "@prisma/client";
-import { UserVocabularyDTO } from "./vocabulary.types";
+import { UserVocabularyDTO, UserVocabularyWithUserIdDTO } from "./vocabulary.types";
 import { prisma } from "@/services/prisma";
 import { PrismaError } from "@/errors/PrismaError";
 
 export class VocabularyRepository {
-  async saveWordToDB(word: UserVocabularyDTO): Promise<UserVocabulary> {
+  async saveWordToDB(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
     try {
       const newWord = await prisma.userVocabulary.create({
         data: word,
@@ -16,7 +16,7 @@ export class VocabularyRepository {
     }
   }
 
-  async saveManyWordsToDB(words: UserVocabularyDTO[]): Promise<UserVocabulary[]> {
+  async saveManyWordsToDB(words: UserVocabularyWithUserIdDTO[]): Promise<UserVocabulary[]> {
     try {
       const newWords = await prisma.userVocabulary.createManyAndReturn({
         data: words,
@@ -28,19 +28,24 @@ export class VocabularyRepository {
     }
   }
 
-  async getAllWordsFromDB(): Promise<UserVocabulary[]> {
+  async getAllWordsFromDB(userId: number): Promise<UserVocabulary[]> {
     try {
-      return prisma.userVocabulary.findMany();
+      return prisma.userVocabulary.findMany({
+        where: {
+          userId,
+        },
+      });
     } catch (error) {
       throw new PrismaError("Can't get all words from db", {}, error);
     }
   }
 
-  async deleteWord(wordId: number): Promise<UserVocabulary> {
+  async deleteWord(wordId: number, userId: number): Promise<UserVocabulary> {
     try {
       return prisma.userVocabulary.delete({
         where: {
           id: wordId,
+          userId,
         },
       });
     } catch (error) {

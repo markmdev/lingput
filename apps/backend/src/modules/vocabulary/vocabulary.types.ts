@@ -3,3 +3,7 @@ export interface UserVocabularyDTO {
   translation: string;
   article: string | null;
 }
+
+export interface UserVocabularyWithUserIdDTO extends UserVocabularyDTO {
+  userId: number;
+}
