@@ -1,3 +1,4 @@
+import OpenAI from "openai";
 import { UnknownWordService } from "../unknownWord/unknownWordService";
 import { VocabularyService } from "../vocabulary/vocabularyService";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
@@ -11,9 +12,13 @@ import { TranslationService } from "./services/storyAssembler/translationService
 import StoriesController from "./storyController";
 import { StoriesService } from "./storyService";
 
-function createStoryAssembler(): StoryAssembler {
+if (!process.env.OPENAI_API_KEY) {
+  throw new Error("OPENAI_API_KEY is not set");
+}
+
+function createStoryAssembler(openai: OpenAI): StoryAssembler {
   const vocabularyService = new VocabularyService();
-  const storyGeneratorService = new StoryGeneratorService();
+  const storyGeneratorService = new StoryGeneratorService(openai);
   const translationService = new TranslationService();
   return new StoryAssembler(vocabularyService, storyGeneratorService, translationService);
 }
@@ -30,7 +35,11 @@ function createAudioAssembler(): AudioAssembler {
 }
 
 export function createStoriesController(): StoriesController {
-  const storyAssembler = createStoryAssembler();
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  const storyAssembler = createStoryAssembler(openai);
   const lemmaAssembler = createLemmaAssembler();
   const audioAssembler = createAudioAssembler();
 

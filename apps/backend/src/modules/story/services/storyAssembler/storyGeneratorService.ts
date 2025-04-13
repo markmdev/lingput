@@ -1,12 +1,13 @@
 import { OpenAIError } from "@/errors/OpenAIError";
-import openai from "@/services/openaiClient";
+import OpenAI from "openai";
 import { ChatCompletion } from "openai/resources/chat/completions";
 
 export class StoryGeneratorService {
+  constructor(private openai: OpenAI) {}
   async generateStory(targetLanguageWords: string[], subject: string): Promise<string> {
     let response: ChatCompletion;
     try {
-      response = await openai.chat.completions.create({
+      response = await this.openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
           {
