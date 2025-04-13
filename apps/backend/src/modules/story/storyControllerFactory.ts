@@ -19,7 +19,7 @@ if (!process.env.OPENAI_API_KEY) {
 function createStoryAssembler(openai: OpenAI): StoryAssembler {
   const vocabularyService = new VocabularyService();
   const storyGeneratorService = new StoryGeneratorService(openai);
-  const translationService = new TranslationService();
+  const translationService = new TranslationService(openai);
   return new StoryAssembler(vocabularyService, storyGeneratorService, translationService);
 }
 

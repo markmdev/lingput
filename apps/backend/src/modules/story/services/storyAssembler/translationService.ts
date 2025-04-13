@@ -1,5 +1,5 @@
 import { OpenAIError } from "@/errors/OpenAIError";
-import openai from "@/services/openaiClient";
+import OpenAI from "openai";
 import { Response as OpenAIResponse } from "openai/resources/responses/responses";
 
 export type ChunkTranslation = {
@@ -7,15 +7,16 @@ export type ChunkTranslation = {
   translatedChunk: string;
 };
 
-type OpenAIChunkResponse = {
+export type OpenAIChunkResponse = {
   chunks: ChunkTranslation[];
 };
 
 export class TranslationService {
+  constructor(private openai: OpenAI) {}
   async translateChunks(story: string): Promise<ChunkTranslation[]> {
     let response: OpenAIResponse;
     try {
-      response = await openai.responses.create({
+      response = await this.openai.responses.create({
         model: "gpt-4o",
         input: [
           {
