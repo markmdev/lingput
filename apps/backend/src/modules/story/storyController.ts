@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { StoriesService } from "./storiesService";
+import { StoriesService } from "./storyService";
 import { UnknownWordService } from "../unknownWord/unknownWordService";
 import { UnknownWord } from "@prisma/client";
 import { validateData } from "@/validation/validateData";

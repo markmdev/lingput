@@ -1,4 +1,4 @@
-import { StoriesRepository } from "./storiesRepository";
+import { StoriesRepository } from "./storyRepository";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
 import { Story } from "@prisma/client";
 import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";

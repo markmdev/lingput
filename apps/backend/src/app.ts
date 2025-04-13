@@ -11,7 +11,7 @@ import dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import vocabRouter from "./modules/vocabulary/vocabularyRoutes";
-import storiesRouter from "./modules/story/storiesRoutes";
+import storiesRouter from "./modules/story/storyRoutes";
 import unknownWordRouter from "./modules/unknownWord/unknownWordRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 import { authRouter } from "./modules/auth/authRoutes";

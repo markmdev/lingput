@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "@/middlewares/asyncHandler";
 import { authMiddleware } from "@/middlewares/authMiddleware";
-import { createStoriesController } from "./storiesControllerFactory";
+import { createStoriesController } from "./storyControllerFactory";
 
 const router = Router();
 

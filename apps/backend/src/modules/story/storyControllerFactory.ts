@@ -8,8 +8,8 @@ import { LemmatizationService } from "./services/lemmaAssembler/lemmatizationSer
 import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
 import { StoryGeneratorService } from "./services/storyAssembler/storyGeneratorService";
 import { TranslationService } from "./services/storyAssembler/translationService";
-import StoriesController from "./storiesController";
-import { StoriesService } from "./storiesService";
+import StoriesController from "./storyController";
+import { StoriesService } from "./storyService";
 
 function createStoryAssembler(): StoryAssembler {
   const vocabularyService = new VocabularyService();
