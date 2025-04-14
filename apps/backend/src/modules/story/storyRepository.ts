@@ -15,7 +15,7 @@ function base64ToArrayBuffer(base64: Base64) {
   return binary.buffer.slice(binary.byteOffset, binary.byteOffset + binary.byteLength);
 }
 
-export class StoriesRepository {
+export class StoryRepository {
   async getAllStories(userId: number): Promise<Story[]> {
     try {
       return prisma.story.findMany({

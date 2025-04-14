@@ -1,4 +1,4 @@
-import { StoriesRepository } from "./storyRepository";
+import { StoryRepository } from "./storyRepository";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
 import { Story } from "@prisma/client";
 import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
@@ -6,10 +6,10 @@ import { NotFoundError } from "@/errors/NotFoundError";
 import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
 import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
-const storiesRepository = new StoriesRepository();
 
 export class StoriesService {
   constructor(
+    private storyRepository: StoryRepository,
     private storyAssembler: StoryAssembler,
     private lemmaAssembler: LemmaAssembler,
     private audioAssembler: AudioAssembler
@@ -38,19 +38,19 @@ export class StoriesService {
   }
 
   async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
-    return await storiesRepository.saveStoryToDB(story);
+    return await this.storyRepository.saveStoryToDB(story);
   }
 
   async getAllStories(userId: number): Promise<Story[]> {
-    return await storiesRepository.getAllStories(userId);
+    return await this.storyRepository.getAllStories(userId);
   }
 
   async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {
-    return await storiesRepository.connectUnknownWords(storyId, wordIds);
+    return await this.storyRepository.connectUnknownWords(storyId, wordIds);
   }
 
   async getStoryById(storyId: number, userId: number): Promise<Story> {
-    const story = await storiesRepository.getStoryById(storyId);
+    const story = await this.storyRepository.getStoryById(storyId);
     if (!story) throw new NotFoundError("Story");
     if (story.userId !== userId) throw new NotFoundError("Story");
     return story;

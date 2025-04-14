@@ -11,6 +11,7 @@ import { StoryGeneratorService } from "./services/storyAssembler/storyGeneratorS
 import { TranslationService } from "./services/storyAssembler/translationService";
 import StoriesController from "./storyController";
 import { StoriesService } from "./storyService";
+import { StoryRepository } from "./storyRepository";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY is not set");
@@ -28,8 +29,8 @@ function createLemmaAssembler(): LemmaAssembler {
   return new LemmaAssembler(lemmatizationService);
 }
 
-function createAudioAssembler(): AudioAssembler {
-  const storyAudioStorageService = new StoryAudioStorageService();
+function createAudioAssembler(storyRepository: StoryRepository): AudioAssembler {
+  const storyAudioStorageService = new StoryAudioStorageService(storyRepository);
   const textToSpeechService = new TextToSpeechService();
   return new AudioAssembler(storyAudioStorageService, textToSpeechService);
 }
@@ -39,11 +40,12 @@ export function createStoriesController(): StoriesController {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
+  const storyRepository = new StoryRepository();
   const storyAssembler = createStoryAssembler(openai);
   const lemmaAssembler = createLemmaAssembler();
-  const audioAssembler = createAudioAssembler();
+  const audioAssembler = createAudioAssembler(storyRepository);
 
-  const storiesService = new StoriesService(storyAssembler, lemmaAssembler, audioAssembler);
+  const storiesService = new StoriesService(storyRepository, storyAssembler, lemmaAssembler, audioAssembler);
   const unknownWordService = new UnknownWordService();
 
   return new StoriesController(storiesService, unknownWordService);
