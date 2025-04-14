@@ -24,14 +24,14 @@ function createStoryAssembler(openai: OpenAI): StoryAssembler {
   return new StoryAssembler(vocabularyService, storyGeneratorService, translationService);
 }
 
-function createLemmaAssembler(): LemmaAssembler {
-  const lemmatizationService = new LemmatizationService();
+function createLemmaAssembler(openai: OpenAI): LemmaAssembler {
+  const lemmatizationService = new LemmatizationService(openai);
   return new LemmaAssembler(lemmatizationService);
 }
 
-function createAudioAssembler(storyRepository: StoryRepository): AudioAssembler {
+function createAudioAssembler(storyRepository: StoryRepository, openai: OpenAI): AudioAssembler {
   const storyAudioStorageService = new StoryAudioStorageService(storyRepository);
-  const textToSpeechService = new TextToSpeechService();
+  const textToSpeechService = new TextToSpeechService(openai);
   return new AudioAssembler(storyAudioStorageService, textToSpeechService);
 }
 
@@ -42,8 +42,8 @@ export function createStoriesController(): StoriesController {
 
   const storyRepository = new StoryRepository();
   const storyAssembler = createStoryAssembler(openai);
-  const lemmaAssembler = createLemmaAssembler();
-  const audioAssembler = createAudioAssembler(storyRepository);
+  const lemmaAssembler = createLemmaAssembler(openai);
+  const audioAssembler = createAudioAssembler(storyRepository, openai);
 
   const storiesService = new StoriesService(storyRepository, storyAssembler, lemmaAssembler, audioAssembler);
   const unknownWordService = new UnknownWordService();

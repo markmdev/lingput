@@ -1,14 +1,15 @@
 import { Lemma, LemmaWithTranslation } from "../../story.types";
 import axios from "axios";
-import openai from "@/services/openaiClient";
 import { OpenAIError } from "@/errors/OpenAIError";
 import { Response as OpenAIResponse } from "openai/resources/responses/responses";
+import OpenAI from "openai";
 
-type OpenAILemmasResponse = {
+export type OpenAILemmasResponse = {
   lemmas: LemmaWithTranslation[];
 };
 
 export class LemmatizationService {
+  constructor(private openai: OpenAI) {}
   async lemmatize(text: string): Promise<Lemma[]> {
     const response = await axios.post("http://localhost:8000/lemmatize", {
       text,
@@ -19,7 +20,7 @@ export class LemmatizationService {
   async translateLemmas(lemmas: Lemma[]): Promise<LemmaWithTranslation[]> {
     let response: OpenAIResponse;
     try {
-      response = await openai.responses.create({
+      response = await this.openai.responses.create({
         model: "gpt-4o",
         input: [
           {
