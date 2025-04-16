@@ -5,7 +5,6 @@ import { UnknownWord } from "@prisma/client";
 import { validateData } from "@/validation/validateData";
 import { storySubjectRequestSchema } from "./schemas/storySubjectSchema";
 import { formatResponse } from "@/middlewares/responseFormatter";
-// const storyAudioStorageService = new StoryAudioStorageService();
 
 export class StoriesController {
   constructor(private storiesService: StoriesService, private unknownWordService: UnknownWordService) {}
@@ -28,12 +27,6 @@ export class StoriesController {
     const stories = await this.storiesService.getAllStories(user.userId);
     res.status(200).json(formatResponse(stories));
   };
-
-  // getStorySignedAudioUrl = async (req: Request, res: Response) => {
-  //   const { storyId } = req.params;
-  //   const signedUrl = await storyAudioStorageService.getStoryAudioUrl(parseInt(storyId));
-  //   res.status(200).json(formatResponse(signedUrl));
-  // };
 
   getStoryById = async (req: Request, res: Response) => {
     const user = req.user;
