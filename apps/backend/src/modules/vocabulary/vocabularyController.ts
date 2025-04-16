@@ -42,7 +42,6 @@ export class VocabularyController {
     const { userId } = req.user;
     const { wordData } = req.body;
     const wordId = parseInt(req.params.id);
-    console.log(wordData);
     const updatedWord = await vocabularyService.updateWord(wordId, userId, wordData);
     res.status(201).json(updatedWord);
   }
