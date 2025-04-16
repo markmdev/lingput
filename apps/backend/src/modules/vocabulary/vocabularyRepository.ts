@@ -28,6 +28,18 @@ export class VocabularyRepository {
     }
   }
 
+  async getWordByID(wordId: number): Promise<UserVocabulary | null> {
+    try {
+      return prisma.userVocabulary.findUnique({
+        where: {
+          id: wordId,
+        },
+      });
+    } catch (error) {
+      throw new PrismaError("Can't get word by id from db", { wordId }, error);
+    }
+  }
+
   async getAllWordsFromDB(userId: number): Promise<UserVocabulary[]> {
     try {
       return prisma.userVocabulary.findMany({
@@ -50,6 +62,19 @@ export class VocabularyRepository {
       });
     } catch (error) {
       throw new PrismaError("Can't delete word from db", { wordId }, error);
+    }
+  }
+
+  async updateWord(wordId: number, wordData: Partial<UserVocabulary>): Promise<UserVocabulary> {
+    try {
+      return prisma.userVocabulary.update({
+        where: {
+          id: wordId,
+        },
+        data: wordData,
+      });
+    } catch (error) {
+      throw new PrismaError("Can't update the word from db", { wordId }, error);
     }
   }
 }

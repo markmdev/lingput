@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { VocabularyService } from "./vocabularyService";
 import { formatResponse } from "@/middlewares/responseFormatter";
-import { BadRequestError } from "@/errors/BadRequestError";
 const vocabularyService = new VocabularyService();
 
 export class VocabularyController {
@@ -30,5 +29,21 @@ export class VocabularyController {
     const wordId = parseInt(req.params.id);
     await vocabularyService.deleteWord(wordId, userId);
     res.status(204).json(formatResponse({ status: "success" }));
+  }
+
+  async getWordById(req: Request, res: Response) {
+    const { userId } = req.user;
+    const wordId = parseInt(req.params.id);
+    const word = await vocabularyService.getWordByID(wordId, userId);
+    res.status(200).json(formatResponse(word));
+  }
+
+  async updateWord(req: Request, res: Response) {
+    const { userId } = req.user;
+    const { wordData } = req.body;
+    const wordId = parseInt(req.params.id);
+    console.log(wordData);
+    const updatedWord = await vocabularyService.updateWord(wordId, userId, wordData);
+    res.status(201).json(updatedWord);
   }
 }
