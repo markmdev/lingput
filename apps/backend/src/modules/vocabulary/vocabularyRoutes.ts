@@ -8,13 +8,13 @@ const vocabularyController = new VocabularyController();
 
 router.get("/words/:id", authMiddleware, asyncHandler(vocabularyController.getWordById));
 
-router.get("/words", authMiddleware, asyncHandler(vocabularyController.getAllWordsController));
+router.get("/words", authMiddleware, asyncHandler(vocabularyController.getAllWords));
 
-router.post("/words", authMiddleware, asyncHandler(vocabularyController.saveNewWordController));
+router.post("/words", authMiddleware, asyncHandler(vocabularyController.saveNewWord));
 
-router.post("/words/list", authMiddleware, asyncHandler(vocabularyController.saveManyWordsController));
+router.post("/words/list", authMiddleware, asyncHandler(vocabularyController.saveManyWords));
 
-router.delete("/words/:id", authMiddleware, asyncHandler(vocabularyController.deleteWordController));
+router.delete("/words/:id", authMiddleware, asyncHandler(vocabularyController.deleteWord));
 
 router.patch("/words/:id", authMiddleware, asyncHandler(vocabularyController.updateWord));
 

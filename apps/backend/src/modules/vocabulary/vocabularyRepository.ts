@@ -1,10 +1,10 @@
 import { UserVocabulary } from "@prisma/client";
-import { UserVocabularyDTO, UserVocabularyWithUserIdDTO } from "./vocabulary.types";
+import { UserVocabularyWithUserIdDTO } from "./vocabulary.types";
 import { prisma } from "@/services/prisma";
 import { PrismaError } from "@/errors/PrismaError";
 
 export class VocabularyRepository {
-  async saveWordToDB(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
+  async saveWord(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
     try {
       const newWord = await prisma.userVocabulary.create({
         data: word,
@@ -16,7 +16,7 @@ export class VocabularyRepository {
     }
   }
 
-  async saveManyWordsToDB(words: UserVocabularyWithUserIdDTO[]): Promise<UserVocabulary[]> {
+  async saveManyWords(words: UserVocabularyWithUserIdDTO[]): Promise<UserVocabulary[]> {
     try {
       const newWords = await prisma.userVocabulary.createManyAndReturn({
         data: words,
@@ -40,7 +40,7 @@ export class VocabularyRepository {
     }
   }
 
-  async getAllWordsFromDB(userId: number): Promise<UserVocabulary[]> {
+  async getAllWords(userId: number): Promise<UserVocabulary[]> {
     try {
       return prisma.userVocabulary.findMany({
         where: {

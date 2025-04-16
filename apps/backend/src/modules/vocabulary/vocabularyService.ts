@@ -16,11 +16,11 @@ export class VocabularyService {
   }
 
   async getWords(userId: number): Promise<UserVocabulary[]> {
-    return vocabularyRepository.getAllWordsFromDB(userId);
+    return vocabularyRepository.getAllWords(userId);
   }
 
   async saveNewWord(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
-    return vocabularyRepository.saveWordToDB(word);
+    return vocabularyRepository.saveWord(word);
   }
 
   async saveManyWords(words: UserVocabularyDTO[], userId: number): Promise<UserVocabulary[]> {
@@ -34,7 +34,7 @@ export class VocabularyService {
     }
 
     const wordsWithUserId = this.attachUserIdToWords(words, userId);
-    return vocabularyRepository.saveManyWordsToDB(wordsWithUserId);
+    return vocabularyRepository.saveManyWords(wordsWithUserId);
   }
 
   async deleteWord(wordId: number, userId: number): Promise<UserVocabulary> {
