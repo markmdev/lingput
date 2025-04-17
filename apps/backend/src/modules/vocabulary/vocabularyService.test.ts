@@ -43,11 +43,10 @@ const wordsMock: UserVocabulary[] = [
 describe("VocabularyService", () => {
   const vocabularyRepositoryMock = {
     getAllWordsWithoutPagination: jest.fn().mockResolvedValue(wordsMock),
-    getAllWords: jest
-      .fn()
-      .mockImplementation((skip: number, take: number) =>
-        Promise.resolve([wordsMock.slice(skip + 1, skip + take + 1), 5])
-      ),
+    getAllWords: jest.fn().mockImplementation((userId: number, skip: number, take: number) => {
+      if (skip > wordsMock.length) return Promise.resolve([[], 5]);
+      return Promise.resolve([wordsMock.slice(skip, skip + take), 5]);
+    }),
   } as unknown as VocabularyRepository;
 
   it("getWords() returns all words without pagination", async () => {
@@ -73,6 +72,40 @@ describe("VocabularyService", () => {
     const vocabularyService = new VocabularyService(vocabularyRepositoryMock);
 
     const result = await vocabularyService.getWords(1, 2, 2);
+    expect(result).toEqual(expectedResult);
+  });
+
+  it("getWords() returns words with pagination when currentPage = totalPages", async () => {
+    const expectedResult = {
+      data: wordsMock.slice(4, 6),
+      pagination: {
+        currentPage: 3,
+        pageSize: 2,
+        totalItems: 5,
+        totalPages: 3,
+      },
+    };
+
+    const vocabularyService = new VocabularyService(vocabularyRepositoryMock);
+
+    const result = await vocabularyService.getWords(1, 3, 2);
+    expect(result).toEqual(expectedResult);
+  });
+
+  it("getWords() returns empty array when page is out of bounds", async () => {
+    const expectedResult = {
+      data: [],
+      pagination: {
+        currentPage: 25,
+        pageSize: 2,
+        totalItems: 5,
+        totalPages: 3,
+      },
+    };
+
+    const vocabularyService = new VocabularyService(vocabularyRepositoryMock);
+
+    const result = await vocabularyService.getWords(1, 25, 2);
     expect(result).toEqual(expectedResult);
   });
 });
