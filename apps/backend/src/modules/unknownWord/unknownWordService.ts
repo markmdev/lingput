@@ -5,8 +5,12 @@ import { UnknownWordRepository } from "./unknownWordRepository";
 const unknownWordRepository = new UnknownWordRepository();
 
 export class UnknownWordService {
-  async saveUnknownWords(unknownWords: CreateUnknownWordDTO[], storyId: number): Promise<UnknownWord[]> {
-    const existingWords = await unknownWordRepository.getUnknownWords();
+  async saveUnknownWords(
+    unknownWords: CreateUnknownWordDTO[],
+    storyId: number,
+    userId: number
+  ): Promise<UnknownWord[]> {
+    const existingWords = await unknownWordRepository.getUnknownWords(userId);
     const existingWordsMap = this.createWordsMap(existingWords);
 
     const { wordsToSave, wordsToUpdate } = this.partitionWords(unknownWords, existingWordsMap);
@@ -62,7 +66,7 @@ export class UnknownWordService {
     await unknownWordRepository.markAsLearning(wordId);
   }
 
-  async getUnknownWords(): Promise<UnknownWord[]> {
-    return unknownWordRepository.getUnknownWords();
+  async getUnknownWords(userId: number): Promise<UnknownWord[]> {
+    return unknownWordRepository.getUnknownWords(userId);
   }
 }

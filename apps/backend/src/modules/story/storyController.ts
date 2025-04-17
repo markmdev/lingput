@@ -14,7 +14,7 @@ export class StoriesController {
     const user = req.user;
     const { story, unknownWords } = await this.storiesService.generateFullStoryExperience(user.userId, subject);
     const savedStory = await this.storiesService.saveStoryToDB(story);
-    const savedUnknownWords = await this.unknownWordService.saveUnknownWords(unknownWords, savedStory.id);
+    const savedUnknownWords = await this.unknownWordService.saveUnknownWords(unknownWords, savedStory.id, user.userId);
 
     const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
     const storyWithUnknownWords = await this.storiesService.connectUnknownWords(savedStory.id, unknownWordIds);

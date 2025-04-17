@@ -22,7 +22,7 @@ export class StoryAssembler {
     translationChunks: ChunkTranslation[];
   }> {
     const vocabularyResult = await this.vocabularyService.getWords(userId);
-    const unknownwordsResult = await this.unknownWordService.getUnknownWords();
+    const unknownwordsResult = await this.unknownWordService.getUnknownWords(userId);
     const knownWords = vocabularyResult.data;
     const knownWordsList = knownWords.map((word) => word.word);
     const unknownWordsList = unknownwordsResult.map((word) => word.word);

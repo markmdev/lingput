@@ -27,6 +27,8 @@ model UnknownWord {
   timesSeen                  Int        @default(1)
   status                     WordStatus @default(learning)
   stories                    Story[]
+  user                       User       @relation(fields: [userId], references: [id])
+  userId                     Int
 }
 
 model UserVocabulary {
@@ -44,6 +46,7 @@ model User {
   password       String
   stories        Story[]
   userVocabulary UserVocabulary[]
+  UnknownWord    UnknownWord[]
 }
 
 enum WordStatus {

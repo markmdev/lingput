@@ -23,7 +23,7 @@ export class StoriesService {
       subject,
       userId
     );
-    const unknownWords = await this.lemmaAssembler.assemble(story, knownWords);
+    const unknownWords = await this.lemmaAssembler.assemble(story, knownWords, userId);
     const audioUrl = await this.audioAssembler.assemble(translationChunks, unknownWords);
 
     return {

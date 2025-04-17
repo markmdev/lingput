@@ -24,6 +24,7 @@ const wordsMock: UserVocabulary[] = [
 
 const unknownWordsMock: UnknownWord[] = [
   {
+    userId: 1,
     id: 1,
     word: "jagen",
     translation: "to chase",

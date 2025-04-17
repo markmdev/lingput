@@ -60,6 +60,7 @@ describe("LemmaAssember", () => {
 
     const expectedResult: CreateUnknownWordDTO[] = [
       {
+        userId: 1,
         word: "Katze",
         translation: "Cat",
         article: "die",
@@ -67,6 +68,7 @@ describe("LemmaAssember", () => {
         exampleSentenceTranslation: "The dog chases the cat.",
       },
       {
+        userId: 1,
         word: "jagen",
         translation: "to chase",
         article: null,
@@ -75,7 +77,7 @@ describe("LemmaAssember", () => {
       },
     ];
 
-    const result = await assembler.assemble(storyMock, knownWordsMock);
+    const result = await assembler.assemble(storyMock, knownWordsMock, 1);
 
     expect(result).toEqual(expectedResult);
   });

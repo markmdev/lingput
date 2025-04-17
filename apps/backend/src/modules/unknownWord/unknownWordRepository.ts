@@ -47,9 +47,9 @@ export class UnknownWordRepository {
     }
   }
 
-  async getUnknownWords(): Promise<UnknownWord[]> {
+  async getUnknownWords(userId: number): Promise<UnknownWord[]> {
     try {
-      const response = await prisma.unknownWord.findMany();
+      const response = await prisma.unknownWord.findMany({ where: { userId } });
       return response;
     } catch (error) {
       throw new PrismaError("Can't get unknown words", {}, error);

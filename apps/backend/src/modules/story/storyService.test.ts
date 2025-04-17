@@ -25,6 +25,7 @@ const assembledStoryMock = {
 
 const unknownWordsMock: CreateUnknownWordDTO[] = [
   {
+    userId: 1,
     word: "Katze",
     translation: "Cat",
     article: "die",
@@ -32,6 +33,7 @@ const unknownWordsMock: CreateUnknownWordDTO[] = [
     exampleSentenceTranslation: "Die Katze ist ein kleines Tier.",
   },
   {
+    userId: 1,
     word: "jagen",
     translation: "to chase",
     article: null,
