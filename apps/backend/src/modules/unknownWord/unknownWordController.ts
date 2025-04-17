@@ -18,4 +18,10 @@ export class UnknownWordController {
     await unknownWordService.markAsLearning(wordId);
     res.status(200).json(formatResponse({ message: "Word marked as learning" }));
   }
+
+  async getAllWords(req: Request, res: Response) {
+    const user = req.user;
+    const words = await unknownWordService.getUnknownWords(user.userId);
+    return res.status(200).json(formatResponse(words));
+  }
 }
