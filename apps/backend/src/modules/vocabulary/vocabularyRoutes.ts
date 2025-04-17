@@ -6,8 +6,6 @@ import { createVocabularyController } from "./vocabularyControllerFactory";
 
 const vocabularyController = createVocabularyController();
 
-router.get("/words/:id", authMiddleware, asyncHandler(vocabularyController.getWordById));
-
 router.get("/words", authMiddleware, asyncHandler(vocabularyController.getAllWords));
 
 router.post("/words", authMiddleware, asyncHandler(vocabularyController.saveNewWord));
