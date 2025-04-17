@@ -40,12 +40,27 @@ export class VocabularyRepository {
     }
   }
 
-  async getAllWords(userId: number): Promise<UserVocabulary[]> {
+  async getAllWords(userId: number, skip: number, take: number): Promise<[UserVocabulary[], number]> {
+    try {
+      const whereClause = { userId };
+      const [words, totalItems] = await Promise.all([
+        prisma.userVocabulary.findMany({
+          where: whereClause,
+          skip,
+          take,
+        }),
+        prisma.userVocabulary.count({ where: whereClause }),
+      ]);
+      return [words, totalItems];
+    } catch (error) {
+      throw new PrismaError("Can't get all words from db", {}, error);
+    }
+  }
+
+  async getAllWordsWithoutPagination(userId: number): Promise<UserVocabulary[]> {
     try {
       return prisma.userVocabulary.findMany({
-        where: {
-          userId,
-        },
+        where: { userId },
       });
     } catch (error) {
       throw new PrismaError("Can't get all words from db", {}, error);

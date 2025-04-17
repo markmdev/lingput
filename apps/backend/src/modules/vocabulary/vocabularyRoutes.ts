@@ -1,10 +1,10 @@
 import express from "express";
 const router = express.Router();
-import { VocabularyController } from "./vocabularyController";
 import { asyncHandler } from "@/middlewares/asyncHandler";
 import { authMiddleware } from "@/middlewares/authMiddleware";
+import { createVocabularyController } from "./vocabularyControllerFactory";
 
-const vocabularyController = new VocabularyController();
+const vocabularyController = createVocabularyController();
 
 router.get("/words/:id", authMiddleware, asyncHandler(vocabularyController.getWordById));
 

@@ -61,4 +61,8 @@ export class UnknownWordService {
   async markAsLearning(wordId: number) {
     await unknownWordRepository.markAsLearning(wordId);
   }
+
+  async getUnknownWords(): Promise<UnknownWord[]> {
+    return unknownWordRepository.getUnknownWords();
+  }
 }

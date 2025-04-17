@@ -2,12 +2,14 @@ import { VocabularyService } from "@/modules/vocabulary/vocabularyService";
 import { StoryGeneratorService } from "./storyGeneratorService";
 import { ChunkTranslation, TranslationService } from "./translationService";
 import { UserVocabulary } from "@prisma/client";
+import { UnknownWordService } from "@/modules/unknownWord/unknownWordService";
 
 export class StoryAssembler {
   constructor(
     private vocabularyService: VocabularyService,
     private storyGeneratorService: StoryGeneratorService,
-    private translationService: TranslationService
+    private translationService: TranslationService,
+    private unknownWordService: UnknownWordService
   ) {}
 
   async assemble(
@@ -19,9 +21,13 @@ export class StoryAssembler {
     fullTranslation: string;
     translationChunks: ChunkTranslation[];
   }> {
-    const knownWords = await this.vocabularyService.getWords(userId);
+    const vocabularyResult = await this.vocabularyService.getWords(userId);
+    const unknownwordsResult = await this.unknownWordService.getUnknownWords();
+    const knownWords = vocabularyResult.data;
     const knownWordsList = knownWords.map((word) => word.word);
-    const story = await this.storyGeneratorService.generateStory(knownWordsList, subject);
+    const unknownWordsList = unknownwordsResult.map((word) => word.word);
+    const combinedWordsList = [...knownWordsList, ...unknownWordsList];
+    const story = await this.storyGeneratorService.generateStory(combinedWordsList, subject);
     const cleanedStoryText = story.replace(/\n/g, " ").trim();
 
     const translationChunks = await this.translationService.translateChunks(cleanedStoryText);

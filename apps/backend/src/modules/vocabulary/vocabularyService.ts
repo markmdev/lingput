@@ -3,24 +3,43 @@ import { UserVocabularyDTO, UserVocabularyWithUserIdDTO } from "./vocabulary.typ
 import { VocabularyRepository } from "./vocabularyRepository";
 import { UserVocabulary } from "@prisma/client";
 import { NotFoundError } from "@/errors/NotFoundError";
-
-const vocabularyRepository = new VocabularyRepository();
+import { Pagination } from "@/types/response.types";
 
 export class VocabularyService {
+  constructor(private vocabularyRepository: VocabularyRepository) {}
   async getWordByID(wordId: number, userId: number): Promise<UserVocabulary> {
-    const word = await vocabularyRepository.getWordByID(wordId);
+    const word = await this.vocabularyRepository.getWordByID(wordId);
     if (!this.doesWordBelongToUser(word, userId)) {
       throw new NotFoundError("Word not found");
     }
     return word as UserVocabulary;
   }
 
-  async getWords(userId: number): Promise<UserVocabulary[]> {
-    return vocabularyRepository.getAllWords(userId);
+  async getWords(
+    userId: number,
+    page?: number,
+    pageSize?: number
+  ): Promise<{ data: UserVocabulary[]; pagination?: Pagination }> {
+    if (!page || !pageSize) {
+      const words = await this.vocabularyRepository.getAllWordsWithoutPagination(userId);
+      return { data: words };
+    }
+    const skip = (page - 1) * pageSize;
+    const [words, totalItems] = await this.vocabularyRepository.getAllWords(userId, skip, pageSize);
+    const totalPages = Math.ceil(totalItems / pageSize);
+    return {
+      data: words,
+      pagination: {
+        totalItems,
+        totalPages,
+        currentPage: page,
+        pageSize: pageSize,
+      },
+    };
   }
 
   async saveNewWord(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
-    return vocabularyRepository.saveWord(word);
+    return this.vocabularyRepository.saveWord(word);
   }
 
   async saveManyWords(words: UserVocabularyDTO[], userId: number): Promise<UserVocabulary[]> {
@@ -34,18 +53,18 @@ export class VocabularyService {
     }
 
     const wordsWithUserId = this.attachUserIdToWords(words, userId);
-    return vocabularyRepository.saveManyWords(wordsWithUserId);
+    return this.vocabularyRepository.saveManyWords(wordsWithUserId);
   }
 
   async deleteWord(wordId: number, userId: number): Promise<UserVocabulary> {
-    return vocabularyRepository.deleteWord(wordId, userId);
+    return this.vocabularyRepository.deleteWord(wordId, userId);
   }
 
   async updateWord(wordId: number, userId: number, wordData: Partial<UserVocabulary>) {
     // check if the user has the word
     await this.getWordByID(wordId, userId);
 
-    return vocabularyRepository.updateWord(wordId, wordData);
+    return this.vocabularyRepository.updateWord(wordId, wordData);
   }
 
   private attachUserIdToWords(words: UserVocabularyDTO[], userId: number): UserVocabularyWithUserIdDTO[] {
