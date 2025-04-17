@@ -13,16 +13,20 @@ import StoriesController from "./storyController";
 import { StoriesService } from "./storyService";
 import { StoryRepository } from "./storyRepository";
 import { VocabularyRepository } from "../vocabulary/vocabularyRepository";
+import { UnknownWordRepository } from "../unknownWord/unknownWordRepository";
 
 if (!process.env.OPENAI_API_KEY) {
   throw new Error("OPENAI_API_KEY is not set");
 }
 
-function createStoryAssembler(openai: OpenAI, vocabularyRepository: VocabularyRepository): StoryAssembler {
+function createStoryAssembler(
+  openai: OpenAI,
+  vocabularyRepository: VocabularyRepository,
+  unknownWordService: UnknownWordService
+): StoryAssembler {
   const vocabularyService = new VocabularyService(vocabularyRepository);
   const storyGeneratorService = new StoryGeneratorService(openai);
   const translationService = new TranslationService(openai);
-  const unknownWordService = new UnknownWordService();
   return new StoryAssembler(vocabularyService, storyGeneratorService, translationService, unknownWordService);
 }
 
@@ -44,12 +48,13 @@ export function createStoriesController(): StoriesController {
 
   const storyRepository = new StoryRepository();
   const vocabularyRepository = new VocabularyRepository();
-  const storyAssembler = createStoryAssembler(openai, vocabularyRepository);
+  const unknownWordRepository = new UnknownWordRepository();
+  const unknownWordService = new UnknownWordService(unknownWordRepository);
+  const storyAssembler = createStoryAssembler(openai, vocabularyRepository, unknownWordService);
   const lemmaAssembler = createLemmaAssembler(openai);
   const audioAssembler = createAudioAssembler(storyRepository, openai);
 
   const storiesService = new StoriesService(storyRepository, storyAssembler, lemmaAssembler, audioAssembler);
-  const unknownWordService = new UnknownWordService();
 
   return new StoriesController(storiesService, unknownWordService);
 }

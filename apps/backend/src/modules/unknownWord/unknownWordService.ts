@@ -2,21 +2,20 @@ import { CreateUnknownWordDTO } from "./unknownWord.types";
 import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
 
-const unknownWordRepository = new UnknownWordRepository();
-
 export class UnknownWordService {
+  constructor(private unknownWordRepository: UnknownWordRepository) {}
   async saveUnknownWords(
     unknownWords: CreateUnknownWordDTO[],
     storyId: number,
     userId: number
   ): Promise<UnknownWord[]> {
-    const existingWords = await unknownWordRepository.getUnknownWords(userId);
+    const existingWords = await this.unknownWordRepository.getUnknownWords(userId);
     const existingWordsMap = this.createWordsMap(existingWords);
 
     const { wordsToSave, wordsToUpdate } = this.partitionWords(unknownWords, existingWordsMap);
 
     const updatedWords = await this.updateExistingWords(wordsToUpdate, storyId);
-    const savedWords = await unknownWordRepository.saveUnknownWords(wordsToSave);
+    const savedWords = await this.unknownWordRepository.saveUnknownWords(wordsToSave);
 
     return [...updatedWords, ...savedWords];
   }
@@ -52,21 +51,21 @@ export class UnknownWordService {
 
   private async updateExistingWords(wordsToUpdate: UnknownWord[], storyId: number): Promise<UnknownWord[]> {
     const tasks = wordsToUpdate.map((word) =>
-      unknownWordRepository.updateTimesSeenAndConnectStory(word.id, word.timesSeen, storyId)
+      this.unknownWordRepository.updateTimesSeenAndConnectStory(word.id, word.timesSeen, storyId)
     );
 
     return await Promise.all(tasks);
   }
 
   async markAsLearned(wordId: number) {
-    await unknownWordRepository.markAsLearned(wordId);
+    await this.unknownWordRepository.markAsLearned(wordId);
   }
 
   async markAsLearning(wordId: number) {
-    await unknownWordRepository.markAsLearning(wordId);
+    await this.unknownWordRepository.markAsLearning(wordId);
   }
 
   async getUnknownWords(userId: number): Promise<UnknownWord[]> {
-    return unknownWordRepository.getUnknownWords(userId);
+    return this.unknownWordRepository.getUnknownWords(userId);
   }
 }
