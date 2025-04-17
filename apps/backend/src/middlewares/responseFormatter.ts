@@ -1,9 +1,10 @@
-import { ApiResponse } from "@/types/response.types";
+import { ApiResponse, Pagination } from "@/types/response.types";
 
-export function formatResponse<T>(data: T, statusCode = 200): ApiResponse<T> {
+export function formatResponse<T>(data: T, pagination?: Pagination, statusCode = 200): ApiResponse<T> {
   return {
     success: statusCode >= 200 && statusCode < 300,
     data,
+    pagination,
   };
 }
 
