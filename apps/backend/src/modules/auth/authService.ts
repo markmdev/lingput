@@ -65,6 +65,7 @@ export class AuthService {
   }
 
   async revokeToken(oldToken: string) {
+    await this.verifyRefreshToken(oldToken);
     await this.authRepository.revokeToken(oldToken);
   }
 }

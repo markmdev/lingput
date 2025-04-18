@@ -9,11 +9,23 @@ import {
 } from "@prisma/client/runtime/library";
 import { BadRequestError } from "@/errors/BadRequestError";
 import { formatErrorResponse, formatResponse } from "./responseFormatter";
+import { logger } from "@/utils/logger";
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.log(err);
+  const logBase = {
+    method: req.method,
+    url: req.originalUrl,
+    user: req.user || null,
+  };
+
   if (err instanceof CustomError) {
-    console.error({ message: err.message, details: err.details, originalError: err.originalError });
+    logger.error({
+      ...logBase,
+      type: "CustomError",
+      message: err.message,
+      details: err.details,
+      originalError: err.originalError,
+    });
     res.status(err.statusCode).json(formatErrorResponse(err.message));
     return;
   }
@@ -25,13 +37,34 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     err instanceof PrismaClientInitializationError ||
     err instanceof PrismaClientValidationError
   ) {
+    logger.error({
+      ...logBase,
+      type: "PrismaError",
+      prismaCode: "code" in err ? err.code : null,
+      message: err.message,
+      originalError: err,
+    });
     res.status(502).json(formatErrorResponse("Database error"));
     return;
   }
 
   if (err instanceof BadRequestError) {
+    logger.warn({
+      ...logBase,
+      type: "BadRequestError",
+      message: err.message,
+      validationErrors: err.errors,
+      details: err.details,
+      originalError: err,
+    });
     res.status(400).json(formatErrorResponse("Bad request", "BAD_REQUEST", err.errors));
   }
 
+  logger.error({
+    ...logBase,
+    type: "UnhandledError",
+    message: err.message || "Unknown server error",
+    stack: err.stack,
+  });
   res.status(500).json(formatErrorResponse("Unknown server response"));
 };

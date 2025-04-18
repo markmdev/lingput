@@ -16,9 +16,12 @@ import unknownWordRouter from "./modules/unknownWord/unknownWordRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 import { authRouter } from "./modules/auth/authRoutes";
 import cookieParser from "cookie-parser";
+import { requestLogger } from "./middlewares/requestLogger";
+import { logger } from "./utils/logger";
 const app = express();
 const port = process.env.PORT;
 
+app.use(requestLogger);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
