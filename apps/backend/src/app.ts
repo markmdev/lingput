@@ -19,9 +19,16 @@ import cookieParser from "cookie-parser";
 import { requestLogger } from "./middlewares/requestLogger";
 import { logger } from "./utils/logger";
 import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 const app = express();
 const port = process.env.PORT;
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 100,
+  legacyHeaders: false,
+});
 
+app.use(limiter);
 app.use(helmet());
 app.use(requestLogger);
 app.use(cookieParser());
