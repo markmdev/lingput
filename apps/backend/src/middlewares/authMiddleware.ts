@@ -1,14 +1,23 @@
 import { AuthError } from "@/errors/auth/AuthError";
+import { AuthRepository } from "@/modules/auth/authRepository";
 import { AuthService } from "@/modules/auth/authService";
+import { PrismaClient } from "@prisma/client";
 import { Request, Response, NextFunction } from "express";
 
-const authService = new AuthService();
+const prisma = new PrismaClient();
+const authRepository = new AuthRepository(prisma);
+const authService = new AuthService(authRepository);
 
 export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-  const { token } = req.cookies;
+  const { accessToken } = req.cookies;
+
+  if (!accessToken) {
+    next(new AuthError("User isn't authorized"));
+    return;
+  }
 
   try {
-    const user = await authService.verifyToken(token);
+    const user = await authService.verifyAccessToken(accessToken);
     console.log(user);
     req.user = user;
     next();

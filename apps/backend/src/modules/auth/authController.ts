@@ -3,57 +3,84 @@ import { UserRepository } from "../user/userRepository";
 import { AuthService } from "./authService";
 import { RegisterError } from "@/errors/auth/RegisterError";
 import { LoginError } from "@/errors/auth/LoginError";
-const userRepository = new UserRepository();
-const authService = new AuthService();
 
 export class AuthController {
-  constructor() {}
+  cookieOpts: { httpOnly: boolean; secure: boolean; sameSite: "lax"; maxAge?: number };
+  constructor(private authService: AuthService, private userRepository: UserRepository) {
+    this.cookieOpts = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    };
+  }
 
-  async register(req: Request, res: Response) {
+  register = async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const existingUser = await userRepository.getUserByEmail(email);
+    const existingUser = await this.userRepository.getUserByEmail(email);
     if (existingUser) {
       throw new RegisterError("Email already exists");
     }
 
-    const hashedPassword = await authService.hashPassword(password);
-    const user = await userRepository.createUser(email, hashedPassword);
-    const token = authService.generateToken(user.id);
+    const hashedPassword = await this.authService.hashPassword(password);
+    const user = await this.userRepository.createUser(email, hashedPassword);
+    const { refreshToken, accessToken } = await this.authService.issueTokens(user.id);
     res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 1 * 24 * 60 * 60 * 1000,
+      .cookie("accessToken", accessToken, {
+        ...this.cookieOpts,
+        maxAge: 15 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
+        ...this.cookieOpts,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .send();
-  }
+  };
 
-  async login(req: Request, res: Response) {
+  login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    const user = await userRepository.getUserByEmail(email);
+    const user = await this.userRepository.getUserByEmail(email);
     if (!user) {
       throw new LoginError("Invalid email or password");
     }
 
-    const checkPassword = await authService.comparePassword(password, user.password);
+    const checkPassword = await this.authService.comparePassword(password, user.password);
     if (!checkPassword) {
       throw new LoginError("Invalid email or password");
     }
 
-    const token = authService.generateToken(user.id);
+    const { refreshToken, accessToken } = await this.authService.issueTokens(user.id);
     res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 1 * 24 * 60 * 60 * 1000,
+      .cookie("accessToken", accessToken, {
+        ...this.cookieOpts,
+        maxAge: 15 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
+        ...this.cookieOpts,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .send();
-  }
+  };
 
-  async logout(req: Request, res: Response) {
-    res.clearCookie("token");
-    res.send();
-  }
+  logout = async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+    this.authService.revokeToken(refreshToken);
+    res.clearCookie("accessToken").clearCookie("refreshToken").send();
+  };
+
+  refresh = async (req: Request, res: Response) => {
+    const oldRefreshToken = req.cookies.refreshToken;
+    await this.authService.verifyRefreshToken(oldRefreshToken);
+    const { refreshToken, record } = await this.authService.rotateRefreshToken(oldRefreshToken);
+    const accessToken = await this.authService.generateAccessToken(record.userId);
+    res
+      .cookie("accessToken", accessToken, {
+        ...this.cookieOpts,
+        maxAge: 15 * 60 * 1000,
+      })
+      .cookie("refreshToken", refreshToken, {
+        ...this.cookieOpts,
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
+      .send();
+  };
 }
