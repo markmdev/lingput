@@ -1,6 +1,7 @@
 import { AuthError } from "@/errors/auth/AuthError";
 import { AuthRepository } from "@/modules/auth/authRepository";
 import { AuthService } from "@/modules/auth/authService";
+import { logger } from "@/utils/logger";
 import { PrismaClient } from "@prisma/client";
 import { Request, Response, NextFunction } from "express";
 
@@ -18,7 +19,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
   try {
     const user = await authService.verifyAccessToken(accessToken);
-    console.log(user);
     req.user = user;
     next();
   } catch (error) {

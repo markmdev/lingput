@@ -1,6 +1,6 @@
 import { StoryRepository } from "./storyRepository";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
-import { Story } from "@prisma/client";
+import { Story, UserVocabulary } from "@prisma/client";
 import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
 import { NotFoundError } from "@/errors/NotFoundError";
 import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
@@ -18,7 +18,7 @@ export class StoriesService {
   public async generateFullStoryExperience(
     userId: number,
     subject: string = ""
-  ): Promise<{ story: CreateStoryDTO; unknownWords: CreateUnknownWordDTO[] }> {
+  ): Promise<{ story: CreateStoryDTO; unknownWords: CreateUnknownWordDTO[]; knownWords: UserVocabulary[] }> {
     const { story, fullTranslation, translationChunks, knownWords } = await this.storyAssembler.assemble(
       subject,
       userId
@@ -34,6 +34,7 @@ export class StoriesService {
         userId,
       },
       unknownWords,
+      knownWords,
     };
   }
 

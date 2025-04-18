@@ -5,6 +5,7 @@ import { UnknownWord } from "@prisma/client";
 import { validateData } from "@/validation/validateData";
 import { storySubjectRequestSchema } from "./schemas/storySubjectSchema";
 import { formatResponse } from "@/middlewares/responseFormatter";
+import { logger } from "@/utils/logger";
 
 export class StoriesController {
   constructor(private storiesService: StoriesService, private unknownWordService: UnknownWordService) {}
@@ -12,12 +13,19 @@ export class StoriesController {
   generateStory = async (req: Request, res: Response) => {
     const { subject } = validateData(storySubjectRequestSchema, req.body);
     const user = req.user;
-    const { story, unknownWords } = await this.storiesService.generateFullStoryExperience(user.userId, subject);
+    const { story, unknownWords, knownWords } = await this.storiesService.generateFullStoryExperience(
+      user.userId,
+      subject
+    );
     const savedStory = await this.storiesService.saveStoryToDB(story);
     const savedUnknownWords = await this.unknownWordService.saveUnknownWords(unknownWords, savedStory.id, user.userId);
 
     const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
     const storyWithUnknownWords = await this.storiesService.connectUnknownWords(savedStory.id, unknownWordIds);
+
+    logger.info(
+      `User ${user.userId} generated a story. Story ID: ${savedStory.id}. New unknown words: ${unknownWordIds.length}. Known words used: ${knownWords.length}`
+    );
 
     res.status(200).json(formatResponse(storyWithUnknownWords));
   };

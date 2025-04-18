@@ -5,6 +5,7 @@ import * as os from "os";
 import { v4 as uuidv4 } from "uuid";
 import { Base64 } from "@/types/types";
 import { spawn } from "child_process";
+import { logger } from "@/utils/logger";
 
 /**
  * Combines multiple base64-encoded audio files into one output, returning the combined audio as a base64 string.
@@ -57,14 +58,13 @@ export async function combineAudioFromBase64(base64AudioFiles: Base64[][]): Prom
         await Promise.all(tempFiles.map((file) => fs.unlink(file)));
         const buffer = Buffer.concat(chunks);
         const base64Output = buffer.toString("base64");
-        console.log("Audio files combined successfully!");
+        logger.info("Audio files combined successfully!");
         resolve(base64Output);
       });
 
       // Handle errors by cleaning up and rejecting.
       outputStream.on("error", async (err: Error) => {
         await Promise.all(tempFiles.map((file) => fs.unlink(file)));
-        console.error("Error:", err.message);
         reject(err);
       });
     });
@@ -100,10 +100,6 @@ export function generateSilence(durationSeconds: number = 0.5): Promise<Base64> 
     ffmpeg.stdout.on("data", (chunk: Buffer) => {
       chunks.push(chunk);
     });
-
-    // ffmpeg.stderr.on("data", (data: Buffer) => {
-    //   console.error(`ffmpeg stderr: ${data.toString()}`);
-    // });
 
     ffmpeg.on("error", (err) => {
       reject(err);
