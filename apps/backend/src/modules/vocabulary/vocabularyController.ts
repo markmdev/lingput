@@ -1,13 +1,20 @@
 import { Request, Response } from "express";
 import { VocabularyService } from "./vocabularyService";
 import { formatResponse } from "@/middlewares/responseFormatter";
+import { validateData } from "@/validation/validateData";
+import { z } from "zod";
 
 export class VocabularyController {
   constructor(private vocabularyService: VocabularyService) {}
   async getAllWords(req: Request, res: Response) {
     const { userId } = req.user;
-    const page = parseInt(req.query.page?.toString() || "1");
-    const pageSize = parseInt(req.query.pagesize?.toString() || "20");
+    const { page, pageSize } = validateData(
+      z.object({
+        page: z.coerce.number().gt(0).default(1),
+        pageSize: z.coerce.number().gt(0).lt(200, { message: "Maximum pageSize is 200" }).default(20),
+      }),
+      req.query
+    );
     const result = await this.vocabularyService.getWords(userId, page, pageSize);
     res.status(200).json(formatResponse(result.data, result.pagination));
   }

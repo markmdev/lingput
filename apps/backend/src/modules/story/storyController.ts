@@ -6,6 +6,7 @@ import { validateData } from "@/validation/validateData";
 import { storySubjectRequestSchema } from "./schemas/storySubjectSchema";
 import { formatResponse } from "@/middlewares/responseFormatter";
 import { logger } from "@/utils/logger";
+import { z } from "zod";
 
 export class StoriesController {
   constructor(private storiesService: StoriesService, private unknownWordService: UnknownWordService) {}
@@ -38,9 +39,14 @@ export class StoriesController {
 
   getStoryById = async (req: Request, res: Response) => {
     const user = req.user;
-    const { storyId } = req.params;
+    const { storyId } = validateData(
+      z.object({
+        storyId: z.coerce.number().gt(0),
+      }),
+      req.params
+    );
 
-    const story = await this.storiesService.getStoryById(parseInt(storyId), user.userId);
+    const story = await this.storiesService.getStoryById(storyId, user.userId);
     res.status(200).json(formatResponse(story));
   };
 
