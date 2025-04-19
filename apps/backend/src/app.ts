@@ -8,18 +8,20 @@ declare global {
 }
 
 import dotenv from "dotenv";
-dotenv.config();
 import express from "express";
 import vocabRouter from "./modules/vocabulary/vocabularyRoutes";
 import storiesRouter from "./modules/story/storyRoutes";
 import unknownWordRouter from "./modules/unknownWord/unknownWordRoutes";
 import { errorHandler } from "./middlewares/errorHandler";
 import { authRouter } from "./modules/auth/authRoutes";
-import cookieParser from "cookie-parser";
 import { requestLogger } from "./middlewares/requestLogger";
 import { logger } from "./utils/logger";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import cors from "cors";
+
+dotenv.config();
 const app = express();
 const port = process.env.PORT;
 const limiter = rateLimit({
@@ -28,6 +30,7 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
+app.use(cors());
 app.use(limiter);
 app.use(helmet());
 app.use(requestLogger);
