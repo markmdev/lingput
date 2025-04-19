@@ -18,6 +18,18 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     user: req.user || null,
   };
 
+  if (err instanceof BadRequestError) {
+    logger.warn({
+      ...logBase,
+      type: "BadRequestError",
+      message: err.message,
+      validationErrors: err.errors,
+      details: err.details,
+      originalError: err,
+    });
+    res.status(400).json(formatErrorResponse(err.message, "BAD_REQUEST", err.errors));
+  }
+
   if (err instanceof CustomError) {
     logger.error({
       ...logBase,
@@ -46,18 +58,6 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     });
     res.status(502).json(formatErrorResponse("Database error"));
     return;
-  }
-
-  if (err instanceof BadRequestError) {
-    logger.warn({
-      ...logBase,
-      type: "BadRequestError",
-      message: err.message,
-      validationErrors: err.errors,
-      details: err.details,
-      originalError: err,
-    });
-    res.status(400).json(formatErrorResponse("Bad request", "BAD_REQUEST", err.errors));
   }
 
   logger.error({
