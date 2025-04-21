@@ -23,18 +23,20 @@ function serializeError(error?: unknown) {
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   const logBase = {
+    type: err.constructor.name,
     method: req.method,
     url: req.originalUrl,
     user: req.user || null,
+    name: err.name,
+    message: err.message,
+    details: err.details,
+    originalError: serializeError(err.originalError),
   };
 
   if (err instanceof BadRequestError) {
     logger.warn({
       ...logBase,
-      type: "BadRequestError",
-      message: err.message,
       validationErrors: err.errors,
-      details: err.details,
     });
     res.status(400).json(formatErrorResponse(err.message, "BAD_REQUEST", err.errors));
     return;
@@ -43,10 +45,6 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   if (err instanceof CustomError) {
     logger.error({
       ...logBase,
-      type: err.constructor.name,
-      message: err.message,
-      details: err.details,
-      originalError: serializeError(err.originalError),
     });
     res.status(err.statusCode).json(formatErrorResponse(err.message));
     return;
@@ -61,10 +59,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   ) {
     logger.error({
       ...logBase,
-      type: "PrismaError",
       prismaCode: "code" in err ? err.code : null,
-      message: err.message,
-      originalError: err,
     });
     res.status(502).json(formatErrorResponse("Database error"));
     return;
@@ -72,7 +67,6 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
 
   logger.error({
     ...logBase,
-    type: "UnhandledError",
     message: err.message || "Unknown server error",
     stack: err.stack,
   });
