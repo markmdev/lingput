@@ -5,7 +5,14 @@ export function requestLogger(req: Request, res: Response, next: NextFunction) {
   const start = Date.now();
   res.on("finish", () => {
     const duration = Date.now() - start;
-    logger.info(`${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms [User: ${req.user?.userId}]`);
+    logger.info({
+      message: "Request finished",
+      method: req.method,
+      url: req.originalUrl,
+      status: res.statusCode,
+      durationMs: duration,
+      userId: req.user?.userId ?? null,
+    });
   });
 
   next();
