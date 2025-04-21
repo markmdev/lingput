@@ -22,6 +22,6 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     req.user = user;
     next();
   } catch (error) {
-    next(new AuthError("User isn't authorized"));
+    next(new AuthError("User isn't authorized", { message: "Can't verify access token" }, error));
   }
 };

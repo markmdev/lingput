@@ -8,8 +8,18 @@ import {
   PrismaClientValidationError,
 } from "@prisma/client/runtime/library";
 import { BadRequestError } from "@/errors/BadRequestError";
-import { formatErrorResponse, formatResponse } from "./responseFormatter";
+import { formatErrorResponse } from "./responseFormatter";
 import { logger } from "@/utils/logger";
+
+function serializeError(error?: unknown) {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      name: error.name,
+    };
+  }
+  return error;
+}
 
 export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   const logBase = {
@@ -33,10 +43,10 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   if (err instanceof CustomError) {
     logger.error({
       ...logBase,
-      type: "CustomError",
+      type: err.constructor.name,
       message: err.message,
       details: err.details,
-      originalError: err.originalError,
+      originalError: serializeError(err.originalError),
     });
     res.status(err.statusCode).json(formatErrorResponse(err.message));
     return;
