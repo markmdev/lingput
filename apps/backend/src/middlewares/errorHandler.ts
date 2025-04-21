@@ -25,9 +25,9 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
       message: err.message,
       validationErrors: err.errors,
       details: err.details,
-      originalError: err,
     });
     res.status(400).json(formatErrorResponse(err.message, "BAD_REQUEST", err.errors));
+    return;
   }
 
   if (err instanceof CustomError) {
