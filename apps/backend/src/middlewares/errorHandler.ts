@@ -21,7 +21,13 @@ function serializeError(error?: unknown) {
   return error;
 }
 
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
+  if (!(err instanceof Error)) {
+    logger.error({ message: "Unknown error", error: err });
+    res.status(500).json(formatErrorResponse("Unknown server error"));
+    return;
+  }
+
   const logBase = {
     type: err.constructor.name,
     method: req.method,
@@ -29,14 +35,14 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
     user: req.user || null,
     name: err.name,
     message: err.message,
-    details: err.details,
-    originalError: serializeError(err.originalError),
   };
 
   if (err instanceof BadRequestError) {
     logger.warn({
       ...logBase,
       validationErrors: err.errors,
+      details: err.details,
+      originalError: serializeError(err.originalError),
     });
     res.status(400).json(formatErrorResponse(err.message, "BAD_REQUEST", err.errors));
     return;
@@ -45,6 +51,8 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
   if (err instanceof CustomError) {
     logger.error({
       ...logBase,
+      details: err.details,
+      originalError: serializeError(err.originalError),
     });
     res.status(err.statusCode).json(formatErrorResponse(err.message));
     return;
