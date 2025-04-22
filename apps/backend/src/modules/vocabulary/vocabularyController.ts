@@ -37,7 +37,7 @@ export class VocabularyController {
     const { userId } = req.user;
     const wordId = parseInt(req.params.id);
     await this.vocabularyService.deleteWord(wordId, userId);
-    res.status(204).json(formatResponse({ status: "success" }));
+    res.status(204).send();
   };
 
   getWordById = async (req: Request, res: Response) => {
