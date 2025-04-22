@@ -30,7 +30,12 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 app.use(limiter);
 app.use(helmet());
 app.use(requestLogger);
