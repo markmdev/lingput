@@ -1,10 +1,8 @@
 import { Router } from "express";
 import { asyncHandler } from "@/middlewares/asyncHandler";
-import { createAuthController } from "./authControllerFactory";
+import { authController } from "./composition";
 
 export const authRouter = Router();
-
-const authController = createAuthController();
 
 authRouter.post("/register", asyncHandler(authController.register));
 authRouter.post("/login", asyncHandler(authController.login));
