@@ -13,7 +13,7 @@ export class LemmatizationService {
   constructor(private openai: OpenAI) {}
   async lemmatize(text: string): Promise<Lemma[]> {
     try {
-      const response = await axios.post("http://localhost:8000/lemmatize", {
+      const response = await axios.post(`${process.env.LEMMA_SERVICE_URL}/lemmatize`, {
         text,
       });
       return response.data.lemmas;
