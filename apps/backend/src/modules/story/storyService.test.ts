@@ -1,3 +1,4 @@
+import { UserVocabulary } from "@prisma/client";
 import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
 import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
@@ -12,6 +13,8 @@ const assembledStoryMock = {
       word: "Hund",
       translation: "Dog",
       article: "der",
+      id: 1,
+      userId: 1,
     },
   ],
   fullTranslation: "The dog chases the cat.",
@@ -42,6 +45,16 @@ const unknownWordsMock: CreateUnknownWordDTO[] = [
   },
 ];
 
+const knownWordsMock: UserVocabulary[] = [
+  {
+    id: 1,
+    userId: 1,
+    word: "Hund",
+    translation: "Dog",
+    article: "der",
+  },
+];
+
 describe("StoryService", () => {
   it("should generate a story", async () => {
     const storyRepositoryMock = {} as unknown as StoryRepository;
@@ -63,6 +76,7 @@ describe("StoryService", () => {
         userId: 1,
       },
       unknownWords: unknownWordsMock,
+      knownWords: knownWordsMock,
     };
 
     const storyService = new StoriesService(
