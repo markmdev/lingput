@@ -52,6 +52,6 @@ export class VocabularyController {
     const { wordData } = req.body;
     const wordId = parseInt(req.params.id);
     const updatedWord = await this.vocabularyService.updateWord(wordId, userId, wordData);
-    res.status(201).json(updatedWord);
+    res.status(200).json(formatResponse(updatedWord));
   };
 }
