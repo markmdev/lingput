@@ -1,12 +1,12 @@
-import { UserVocabulary } from "@prisma/client";
+import { PrismaClient, UserVocabulary } from "@prisma/client";
 import { UserVocabularyWithUserIdDTO } from "./vocabulary.types";
-import { prisma } from "@/services/prisma";
 import { PrismaError } from "@/errors/PrismaError";
 
 export class VocabularyRepository {
+  constructor(private prisma: PrismaClient) {}
   async saveWord(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
     try {
-      const newWord = await prisma.userVocabulary.create({
+      const newWord = await this.prisma.userVocabulary.create({
         data: word,
       });
 
@@ -18,7 +18,7 @@ export class VocabularyRepository {
 
   async saveManyWords(words: UserVocabularyWithUserIdDTO[]): Promise<UserVocabulary[]> {
     try {
-      const newWords = await prisma.userVocabulary.createManyAndReturn({
+      const newWords = await this.prisma.userVocabulary.createManyAndReturn({
         data: words,
       });
 
@@ -30,7 +30,7 @@ export class VocabularyRepository {
 
   async getWordByID(wordId: number): Promise<UserVocabulary | null> {
     try {
-      return prisma.userVocabulary.findUnique({
+      return this.prisma.userVocabulary.findUnique({
         where: {
           id: wordId,
         },
@@ -44,12 +44,12 @@ export class VocabularyRepository {
     try {
       const whereClause = { userId };
       const [words, totalItems] = await Promise.all([
-        prisma.userVocabulary.findMany({
+        this.prisma.userVocabulary.findMany({
           where: whereClause,
           skip,
           take,
         }),
-        prisma.userVocabulary.count({ where: whereClause }),
+        this.prisma.userVocabulary.count({ where: whereClause }),
       ]);
       return [words, totalItems];
     } catch (error) {
@@ -59,7 +59,7 @@ export class VocabularyRepository {
 
   async getAllWordsWithoutPagination(userId: number): Promise<UserVocabulary[]> {
     try {
-      return prisma.userVocabulary.findMany({
+      return this.prisma.userVocabulary.findMany({
         where: { userId },
       });
     } catch (error) {
@@ -69,7 +69,7 @@ export class VocabularyRepository {
 
   async deleteWord(wordId: number, userId: number): Promise<UserVocabulary> {
     try {
-      return prisma.userVocabulary.delete({
+      return this.prisma.userVocabulary.delete({
         where: {
           id: wordId,
           userId,
@@ -82,7 +82,7 @@ export class VocabularyRepository {
 
   async updateWord(wordId: number, wordData: Partial<UserVocabulary>): Promise<UserVocabulary> {
     try {
-      return prisma.userVocabulary.update({
+      return this.prisma.userVocabulary.update({
         where: {
           id: wordId,
         },

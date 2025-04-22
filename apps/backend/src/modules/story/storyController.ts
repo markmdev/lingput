@@ -8,7 +8,7 @@ import { formatResponse } from "@/middlewares/responseFormatter";
 import { logger } from "@/utils/logger";
 import { z } from "zod";
 
-export class StoriesController {
+export class StoryController {
   constructor(private storiesService: StoriesService, private unknownWordService: UnknownWordService) {}
 
   generateStory = async (req: Request, res: Response) => {
@@ -56,5 +56,3 @@ export class StoriesController {
     }));
   }
 }
-
-export default StoriesController;

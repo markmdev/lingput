@@ -1,11 +1,10 @@
 import client from "@/services/supabase";
 import { Base64 } from "@/types/types";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
-import { Story } from "@prisma/client";
+import { PrismaClient, Story } from "@prisma/client";
 import { StorageError } from "@/errors/StorageError";
 import { NotFoundError } from "@/errors/NotFoundError";
 import { PrismaError } from "@/errors/PrismaError";
-import { prisma } from "@/services/prisma";
 function getRandomFileName(extension: string) {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${extension}`;
 }
@@ -16,9 +15,10 @@ function base64ToArrayBuffer(base64: Base64) {
 }
 
 export class StoryRepository {
+  constructor(private prisma: PrismaClient) {}
   async getAllStories(userId: number): Promise<Story[]> {
     try {
-      return prisma.story.findMany({
+      return this.prisma.story.findMany({
         where: {
           userId,
         },
@@ -33,7 +33,7 @@ export class StoryRepository {
 
   async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
     try {
-      const savedStory = await prisma.story.create({
+      const savedStory = await this.prisma.story.create({
         data: story,
       });
       return savedStory;
@@ -73,7 +73,7 @@ export class StoryRepository {
   }
 
   async getStoryById(storyId: number): Promise<Story> {
-    const story = await prisma.story.findUnique({
+    const story = await this.prisma.story.findUnique({
       where: {
         id: storyId,
       },
@@ -89,7 +89,7 @@ export class StoryRepository {
 
   async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {
     try {
-      const response = await prisma.story.update({
+      const response = await this.prisma.story.update({
         where: { id: storyId },
         data: {
           unknownWords: {

@@ -1,6 +1,6 @@
 import { CreateUnknownWordDTO } from "@/modules/unknownWord/unknownWord.types";
 import { Base64 } from "@/types/types";
-import { generateSilence, combineAudioFromBase64 } from "./audio";
+import { generateSilence, combineAudioFromBase64 } from "./audioUtils";
 import { StoryAudioStorageService } from "./storyAudioStorageService";
 import { TextToSpeechService } from "./textToSpeechService";
 import { ChunkTranslation } from "../storyAssembler/translationService";

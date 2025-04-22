@@ -1,11 +1,12 @@
-import { prisma } from "@/services/prisma";
+import { PrismaClient } from "@prisma/client";
 
 export class UserRepository {
+  constructor(private prisma: PrismaClient) {}
   async getUserByEmail(email: string) {
-    return prisma.user.findUnique({ where: { email } });
+    return this.prisma.user.findUnique({ where: { email } });
   }
 
   async createUser(email: string, hashedPassword: string) {
-    return prisma.user.create({ data: { email, password: hashedPassword } });
+    return this.prisma.user.create({ data: { email, password: hashedPassword } });
   }
 }
