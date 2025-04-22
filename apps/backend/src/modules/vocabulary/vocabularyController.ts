@@ -21,36 +21,61 @@ export class VocabularyController {
 
   saveNewWord = async (req: Request, res: Response) => {
     const { userId } = req.user;
-    const { word, translation, article } = req.body;
+    const { word, translation, article } = validateData(
+      z.object({
+        word: z.string().min(1).max(50),
+        translation: z.string().min(1).max(50),
+        article: z.string().min(1).max(15).nullable(),
+      }),
+      req.body
+    );
     const newWord = await this.vocabularyService.saveNewWord({ word, translation, article, userId });
     res.status(201).json(formatResponse(newWord));
   };
 
   saveManyWords = async (req: Request, res: Response) => {
     const { userId } = req.user;
-    const { words } = req.body;
+    const { words } = validateData(
+      z.object({
+        words: z.array(
+          z.object({
+            word: z.string().min(1).max(50),
+            translation: z.string().min(1).max(50),
+            article: z.string().min(1).max(15).nullable(),
+          })
+        ),
+      }),
+      req.body
+    );
     const savedWords = await this.vocabularyService.saveManyWords(words, userId);
     res.status(201).json(formatResponse(savedWords));
   };
 
   deleteWord = async (req: Request, res: Response) => {
     const { userId } = req.user;
-    const wordId = parseInt(req.params.id);
+    const wordId = validateData(z.coerce.number(), req.params.id);
     await this.vocabularyService.deleteWord(wordId, userId);
     res.status(204).send();
   };
 
   getWordById = async (req: Request, res: Response) => {
     const { userId } = req.user;
-    const wordId = parseInt(req.params.id);
+    const wordId = validateData(z.coerce.number(), req.params.id);
     const word = await this.vocabularyService.getWordByID(wordId, userId);
     res.status(200).json(formatResponse(word));
   };
 
   updateWord = async (req: Request, res: Response) => {
     const { userId } = req.user;
-    const { wordData } = req.body;
-    const wordId = parseInt(req.params.id);
+    const wordId = validateData(z.coerce.number(), req.params.id);
+    const wordData = validateData(
+      z.object({
+        word: z.string().min(1).max(50),
+        translation: z.string().min(1).max(50),
+        article: z.string().min(1).max(15).nullable(),
+      }),
+      req.body
+    );
     const updatedWord = await this.vocabularyService.updateWord(wordId, userId, wordData);
     res.status(200).json(formatResponse(updatedWord));
   };
