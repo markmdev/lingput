@@ -3,6 +3,7 @@ import { UserRepository } from "../user/userRepository";
 import { AuthService } from "./authService";
 import { RegisterError } from "@/errors/auth/RegisterError";
 import { LoginError } from "@/errors/auth/LoginError";
+import { formatResponse } from "@/middlewares/responseFormatter";
 
 export class AuthController {
   cookieOpts: { httpOnly: boolean; secure: boolean; sameSite: "lax"; maxAge?: number };
@@ -33,7 +34,7 @@ export class AuthController {
         ...this.cookieOpts,
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
-      .send();
+      .json(formatResponse({ id: user.id }));
   };
 
   login = async (req: Request, res: Response) => {
@@ -58,7 +59,7 @@ export class AuthController {
         ...this.cookieOpts,
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
-      .send();
+      .json(formatResponse({ id: user.id }));
   };
 
   logout = async (req: Request, res: Response) => {
@@ -81,6 +82,6 @@ export class AuthController {
         ...this.cookieOpts,
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
-      .send();
+      .json(formatResponse({ id: record.userId }));
   };
 }
