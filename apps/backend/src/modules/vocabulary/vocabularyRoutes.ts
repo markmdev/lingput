@@ -1,9 +1,9 @@
-import express from "express";
-const router = express.Router();
 import { asyncHandler } from "@/middlewares/asyncHandler";
-import { authMiddleware } from "@/middlewares/authMiddleware";
 import { createVocabularyController } from "./vocabularyControllerFactory";
+import { authMiddleware } from "@/middlewares/authMiddlewareFactory";
+import express from "express";
 
+const router = express.Router();
 const vocabularyController = createVocabularyController();
 
 router.get("/words", authMiddleware, asyncHandler(vocabularyController.getAllWords));

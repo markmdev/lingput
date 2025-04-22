@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "@/middlewares/asyncHandler";
-import { authMiddleware } from "@/middlewares/authMiddleware";
 import { createUnknownWordController } from "./unknownWordControllerFactory";
+import { authMiddleware } from "@/middlewares/authMiddlewareFactory";
 const router = Router();
 
 const unknownWordController = createUnknownWordController();
