@@ -20,6 +20,9 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
+import { prisma } from "./services/prisma";
+import { openai } from "./services/openai";
+import supabase from "./services/supabase";
 
 dotenv.config();
 const app = express();
@@ -50,6 +53,37 @@ app.use("/api/auth", authRouter);
 
 app.use(errorHandler);
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   logger.info(`Listening on ${port}`);
+});
+
+const gracefulShutdown = (signal: string) => {
+  logger.info(`Received ${signal}. Stopping server...`);
+  server.close((err) => {
+    if (err) {
+      logger.error("Error closing server:", err);
+      process.exit(1);
+    }
+    prisma.$disconnect();
+    logger.info("All connections closed. Exiting.");
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    logger.warn("Forcing shutdown after timeout");
+    process.exit(1);
+  }, 10000).unref();
+};
+
+["SIGINT", "SIGTERM"].forEach((sig) => {
+  process.on(sig, () => gracefulShutdown(sig));
+});
+
+process.on("uncaughtException", (err) => {
+  logger.error("Uncaught exception:", err);
+  gracefulShutdown("uncaughtException");
+});
+process.on("unhandledRejection", (reason) => {
+  logger.error("Unhandled rejection:", reason);
+  gracefulShutdown("unhandlerRejection");
 });
