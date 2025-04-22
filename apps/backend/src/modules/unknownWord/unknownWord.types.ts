@@ -5,6 +5,6 @@ export interface CreateUnknownWordDTO {
   article: string | null;
   exampleSentence: string;
   exampleSentenceTranslation: string;
-  timesSeen?: 1;
-  status?: "learning";
+  timesSeen?: number;
+  status?: "learning" | "learned";
 }
