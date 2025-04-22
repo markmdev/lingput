@@ -3,6 +3,7 @@ import axios from "axios";
 import { OpenAIError } from "@/errors/OpenAIError";
 import { Response as OpenAIResponse } from "openai/resources/responses/responses";
 import OpenAI from "openai";
+import { LemmatizationError } from "@/errors/LemmatizationError";
 
 export type OpenAILemmasResponse = {
   lemmas: LemmaWithTranslation[];
@@ -11,10 +12,14 @@ export type OpenAILemmasResponse = {
 export class LemmatizationService {
   constructor(private openai: OpenAI) {}
   async lemmatize(text: string): Promise<Lemma[]> {
-    const response = await axios.post("http://localhost:8000/lemmatize", {
-      text,
-    });
-    return response.data.lemmas;
+    try {
+      const response = await axios.post("http://localhost:8000/lemmatize", {
+        text,
+      });
+      return response.data.lemmas;
+    } catch (error) {
+      throw new LemmatizationError("Can't lemmatize text", { text }, error);
+    }
   }
 
   async translateLemmas(lemmas: Lemma[]): Promise<LemmaWithTranslation[]> {
