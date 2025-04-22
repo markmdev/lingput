@@ -6,6 +6,7 @@ import { NotFoundError } from "@/errors/NotFoundError";
 import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
 import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
+import { LanguageCode } from "@/utils/languages";
 
 export class StoriesService {
   constructor(
@@ -17,14 +18,29 @@ export class StoriesService {
 
   public async generateFullStoryExperience(
     userId: number,
+    languageCode: LanguageCode,
+    originalLanguageCode: LanguageCode,
     subject: string = ""
   ): Promise<{ story: CreateStoryDTO; unknownWords: CreateUnknownWordDTO[]; knownWords: UserVocabulary[] }> {
     const { story, fullTranslation, translationChunks, knownWords } = await this.storyAssembler.assemble(
       subject,
-      userId
+      userId,
+      languageCode,
+      originalLanguageCode
     );
-    const unknownWords = await this.lemmaAssembler.assemble(story, knownWords, userId);
-    const audioUrl = await this.audioAssembler.assemble(translationChunks, unknownWords);
+    const unknownWords = await this.lemmaAssembler.assemble(
+      story,
+      knownWords,
+      userId,
+      languageCode,
+      originalLanguageCode
+    );
+    const audioUrl = await this.audioAssembler.assemble(
+      translationChunks,
+      unknownWords,
+      languageCode,
+      originalLanguageCode
+    );
 
     return {
       story: {

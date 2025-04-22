@@ -33,7 +33,7 @@ describe("TranslationService", () => {
 
     const translator = new TranslationService(openaiMock);
 
-    const result = translator.translateChunks(storyMock);
+    const result = translator.translateChunks(storyMock, "EN");
 
     await expect(result).resolves.toEqual(translatedChunksMock.chunks);
   });
@@ -49,7 +49,7 @@ describe("TranslationService", () => {
 
     const translator = new TranslationService(openaiMock);
 
-    const result = translator.translateChunks(storyMock);
+    const result = translator.translateChunks(storyMock, "EN");
 
     await expect(result).rejects.toBeInstanceOf(OpenAIError);
     await expect(result).rejects.toMatchObject({
@@ -66,7 +66,7 @@ describe("TranslationService", () => {
 
     const translator = new TranslationService(openaiMock);
 
-    const result = translator.translateChunks(storyMock);
+    const result = translator.translateChunks(storyMock, "EN");
 
     await expect(result).rejects.toBeInstanceOf(OpenAIError);
     await expect(result).rejects.toMatchObject({

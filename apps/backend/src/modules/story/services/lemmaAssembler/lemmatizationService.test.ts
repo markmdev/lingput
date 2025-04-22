@@ -32,7 +32,7 @@ describe("LemmatizationService", () => {
     } as unknown as OpenAI;
 
     const lemmatizationService = new LemmatizationService(openaiMock);
-    const result = lemmatizationService.translateLemmas(lemmasMock);
+    const result = lemmatizationService.translateLemmas(lemmasMock, "DE", "EN");
 
     await expect(result).resolves.toEqual(translationMock.lemmas);
   });

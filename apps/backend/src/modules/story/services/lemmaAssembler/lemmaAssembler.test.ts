@@ -77,7 +77,7 @@ describe("LemmaAssember", () => {
       },
     ];
 
-    const result = await assembler.assemble(storyMock, knownWordsMock, 1);
+    const result = await assembler.assemble(storyMock, knownWordsMock, 1, "DE", "EN");
 
     expect(result).toEqual(expectedResult);
   });

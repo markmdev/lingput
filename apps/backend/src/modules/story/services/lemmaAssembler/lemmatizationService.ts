@@ -4,13 +4,14 @@ import { OpenAIError } from "@/errors/OpenAIError";
 import { Response as OpenAIResponse } from "openai/resources/responses/responses";
 import OpenAI from "openai";
 import { LemmatizationError } from "@/errors/LemmatizationError";
-
+import { LanguageCode, LANGUAGES_MAP } from "@/utils/languages";
 export type OpenAILemmasResponse = {
   lemmas: LemmaWithTranslation[];
 };
 
 export class LemmatizationService {
   constructor(private openai: OpenAI) {}
+  // TODO: add support for other languages
   async lemmatize(text: string): Promise<Lemma[]> {
     try {
       const response = await axios.post(`${process.env.LEMMA_SERVICE_URL}/lemmatize`, {
@@ -22,7 +23,11 @@ export class LemmatizationService {
     }
   }
 
-  async translateLemmas(lemmas: Lemma[]): Promise<LemmaWithTranslation[]> {
+  async translateLemmas(
+    lemmas: Lemma[],
+    languageCode: LanguageCode,
+    originalLanguageCode: LanguageCode
+  ): Promise<LemmaWithTranslation[]> {
     let response: OpenAIResponse;
     try {
       response = await this.openai.responses.create({
@@ -30,7 +35,7 @@ export class LemmatizationService {
         input: [
           {
             role: "system",
-            content: `You are a helpful and context-aware translator. Your task is to translate the following lemmas (base word forms) into natural English, using the sentence as context.
+            content: `You are a helpful and context-aware translator. Your task is to translate the following lemmas (base word forms) into natural ${LANGUAGES_MAP[originalLanguageCode]}, using the sentence as context.
 
           For each lemma:
           - Translate **only the lemma**, not the sentence.
@@ -42,8 +47,8 @@ export class LemmatizationService {
           - Do **not** include proper names (e.g., Max, Berlin) in the response — skip them entirely.
 
           In addition, for each lemma:
-          - Create a **simple original example sentence** in German using the lemma naturally.
-          - Then provide the **English translation** of your example sentence.
+          - Create a **simple original example sentence** in ${LANGUAGES_MAP[languageCode]} using the lemma naturally.
+          - Then provide the **${LANGUAGES_MAP[originalLanguageCode]} translation** of your example sentence.
           - The example sentence should be short, natural, and helpful for learners. Do not copy from the input sentence — generate a **new** one.
           `,
           },

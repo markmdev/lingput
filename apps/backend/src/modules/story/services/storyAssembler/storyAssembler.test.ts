@@ -82,10 +82,10 @@ describe("StoryAssembler", () => {
       translationChunks: translatedChunksMock,
     };
 
-    const result = await assembler.assemble("Pets", 1);
+    const result = await assembler.assemble("Pets", 1, "DE", "EN");
     expect(result).toEqual(expected);
     expect(vocabularyServiceMock.getWords).toHaveBeenCalledWith(1);
-    expect(storyGeneratorServiceMock.generateStory).toHaveBeenCalledWith(["Hund", "Katze", "jagen"], "Pets");
-    expect(translationServiceMock.translateChunks).toHaveBeenCalledWith("Der Hund jagt schnell die Katze.");
+    expect(storyGeneratorServiceMock.generateStory).toHaveBeenCalledWith(["Hund", "Katze", "jagen"], "Pets", "DE");
+    expect(translationServiceMock.translateChunks).toHaveBeenCalledWith("Der Hund jagt schnell die Katze.", "EN");
   });
 });

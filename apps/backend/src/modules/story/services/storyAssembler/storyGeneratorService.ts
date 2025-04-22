@@ -1,10 +1,11 @@
 import { OpenAIError } from "@/errors/OpenAIError";
+import { LanguageCode, LANGUAGES_MAP } from "@/utils/languages";
 import OpenAI from "openai";
 import { ChatCompletion } from "openai/resources/chat/completions";
 
 export class StoryGeneratorService {
   constructor(private openai: OpenAI) {}
-  async generateStory(targetLanguageWords: string[], subject: string): Promise<string> {
+  async generateStory(targetLanguageWords: string[], subject: string, languageCode: LanguageCode): Promise<string> {
     let response: ChatCompletion;
     try {
       response = await this.openai.chat.completions.create({
@@ -13,7 +14,7 @@ export class StoryGeneratorService {
           {
             role: "system",
             content: `
-                You are given a list of German words that I've learned. I want to practice reading now. I want you to create a story in German. But this story should meet some requirements:
+                You are given a list of ${LANGUAGES_MAP[languageCode]} words that I've learned. I want to practice reading now. I want you to create a story in ${LANGUAGES_MAP[languageCode]}. But this story should meet some requirements:
     
                 1. 98% of the words in the story should be the words from the list I provided. Other words should be new to me, but similar by level of difficulty. It means that from 20 words in the story, 19 should be from the list, and 1 should be new. This is very important.
                 2. All story should use only present tense

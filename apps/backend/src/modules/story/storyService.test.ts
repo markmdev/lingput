@@ -85,7 +85,7 @@ describe("StoryService", () => {
       lemmaAssemblerMock,
       audioAssemblerMock
     );
-    const result = await storyService.generateFullStoryExperience(1, "Pets");
+    const result = await storyService.generateFullStoryExperience(1, "DE", "EN", "Pets");
     expect(result).toEqual(expectedResult);
   });
 });

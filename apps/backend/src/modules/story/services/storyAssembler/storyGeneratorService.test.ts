@@ -24,7 +24,7 @@ describe("StoryGeneratorService", () => {
 
     const generator = new StoryGeneratorService(openaiMock);
 
-    const result = await generator.generateStory(["Hund", "Katze"], "Pets");
+    const result = await generator.generateStory(["Hund", "Katze"], "Pets", "DE");
     expect(result).toBe(storyMock);
   });
 
@@ -39,7 +39,7 @@ describe("StoryGeneratorService", () => {
 
     const generator = new StoryGeneratorService(openaiMock);
 
-    const result = generator.generateStory(["Hund", "Katze"], "Pets");
+    const result = generator.generateStory(["Hund", "Katze"], "Pets", "DE");
     await expect(result).rejects.toBeInstanceOf(OpenAIError);
     await expect(result).rejects.toMatchObject({
       message: "Can't generate a story",
@@ -71,7 +71,7 @@ describe("StoryGeneratorService", () => {
 
     const generator = new StoryGeneratorService(openaiMock);
 
-    const result = generator.generateStory(["Hund", "Katze"], "Pets");
+    const result = generator.generateStory(["Hund", "Katze"], "Pets", "DE");
     await expect(result).rejects.toBeInstanceOf(OpenAIError);
     await expect(result).rejects.toMatchObject({
       message: "Can't generate a story",

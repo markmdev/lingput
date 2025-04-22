@@ -13,9 +13,15 @@ export class StoryController {
 
   generateStory = async (req: Request, res: Response) => {
     const { subject } = validateData(storySubjectRequestSchema, req.body);
+    const { languageCode, originalLanguageCode } = validateData(
+      z.object({ languageCode: z.enum(["DE", "EN"]), originalLanguageCode: z.enum(["DE", "EN"]) }),
+      req.body
+    );
     const user = req.user;
     const { story, unknownWords, knownWords } = await this.storiesService.generateFullStoryExperience(
       user.userId,
+      languageCode,
+      originalLanguageCode,
       subject
     );
     const savedStory = await this.storiesService.saveStoryToDB(story);
