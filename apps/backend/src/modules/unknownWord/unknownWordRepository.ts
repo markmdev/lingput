@@ -1,12 +1,12 @@
 import { PrismaError } from "@/errors/PrismaError";
 import { CreateUnknownWordDTO } from "./unknownWord.types";
-import { UnknownWord } from "@prisma/client";
-import { prisma } from "@/services/prisma";
+import { PrismaClient, UnknownWord } from "@prisma/client";
 
 export class UnknownWordRepository {
+  constructor(private prisma: PrismaClient) {}
   async saveUnknownWords(unknownWords: CreateUnknownWordDTO[]): Promise<UnknownWord[]> {
     try {
-      const response = await prisma.unknownWord.createManyAndReturn({
+      const response = await this.prisma.unknownWord.createManyAndReturn({
         data: unknownWords,
       });
       return response;
@@ -17,7 +17,7 @@ export class UnknownWordRepository {
 
   async markAsLearned(wordId: number, userId: number) {
     try {
-      const response = await prisma.unknownWord.update({
+      const response = await this.prisma.unknownWord.update({
         where: {
           id: wordId,
           userId,
@@ -34,7 +34,7 @@ export class UnknownWordRepository {
 
   async markAsLearning(wordId: number, userId: number) {
     try {
-      const response = await prisma.unknownWord.update({
+      const response = await this.prisma.unknownWord.update({
         where: {
           id: wordId,
           userId,
@@ -51,7 +51,7 @@ export class UnknownWordRepository {
 
   async getUnknownWords(userId: number): Promise<UnknownWord[]> {
     try {
-      const response = await prisma.unknownWord.findMany({ where: { userId } });
+      const response = await this.prisma.unknownWord.findMany({ where: { userId } });
       return response;
     } catch (error) {
       throw new PrismaError("Can't get unknown words", {}, error);
@@ -60,7 +60,7 @@ export class UnknownWordRepository {
 
   async updateTimesSeenAndConnectStory(wordId: number, timesSeen: number, storyId: number): Promise<UnknownWord> {
     try {
-      const response = await prisma.unknownWord.update({
+      const response = await this.prisma.unknownWord.update({
         where: {
           id: wordId,
         },
