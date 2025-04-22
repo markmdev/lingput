@@ -13,7 +13,7 @@ export class AuthRepository {
     });
   }
 
-  async getRefreshTokenRecord(refreshToken: string = "") {
+  async getRefreshTokenRecord(refreshToken: string) {
     return this.prisma.refreshToken.findUnique({
       where: {
         token: refreshToken,
@@ -21,12 +21,12 @@ export class AuthRepository {
     });
   }
 
-  async revokeToken(oldToken: string, newToken: string = "") {
+  async revokeToken(oldToken: string, newToken?: string) {
     await this.prisma.refreshToken.update({
       where: { token: oldToken },
       data: {
-        revokedAt: new Date(Date.now()),
-        replacedBy: newToken,
+        revokedAt: new Date(),
+        replacedBy: newToken ?? null,
       },
     });
   }
