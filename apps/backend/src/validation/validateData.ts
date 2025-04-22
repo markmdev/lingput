@@ -1,4 +1,4 @@
-import { ZodSchema } from "zod";
+import { ZodIssue, ZodSchema } from "zod";
 import { BadRequestError } from "@/errors/BadRequestError";
 
 export const validateData = <T>(schema: ZodSchema<T>, data: any): T => {

@@ -1,3 +1,5 @@
+import { ZodIssue } from "zod";
+
 export interface Pagination {
   totalItems: number;
   totalPages: number;
@@ -12,6 +14,6 @@ export interface ApiResponse<T> {
   error?: {
     message: string;
     code?: string;
-    details?: unknown;
+    details?: ZodIssue[];
   };
 }
