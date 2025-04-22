@@ -1,5 +1,6 @@
 import { openai } from "@/services/openai";
 import { prisma } from "@/services/prisma";
+import supabase from "@/services/supabase";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
 import { StoryAudioStorageService } from "./services/audioAssembler/storyAudioStorageService";
 import { TextToSpeechService } from "./services/audioAssembler/textToSpeechService";
@@ -15,7 +16,7 @@ import { unknownWordService } from "../unknownWord/composition";
 import { vocabularyService } from "../vocabulary/composition";
 
 // Repositories
-export const storyRepository = new StoryRepository(prisma);
+export const storyRepository = new StoryRepository(prisma, supabase);
 
 // Services and Assemblers
 export const translationService = new TranslationService(openai);

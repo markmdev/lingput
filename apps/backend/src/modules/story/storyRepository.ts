@@ -1,10 +1,10 @@
-import client from "@/services/supabase";
 import { Base64 } from "@/types/types";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
 import { PrismaClient, Story } from "@prisma/client";
 import { StorageError } from "@/errors/StorageError";
 import { NotFoundError } from "@/errors/NotFoundError";
 import { PrismaError } from "@/errors/PrismaError";
+import { SupabaseClient } from "@supabase/supabase-js";
 function getRandomFileName(extension: string) {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${extension}`;
 }
@@ -15,7 +15,7 @@ function base64ToArrayBuffer(base64: Base64) {
 }
 
 export class StoryRepository {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private prisma: PrismaClient, private storageClient: SupabaseClient) {}
   async getAllStories(userId: number): Promise<Story[]> {
     try {
       return this.prisma.story.findMany({
@@ -47,7 +47,7 @@ export class StoryRepository {
     const fileName = getRandomFileName("mp3");
     // story to ArrayBuffer
     const arrayBuffer = base64ToArrayBuffer(story);
-    const { data, error } = await client.storage.from("stories").upload(fileName, arrayBuffer, {
+    const { data, error } = await this.storageClient.storage.from("stories").upload(fileName, arrayBuffer, {
       contentType: "audio/mpeg",
     });
 
@@ -62,7 +62,7 @@ export class StoryRepository {
   }
 
   async getSignedStoryAudioUrl(audioPath: string, storyId: number): Promise<string> {
-    const { data, error } = await client.storage.from("stories").createSignedUrl(audioPath, 60 * 60);
+    const { data, error } = await this.storageClient.storage.from("stories").createSignedUrl(audioPath, 60 * 60);
     if (error) {
       throw new StorageError("Can't get story audio", { storyId, audioPath });
     }
