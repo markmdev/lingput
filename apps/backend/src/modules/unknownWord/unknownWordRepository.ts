@@ -15,11 +15,12 @@ export class UnknownWordRepository {
     }
   }
 
-  async markAsLearned(wordId: number) {
+  async markAsLearned(wordId: number, userId: number) {
     try {
       const response = await prisma.unknownWord.update({
         where: {
           id: wordId,
+          userId,
         },
         data: {
           status: "learned",
@@ -31,11 +32,12 @@ export class UnknownWordRepository {
     }
   }
 
-  async markAsLearning(wordId: number) {
+  async markAsLearning(wordId: number, userId: number) {
     try {
       const response = await prisma.unknownWord.update({
         where: {
           id: wordId,
+          userId,
         },
         data: {
           status: "learning",

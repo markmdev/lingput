@@ -57,12 +57,12 @@ export class UnknownWordService {
     return await Promise.all(tasks);
   }
 
-  async markAsLearned(wordId: number) {
-    await this.unknownWordRepository.markAsLearned(wordId);
+  async markAsLearned(wordId: number, userId: number) {
+    await this.unknownWordRepository.markAsLearned(wordId, userId);
   }
 
-  async markAsLearning(wordId: number) {
-    await this.unknownWordRepository.markAsLearning(wordId);
+  async markAsLearning(wordId: number, userId: number) {
+    await this.unknownWordRepository.markAsLearning(wordId, userId);
   }
 
   async getUnknownWords(userId: number): Promise<UnknownWord[]> {
