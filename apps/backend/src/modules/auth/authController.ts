@@ -6,6 +6,7 @@ import { LoginError } from "@/errors/auth/LoginError";
 import { formatResponse } from "@/middlewares/responseFormatter";
 import { validateData } from "@/validation/validateData";
 import { userCredentialsSchema } from "./authSchemas";
+import { AuthError } from "@/errors/auth/AuthError";
 
 export class AuthController {
   cookieOpts: { httpOnly: boolean; secure: boolean; sameSite: "lax"; maxAge?: number };
@@ -66,12 +67,18 @@ export class AuthController {
 
   logout = async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      throw new AuthError("Refresh token not found");
+    }
     this.authService.revokeToken(refreshToken);
     res.clearCookie("accessToken").clearCookie("refreshToken").json(formatResponse({}));
   };
 
   refresh = async (req: Request, res: Response) => {
     const oldRefreshToken = req.cookies.refreshToken;
+    if (!oldRefreshToken) {
+      throw new AuthError("Refresh token not found");
+    }
     await this.authService.verifyRefreshToken(oldRefreshToken);
     const { refreshToken, record } = await this.authService.rotateRefreshToken(oldRefreshToken);
     const accessToken = await this.authService.generateAccessToken(record.userId);
