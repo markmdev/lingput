@@ -4,6 +4,8 @@ import { AuthService } from "./authService";
 import { RegisterError } from "@/errors/auth/RegisterError";
 import { LoginError } from "@/errors/auth/LoginError";
 import { formatResponse } from "@/middlewares/responseFormatter";
+import { validateData } from "@/validation/validateData";
+import { userCredentialsSchema } from "./authSchemas";
 
 export class AuthController {
   cookieOpts: { httpOnly: boolean; secure: boolean; sameSite: "lax"; maxAge?: number };
@@ -16,14 +18,14 @@ export class AuthController {
   }
 
   register = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
-    const existingUser = await this.userRepository.getUserByEmail(email);
+    const validatedData = validateData(userCredentialsSchema, req.body);
+    const existingUser = await this.userRepository.getUserByEmail(validatedData.email);
     if (existingUser) {
       throw new RegisterError("Email already exists");
     }
 
-    const hashedPassword = await this.authService.hashPassword(password);
-    const user = await this.userRepository.createUser(email, hashedPassword);
+    const hashedPassword = await this.authService.hashPassword(validatedData.password);
+    const user = await this.userRepository.createUser(validatedData.email, hashedPassword);
     const { refreshToken, accessToken } = await this.authService.issueTokens(user.id);
     res
       .cookie("accessToken", accessToken, {
@@ -38,13 +40,13 @@ export class AuthController {
   };
 
   login = async (req: Request, res: Response) => {
-    const { email, password } = req.body;
-    const user = await this.userRepository.getUserByEmail(email);
+    const validatedData = validateData(userCredentialsSchema, req.body);
+    const user = await this.userRepository.getUserByEmail(validatedData.email);
     if (!user) {
       throw new LoginError("Invalid email or password");
     }
 
-    const checkPassword = await this.authService.comparePassword(password, user.password);
+    const checkPassword = await this.authService.comparePassword(validatedData.password, user.password);
     if (!checkPassword) {
       throw new LoginError("Invalid email or password");
     }
@@ -65,7 +67,7 @@ export class AuthController {
   logout = async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
     this.authService.revokeToken(refreshToken);
-    res.clearCookie("accessToken").clearCookie("refreshToken").send();
+    res.clearCookie("accessToken").clearCookie("refreshToken").json(formatResponse({}));
   };
 
   refresh = async (req: Request, res: Response) => {
