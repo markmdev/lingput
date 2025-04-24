@@ -21,8 +21,6 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 import { prisma } from "./services/prisma";
-import { openai } from "./services/openai";
-import supabase from "./services/supabase";
 
 dotenv.config();
 const app = express();
@@ -47,7 +45,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/vocab", vocabRouter);
-app.use("/api/stories", storiesRouter);
+app.use("/api/story", storiesRouter);
 app.use("/api/unknown-words", unknownWordRouter);
 app.use("/api/auth", authRouter);
 

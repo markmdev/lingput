@@ -19,7 +19,7 @@ export class LemmatizationService {
       });
       return response.data.lemmas;
     } catch (error) {
-      throw new LemmatizationError("Can't lemmatize text", { text }, error);
+      throw new LemmatizationError("Server error: Can't lemmatize text", { text }, error);
     }
   }
 

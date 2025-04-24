@@ -15,7 +15,9 @@ function serializeError(error?: unknown) {
   if (error instanceof Error) {
     return {
       message: error.message,
+      type: error.constructor.name,
       name: error.name,
+      stack: error.stack,
     };
   }
   return error;
