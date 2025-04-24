@@ -4,4 +4,5 @@
 **/node_modules/
 apps/backend/src/words.py
 apps/backend/src/vocabulary.json
-web/
+web
+frontend
