@@ -70,9 +70,9 @@ export class VocabularyController {
     const wordId = validateData(z.coerce.number(), req.params.id);
     const wordData = validateData(
       z.object({
-        word: z.string().min(1).max(50),
-        translation: z.string().min(1).max(50),
-        article: z.string().min(1).max(15).nullable(),
+        word: z.string().min(1).max(50).optional(),
+        translation: z.string().min(1).max(50).optional(),
+        article: z.string().min(1).max(15).nullable().optional(),
       }),
       req.body
     );
