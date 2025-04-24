@@ -77,7 +77,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
 
   logger.error({
     ...logBase,
-    message: err.message || "Unknown server error",
+    message: err.message || "Unknown server response",
     stack: err.stack,
   });
   res.status(500).json(formatErrorResponse("Unknown server response"));

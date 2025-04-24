@@ -52,7 +52,7 @@ export class StoryRepository {
     });
 
     if (error) {
-      throw new StorageError("Can't save story audio to storage");
+      throw new StorageError("Can't save story audio to storage", {}, error);
     }
     if (!data) {
       throw new StorageError("Story audio wasn't saved");
@@ -64,7 +64,7 @@ export class StoryRepository {
   async getSignedStoryAudioUrl(audioPath: string, storyId: number): Promise<string> {
     const { data, error } = await this.storageClient.storage.from("stories").createSignedUrl(audioPath, 60 * 60);
     if (error) {
-      throw new StorageError("Can't get story audio", { storyId, audioPath });
+      throw new StorageError("Can't get story audio", { storyId, audioPath }, error);
     }
     if (!data) {
       throw new NotFoundError("Story audio", { storyId, audioPath });
