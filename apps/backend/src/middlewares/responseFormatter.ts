@@ -9,7 +9,7 @@ export function formatResponse<T>(data: T, pagination?: Pagination, statusCode =
   };
 }
 
-export function formatErrorResponse(message: string, code?: string, details?: ZodIssue[]): ApiResponse<undefined> {
+export function formatErrorResponse(message: string, code?: number, details?: ZodIssue[]): ApiResponse<undefined> {
   return {
     success: false,
     error: {

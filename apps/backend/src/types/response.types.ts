@@ -13,7 +13,7 @@ export interface ApiResponse<T> {
   pagination?: Pagination;
   error?: {
     message: string;
-    code?: string;
+    code?: number;
     details?: ZodIssue[];
   };
 }

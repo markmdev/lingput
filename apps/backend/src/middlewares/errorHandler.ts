@@ -26,7 +26,7 @@ function serializeError(error?: unknown) {
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
   if (!(err instanceof Error)) {
     logger.error({ message: "Unknown error", error: err });
-    res.status(500).json(formatErrorResponse("Unknown server error"));
+    res.status(500).json(formatErrorResponse("Unknown server error", 500));
     return;
   }
 
@@ -46,7 +46,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       details: err.details,
       originalError: serializeError(err.originalError),
     });
-    res.status(400).json(formatErrorResponse(err.message, "BAD_REQUEST", err.errors));
+    res.status(400).json(formatErrorResponse(err.message, 400, err.errors));
     return;
   }
 
@@ -56,7 +56,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       details: err.details,
       originalError: serializeError(err.originalError),
     });
-    res.status(err.statusCode).json(formatErrorResponse(err.message));
+    res.status(err.statusCode).json(formatErrorResponse(err.message, err.statusCode));
     return;
   }
 
@@ -71,7 +71,7 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       ...logBase,
       prismaCode: "code" in err ? err.code : null,
     });
-    res.status(502).json(formatErrorResponse("Database error"));
+    res.status(502).json(formatErrorResponse("Database error", 502));
     return;
   }
 
@@ -80,5 +80,5 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
     message: err.message || "Unknown server response",
     stack: err.stack,
   });
-  res.status(500).json(formatErrorResponse("Unknown server response"));
+  res.status(500).json(formatErrorResponse("Unknown server response", 500));
 };
