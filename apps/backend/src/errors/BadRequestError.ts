@@ -5,7 +5,7 @@ export class BadRequestError extends CustomError {
   errors?: ZodIssue[];
 
   constructor(message: string, errors?: ZodIssue[]) {
-    super(message);
+    super(message, 400, null);
     this.errors = errors;
   }
 }

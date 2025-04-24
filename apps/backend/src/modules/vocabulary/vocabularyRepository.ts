@@ -12,7 +12,7 @@ export class VocabularyRepository {
 
       return newWord;
     } catch (error) {
-      throw new PrismaError("Can't save word to db", { word }, error);
+      throw new PrismaError("Can't save word to db", error, { word });
     }
   }
 
@@ -24,7 +24,7 @@ export class VocabularyRepository {
 
       return newWords;
     } catch (error) {
-      throw new PrismaError("Can't save many words to db", { words }, error);
+      throw new PrismaError("Can't save many words to db", error, { words });
     }
   }
 
@@ -36,7 +36,7 @@ export class VocabularyRepository {
         },
       });
     } catch (error) {
-      throw new PrismaError("Can't get word by id from db", { wordId }, error);
+      throw new PrismaError("Can't get word by id from db", error, { wordId });
     }
   }
 
@@ -53,7 +53,7 @@ export class VocabularyRepository {
       ]);
       return [words, totalItems];
     } catch (error) {
-      throw new PrismaError("Can't get all words from db", {}, error);
+      throw new PrismaError("Can't get all words from db", error, { userId, skip, take });
     }
   }
 
@@ -63,7 +63,7 @@ export class VocabularyRepository {
         where: { userId },
       });
     } catch (error) {
-      throw new PrismaError("Can't get all words from db", {}, error);
+      throw new PrismaError("Can't get all words from db", error, { userId });
     }
   }
 
@@ -76,7 +76,7 @@ export class VocabularyRepository {
         },
       });
     } catch (error) {
-      throw new PrismaError("Can't delete word from db", { wordId }, error);
+      throw new PrismaError("Can't delete word from db", error, { wordId, userId });
     }
   }
 
@@ -89,7 +89,7 @@ export class VocabularyRepository {
         data: wordData,
       });
     } catch (error) {
-      throw new PrismaError("Can't update the word from db", { wordId }, error);
+      throw new PrismaError("Can't update the word from db", error, { wordId, wordData });
     }
   }
 }

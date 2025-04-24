@@ -68,7 +68,7 @@ export class AuthController {
   logout = async (req: Request, res: Response) => {
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
-      throw new AuthError("Refresh token not found");
+      throw new AuthError("Refresh token not found", null);
     }
     this.authService.revokeToken(refreshToken);
     res.clearCookie("accessToken").clearCookie("refreshToken").json(formatResponse({}));
@@ -77,7 +77,7 @@ export class AuthController {
   refresh = async (req: Request, res: Response) => {
     const oldRefreshToken = req.cookies.refreshToken;
     if (!oldRefreshToken) {
-      throw new AuthError("Refresh token not found");
+      throw new AuthError("Refresh token not found", null);
     }
     await this.authService.verifyRefreshToken(oldRefreshToken);
     const { refreshToken, record } = await this.authService.rotateRefreshToken(oldRefreshToken);

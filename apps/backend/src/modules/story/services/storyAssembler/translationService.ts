@@ -66,12 +66,12 @@ export class TranslationService {
         },
       });
     } catch (error) {
-      throw new OpenAIError("Can't translate the text", { story }, error);
+      throw new OpenAIError("Can't translate the text", error, { story });
     }
 
     const content = response.output_text;
     if (!content) {
-      throw new OpenAIError("Can't translate the text", { story });
+      throw new OpenAIError("Can't translate the text", null, { story });
     }
 
     const result = this.parseResponseContent(content);
@@ -84,10 +84,10 @@ export class TranslationService {
     try {
       result = JSON.parse(content) as OpenAIChunkResponse;
     } catch (error) {
-      throw new OpenAIError("Invalid response format, try again", { content }, error);
+      throw new OpenAIError("Invalid response format, try again", error, { content });
     }
     if (!result.chunks || !Array.isArray(result.chunks)) {
-      throw new OpenAIError("Invalid response format, try again", { content, result });
+      throw new OpenAIError("Invalid response format, try again", null, { content, result });
     }
     return result;
   }

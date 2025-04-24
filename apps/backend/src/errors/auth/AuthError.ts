@@ -1,7 +1,7 @@
 import { CustomError } from "../CustomError";
-
+import { ErrorDetails } from "../ErrorDetails";
 export class AuthError extends CustomError {
-  constructor(message: string, details?: unknown, originalError?: unknown) {
-    super(message, 401, details, originalError);
+  constructor(message: string, originalError: unknown, details?: ErrorDetails) {
+    super(message, 401, originalError, details);
   }
 }

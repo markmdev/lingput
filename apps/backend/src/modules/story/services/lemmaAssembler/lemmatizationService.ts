@@ -19,7 +19,7 @@ export class LemmatizationService {
       });
       return response.data.lemmas;
     } catch (error) {
-      throw new LemmatizationError("Server error: Can't lemmatize text", { text }, error);
+      throw new LemmatizationError("Server error: Can't lemmatize text", error, { text });
     }
   }
 
@@ -91,13 +91,13 @@ export class LemmatizationService {
         },
       });
     } catch (error) {
-      throw new OpenAIError("Can't translate lemmas", { lemmas }, error);
+      throw new OpenAIError("Can't translate lemmas", error, { lemmas });
     }
 
     const content = response.output_text;
 
     if (!content) {
-      throw new OpenAIError("Can't translate lemmas", { lemmas });
+      throw new OpenAIError("Can't translate lemmas", null, { lemmas });
     }
 
     const result = this.parseResponseContent(content);
@@ -110,10 +110,10 @@ export class LemmatizationService {
     try {
       result = JSON.parse(content) as OpenAILemmasResponse;
     } catch (error) {
-      throw new OpenAIError("Invalid response format, try again", { content }, error);
+      throw new OpenAIError("Invalid response format, try again", error, { content });
     }
     if (!result.lemmas || !Array.isArray(result.lemmas)) {
-      throw new OpenAIError("Invalid response format, try again", { content, result });
+      throw new OpenAIError("Invalid response format, try again", null, { content, result });
     }
     return result;
   }

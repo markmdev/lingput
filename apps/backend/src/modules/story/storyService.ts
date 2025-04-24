@@ -68,8 +68,8 @@ export class StoriesService {
 
   async getStoryById(storyId: number, userId: number): Promise<Story> {
     const story = await this.storyRepository.getStoryById(storyId);
-    if (!story) throw new NotFoundError("Story");
-    if (story.userId !== userId) throw new NotFoundError("Story");
+    if (!story) throw new NotFoundError("Story", null, { storyId, userId });
+    if (story.userId !== userId) throw new NotFoundError("Story", null, { storyId, userId });
     return story;
   }
 }

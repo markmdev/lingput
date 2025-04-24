@@ -10,7 +10,7 @@ export class VocabularyService {
   async getWordByID(wordId: number, userId: number): Promise<UserVocabulary> {
     const word = await this.vocabularyRepository.getWordByID(wordId);
     if (!this.doesWordBelongToUser(word, userId)) {
-      throw new NotFoundError("Word not found");
+      throw new NotFoundError("Word not found", null, { wordId, userId });
     }
     return word as UserVocabulary;
   }
