@@ -45,7 +45,7 @@ export class UnknownWordRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Unable to mark word as learning status", error, { wordId });
+      throw new PrismaError("Unable to mark word as learning", error, { wordId });
     }
   }
 
