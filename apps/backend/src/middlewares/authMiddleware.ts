@@ -7,7 +7,7 @@ export const createAuthMiddleware =
     const { accessToken } = req.cookies;
 
     if (!accessToken) {
-      next(new AuthError("User isn't authorized", null, { message: "No access token" }));
+      next(new AuthError("Unauthorized", null, { message: "No access token" }));
       return;
     }
 
@@ -16,6 +16,6 @@ export const createAuthMiddleware =
       req.user = user;
       next();
     } catch (error) {
-      next(new AuthError("User isn't authorized", error, { message: "Unable to verify access token" }));
+      next(new AuthError("Unauthorized", error, { message: "Unable to verify access token" }));
     }
   };
