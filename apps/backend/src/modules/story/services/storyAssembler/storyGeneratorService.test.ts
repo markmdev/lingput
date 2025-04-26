@@ -42,7 +42,7 @@ describe("StoryGeneratorService", () => {
     const result = generator.generateStory(["Hund", "Katze"], "Pets", "DE");
     await expect(result).rejects.toBeInstanceOf(OpenAIError);
     await expect(result).rejects.toMatchObject({
-      message: "Can't generate a story",
+      message: "Unable to generate a story",
       statusCode: 502,
       details: {
         targetLanguageWords: ["Hund", "Katze"],
@@ -74,7 +74,7 @@ describe("StoryGeneratorService", () => {
     const result = generator.generateStory(["Hund", "Katze"], "Pets", "DE");
     await expect(result).rejects.toBeInstanceOf(OpenAIError);
     await expect(result).rejects.toMatchObject({
-      message: "Can't generate a story",
+      message: "Unable to generate a story",
       statusCode: 502,
       details: {
         targetLanguageWords: ["Hund", "Katze"],

@@ -19,7 +19,7 @@ export class LemmatizationService {
       });
       return response.data.lemmas;
     } catch (error) {
-      throw new LemmatizationError("Server error: Can't lemmatize text", error, { text });
+      throw new LemmatizationError("Server error: Unable to lemmatize text", error, { text });
     }
   }
 
@@ -91,13 +91,13 @@ export class LemmatizationService {
         },
       });
     } catch (error) {
-      throw new OpenAIError("Can't translate lemmas", error, { lemmas });
+      throw new OpenAIError("Unable to translate lemmas", error, { lemmas });
     }
 
     const content = response.output_text;
 
     if (!content) {
-      throw new OpenAIError("Can't translate lemmas", null, { lemmas });
+      throw new OpenAIError("Unable to translate lemmas", null, { lemmas });
     }
 
     const result = this.parseResponseContent(content);

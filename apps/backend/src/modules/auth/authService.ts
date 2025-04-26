@@ -2,6 +2,7 @@ import { AuthError } from "@/errors/auth/AuthError";
 import bcrypt from "bcrypt";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { AuthRepository } from "./authRepository";
+import { EnvError } from "@/errors/EnvError";
 
 export class AuthService {
   jwtSecret: string;
@@ -9,7 +10,7 @@ export class AuthService {
   constructor(private authRepository: AuthRepository) {
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      throw new Error("JWT_SECRET is not defined");
+      throw new EnvError("Missing required environment variable: JWT_SECRET");
     }
     this.jwtSecret = secret;
   }

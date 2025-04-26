@@ -44,12 +44,12 @@ export class StoryGeneratorService {
         ],
       });
     } catch (error) {
-      throw new OpenAIError("Can't generate a story", error, { targetLanguageWords, subject });
+      throw new OpenAIError("Unable to generate a story", error, { targetLanguageWords, subject });
     }
 
     const story = response.choices[0].message.content;
     if (!story) {
-      throw new OpenAIError("Can't generate a story", null, { targetLanguageWords, subject });
+      throw new OpenAIError("Unable to generate a story", null, { targetLanguageWords, subject });
     }
     return story;
   }

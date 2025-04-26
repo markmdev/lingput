@@ -49,7 +49,7 @@ export class VocabularyService {
 
     const allWordsValid = words.every((wordObj) => wordObj.word && wordObj.translation);
     if (!allWordsValid) {
-      throw new BadRequestError("Each word must have a 'word' and 'translation' property.");
+      throw new BadRequestError("Each item must have a 'word' and a 'translation' property.");
     }
 
     const wordsWithUserId = this.attachUserIdToWords(words, userId);

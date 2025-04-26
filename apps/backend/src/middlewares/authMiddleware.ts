@@ -16,6 +16,6 @@ export const createAuthMiddleware =
       req.user = user;
       next();
     } catch (error) {
-      next(new AuthError("User isn't authorized", error, { message: "Can't verify access token" }));
+      next(new AuthError("User isn't authorized", error, { message: "Unable to verify access token" }));
     }
   };

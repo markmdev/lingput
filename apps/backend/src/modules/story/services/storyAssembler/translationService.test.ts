@@ -70,7 +70,7 @@ describe("TranslationService", () => {
 
     await expect(result).rejects.toBeInstanceOf(OpenAIError);
     await expect(result).rejects.toMatchObject({
-      message: "Can't translate the text",
+      message: "Unable to translate the text",
     });
   });
 });

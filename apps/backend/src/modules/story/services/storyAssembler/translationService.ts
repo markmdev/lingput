@@ -66,12 +66,12 @@ export class TranslationService {
         },
       });
     } catch (error) {
-      throw new OpenAIError("Can't translate the text", error, { story });
+      throw new OpenAIError("Unable to translate the text", error, { story });
     }
 
     const content = response.output_text;
     if (!content) {
-      throw new OpenAIError("Can't translate the text", null, { story });
+      throw new OpenAIError("Unable to translate the text", null, { story });
     }
 
     const result = this.parseResponseContent(content);

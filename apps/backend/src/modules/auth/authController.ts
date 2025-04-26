@@ -22,7 +22,7 @@ export class AuthController {
     const validatedData = validateData(userCredentialsSchema, req.body);
     const existingUser = await this.userRepository.getUserByEmail(validatedData.email);
     if (existingUser) {
-      throw new RegisterError("Email already exists");
+      throw new RegisterError("A user with this email already exists");
     }
 
     const hashedPassword = await this.authService.hashPassword(validatedData.password);
@@ -44,12 +44,12 @@ export class AuthController {
     const validatedData = validateData(userCredentialsSchema, req.body);
     const user = await this.userRepository.getUserByEmail(validatedData.email);
     if (!user) {
-      throw new LoginError("Invalid email or password");
+      throw new LoginError("Invalid credentials");
     }
 
     const checkPassword = await this.authService.comparePassword(validatedData.password, user.password);
     if (!checkPassword) {
-      throw new LoginError("Invalid email or password");
+      throw new LoginError("Invalid credentials");
     }
 
     const { refreshToken, accessToken } = await this.authService.issueTokens(user.id);

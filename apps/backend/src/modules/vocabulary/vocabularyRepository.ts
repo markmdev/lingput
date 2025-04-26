@@ -12,7 +12,7 @@ export class VocabularyRepository {
 
       return newWord;
     } catch (error) {
-      throw new PrismaError("Can't save word to db", error, { word });
+      throw new PrismaError("Unable to save word to DB", error, { word });
     }
   }
 
@@ -24,7 +24,7 @@ export class VocabularyRepository {
 
       return newWords;
     } catch (error) {
-      throw new PrismaError("Can't save many words to db", error, { words });
+      throw new PrismaError("Unable to save many words to DB", error, { words });
     }
   }
 
@@ -36,7 +36,7 @@ export class VocabularyRepository {
         },
       });
     } catch (error) {
-      throw new PrismaError("Can't get word by id from db", error, { wordId });
+      throw new PrismaError("Unable to retrieve word by ID from DB", error, { wordId });
     }
   }
 
@@ -53,7 +53,7 @@ export class VocabularyRepository {
       ]);
       return [words, totalItems];
     } catch (error) {
-      throw new PrismaError("Can't get all words from db", error, { userId, skip, take });
+      throw new PrismaError("Unable to get all words from DB", error, { userId, skip, take });
     }
   }
 
@@ -63,7 +63,7 @@ export class VocabularyRepository {
         where: { userId },
       });
     } catch (error) {
-      throw new PrismaError("Can't get all words from db", error, { userId });
+      throw new PrismaError("Unable to get all words from DB", error, { userId });
     }
   }
 
@@ -76,7 +76,7 @@ export class VocabularyRepository {
         },
       });
     } catch (error) {
-      throw new PrismaError("Can't delete word from db", error, { wordId, userId });
+      throw new PrismaError("Unable to delete word from DB", error, { wordId, userId });
     }
   }
 
@@ -89,7 +89,7 @@ export class VocabularyRepository {
         data: wordData,
       });
     } catch (error) {
-      throw new PrismaError("Can't update the word from db", error, { wordId, wordData });
+      throw new PrismaError("Unable to update the word from DB", error, { wordId, wordData });
     }
   }
 }

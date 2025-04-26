@@ -27,7 +27,7 @@ export class StoryRepository {
         },
       });
     } catch (error) {
-      throw new PrismaError("Can't get all stories", error, { userId });
+      throw new PrismaError("Unable to get all stories", error, { userId });
     }
   }
 
@@ -38,7 +38,7 @@ export class StoryRepository {
       });
       return savedStory;
     } catch (error) {
-      throw new PrismaError("Can't save story to db", error, { story });
+      throw new PrismaError("Unable to save story to DB", error, { story });
     }
   }
 
@@ -52,10 +52,10 @@ export class StoryRepository {
     });
 
     if (error) {
-      throw new StorageError("Can't save story audio to storage", error, { fileName });
+      throw new StorageError("Unable to save story audio to storage", error, { fileName });
     }
     if (!data) {
-      throw new StorageError("Story audio wasn't saved", error, { fileName });
+      throw new StorageError("Unable to save story audio to storage", error, { fileName });
     }
 
     return data.path;
@@ -64,7 +64,7 @@ export class StoryRepository {
   async getSignedStoryAudioUrl(audioPath: string, storyId: number): Promise<string> {
     const { data, error } = await this.storageClient.storage.from("stories").createSignedUrl(audioPath, 60 * 60);
     if (error) {
-      throw new StorageError("Can't get story audio", error, { storyId, audioPath });
+      throw new StorageError("Unable to get story audio", error, { storyId, audioPath });
     }
     if (!data) {
       throw new NotFoundError("Story audio", null, { storyId, audioPath });
@@ -102,7 +102,7 @@ export class StoryRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Can't connect unknown words", error, { storyId, wordIds });
+      throw new PrismaError("Unable to connect unknown words", error, { storyId, wordIds });
     }
   }
 }

@@ -11,7 +11,7 @@ export class UnknownWordRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Can't save unknown words", error, { unknownWords });
+      throw new PrismaError("Unable to save unknown words", error, { unknownWords });
     }
   }
 
@@ -28,7 +28,7 @@ export class UnknownWordRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Can't mark word as learned", error, { wordId });
+      throw new PrismaError("Unable to mark word as 'learned'", error, { wordId });
     }
   }
 
@@ -45,7 +45,7 @@ export class UnknownWordRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Can't mark word as learning", error, { wordId });
+      throw new PrismaError("Unable to mark word as learning status", error, { wordId });
     }
   }
 
@@ -54,7 +54,7 @@ export class UnknownWordRepository {
       const response = await this.prisma.unknownWord.findMany({ where: { userId } });
       return response;
     } catch (error) {
-      throw new PrismaError("Can't get unknown words", error, { userId });
+      throw new PrismaError("Unable to get unknown words", error, { userId });
     }
   }
 
@@ -74,7 +74,7 @@ export class UnknownWordRepository {
 
       return response;
     } catch (error) {
-      throw new PrismaError("Can't update times seen and connect story", error, { wordId, timesSeen, storyId });
+      throw new PrismaError("Unable to update times seen and connect story", error, { wordId, timesSeen, storyId });
     }
   }
 }
