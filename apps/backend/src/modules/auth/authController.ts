@@ -52,6 +52,7 @@ export class AuthController {
       throw new LoginError("Invalid credentials");
     }
 
+    req.user = { userId: user.id };
     const { refreshToken, accessToken } = await this.authService.issueTokens(user.id);
     res
       .cookie("accessToken", accessToken, {
@@ -92,5 +93,16 @@ export class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json(formatResponse({ id: record.userId }));
+  };
+
+  me = async (req: Request, res: Response) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) {
+      throw new AuthError("Refresh token not found", null);
+    }
+
+    const record = await this.authService.verifyRefreshToken(refreshToken);
+    req.user = { userId: record.userId };
+    res.status(200).json(formatResponse({ user: { userId: record.userId } }));
   };
 }
