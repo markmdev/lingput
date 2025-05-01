@@ -38,6 +38,11 @@ export class VocabularyService {
     };
   }
 
+  async getWordsWithoutPagination(userId: number): Promise<UserVocabulary[]> {
+    const words = await this.vocabularyRepository.getAllWordsWithoutPagination(userId);
+    return words;
+  }
+
   async saveNewWord(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
     return this.vocabularyRepository.saveWord(word);
   }

@@ -6,6 +6,7 @@ import { vocabularyController } from "./composition";
 const router = express.Router();
 
 router.get("/words", authMiddleware, asyncHandler(vocabularyController.getAllWords));
+router.get("/allwords", authMiddleware, asyncHandler(vocabularyController.getWordsWithoutPagination));
 router.post("/words", authMiddleware, asyncHandler(vocabularyController.saveNewWord));
 router.post("/words/list", authMiddleware, asyncHandler(vocabularyController.saveManyWords));
 router.delete("/words/:id", authMiddleware, asyncHandler(vocabularyController.deleteWord));

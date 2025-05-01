@@ -19,6 +19,13 @@ export class VocabularyController {
     res.status(200).json(formatResponse(result.data, result.pagination));
   };
 
+  getWordsWithoutPagination = async (req: Request, res: Response) => {
+    const { userId } = req.user;
+
+    const result = await this.vocabularyService.getWordsWithoutPagination(userId);
+    res.status(200).json(formatResponse(result));
+  };
+
   saveNewWord = async (req: Request, res: Response) => {
     const { userId } = req.user;
     const { word, translation, article } = validateData(
