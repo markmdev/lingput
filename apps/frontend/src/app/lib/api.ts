@@ -1,5 +1,5 @@
 import { ApiError } from "../types/ApiError";
-import { Story } from "../types/ApiObjects";
+import { Story, VocabularyItem } from "../types/ApiObjects";
 import { ErrorResponse } from "../types/ErrorResponse";
 
 export async function api<T>({ path, options }: { path: string; options: RequestInit }): Promise<T | undefined> {
@@ -61,6 +61,15 @@ export class StoryApi {
   getAllStories(): Promise<Story[] | undefined> {
     return api<Story[]>({
       path: "/api/story",
+      options: {
+        method: "GET",
+      },
+    });
+  }
+
+  getAllVocabulary(): Promise<VocabularyItem[] | undefined> {
+    return api<VocabularyItem[]>({
+      path: "/api/vocab/allwords",
       options: {
         method: "GET",
       },
