@@ -10,6 +10,7 @@ import {
 import { BadRequestError } from "@/errors/BadRequestError";
 import { formatErrorResponse } from "./responseFormatter";
 import { logger } from "@/utils/logger";
+import { AuthError } from "@/errors/auth/AuthError";
 
 function serializeError(error?: unknown) {
   if (error instanceof Error) {
@@ -47,6 +48,15 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
       originalError: serializeError(err.originalError),
     });
     res.status(400).json(formatErrorResponse(err.message, 400, err.errors));
+    return;
+  }
+
+  if (err instanceof AuthError) {
+    logger.warn({
+      ...logBase,
+      details: err.details,
+    });
+    res.status(401).json(formatErrorResponse(err.message, err.statusCode));
     return;
   }
 
