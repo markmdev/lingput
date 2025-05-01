@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { ApiError } from "../types/ApiError";
 
 async function api(path: string, options: RequestInit) {
   const cookieStore = await cookies();
@@ -12,14 +13,20 @@ async function api(path: string, options: RequestInit) {
     throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
   }
 
-  const res = await fetch(`${backendApiUrl}${path}`, {
-    cache: "no-store",
-    headers: {
-      "Content-Type": "application/json",
-      ...(cookieHeaders && { Cookie: cookieHeaders }),
-    },
-    ...options,
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${backendApiUrl}${path}`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        ...(cookieHeaders && { Cookie: cookieHeaders }),
+      },
+      ...options,
+    });
+  } catch (error) {
+    console.log(error);
+    throw new ApiError("Unexpected server error", 500);
+  }
 
   const json = await res.json();
   return json;
