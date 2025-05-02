@@ -1,8 +1,13 @@
 import { useState } from "react";
-import { Story } from "../types/ApiObjects";
-import UnknownWordComponent from "./UnknownWord";
+import { Story } from "@/feautures/story/types";
+import UnknownWordComponent from "../../../components/UnknownWord";
 
 export default function StoryComponent({ story }: { story: Story | null }) {
+  const audioBucketUrl = process.env.NEXT_PUBLIC_AUDIO_BUCKET_URL;
+  if (!audioBucketUrl) {
+    throw new Error("NEXT_PUBLIC_AUDIO_BUCKET_URL env variable is not set.");
+  }
+
   const [showTranslation, setShowTranslation] = useState(false);
   return (
     <div className="border-1 p-4 flex flex-row gap-6 w-2/3">
@@ -11,7 +16,7 @@ export default function StoryComponent({ story }: { story: Story | null }) {
           <div className="flex-1/3 p-4">
             <p>{story.storyText}</p>
             <audio controls>
-              <source src="your-audio-file.mp3" type="audio/mpeg" />
+              <source src={`${audioBucketUrl}${story.audioUrl}`} type="audio/mpeg" />
               Your browser does not support the audio element.
             </audio>
 

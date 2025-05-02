@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import { login } from "../../lib/api";
+import { login } from "../../../lib/api";
 import { useRouter } from "next/navigation";
-import { ApiError } from "@/app/types/ApiError";
+import { ApiError } from "@/types/ApiError";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");

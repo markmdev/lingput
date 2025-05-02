@@ -1,5 +1,6 @@
 import { ApiError } from "../types/ApiError";
-import { Story, VocabularyItem } from "../types/ApiObjects";
+import { Story } from "@/feautures/story/types";
+import { VocabularyItem } from "../types/ApiObjects";
 import { ErrorResponse } from "../types/ErrorResponse";
 
 async function sendRequest(apiUrl: string, path: string, options: RequestInit) {

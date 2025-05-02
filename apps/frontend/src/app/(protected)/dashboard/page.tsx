@@ -1,10 +1,10 @@
 "use client";
 
-import StoryComponent from "@/app/components/Story";
-import StoryList from "@/app/components/StoryList";
-import { StoryApi } from "@/app/lib/api";
-import { ApiError } from "@/app/types/ApiError";
-import { Story } from "@/app/types/ApiObjects";
+import StoryComponent from "@/feautures/story/components/Story";
+import StoryList from "@/feautures/story/components/StoryList";
+import { Story } from "@/feautures/story/types";
+import { StoryApi } from "@/lib/api";
+import { ApiError } from "@/types/ApiError";
 import { useState } from "react";
 import useSWR from "swr";
 

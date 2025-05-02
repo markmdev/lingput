@@ -1,4 +1,4 @@
-import { Story } from "../types/ApiObjects";
+import { Story } from "@/feautures/story/types";
 
 export default function StoryPreview({ story }: { story: Story }) {
   return (

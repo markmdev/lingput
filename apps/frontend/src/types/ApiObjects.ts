@@ -9,15 +9,6 @@ export interface UnknownWord {
   exampleSentenceTranslation: string;
 }
 
-export interface Story {
-  id: number;
-  storyText: string;
-  translationText: string;
-  audioUrl: string;
-  unknownWords: UnknownWord[];
-  userId: number;
-}
-
 export interface VocabularyItem {
   id: number;
   word: string;
