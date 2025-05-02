@@ -1,7 +1,7 @@
 import { UnknownWord } from "../types/ApiObjects";
 export default function UnknownWordComponent({ unknownWord }: { unknownWord: UnknownWord }) {
   return (
-    <div>
+    <div className="border-1 p-2">
       <p>
         <b>Word:</b> {unknownWord.word}
       </p>
