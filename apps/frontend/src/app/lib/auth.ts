@@ -1,5 +1,25 @@
 import { cookies } from "next/headers";
-import { ApiError } from "../types/ApiError";
+
+async function sendRequest(apiUrl: string, path: string, cookieHeaders: string, options: RequestInit) {
+  let res: Response;
+  try {
+    res = await fetch(`${apiUrl}${path}`, {
+      cache: "no-store",
+      headers: {
+        "Content-Type": "application/json",
+        ...(cookieHeaders && { Cookie: cookieHeaders }),
+      },
+      ...options,
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Unexpected error while fetching ${path}: ${error.message}`);
+    }
+    throw new Error("Unknown error");
+  }
+
+  return res;
+}
 
 async function api(path: string, options: RequestInit) {
   const cookieStore = await cookies();
@@ -13,23 +33,21 @@ async function api(path: string, options: RequestInit) {
     throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
   }
 
-  let res: Response;
-  try {
-    res = await fetch(`${backendApiUrl}${path}`, {
-      cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-        ...(cookieHeaders && { Cookie: cookieHeaders }),
-      },
-      ...options,
-    });
-  } catch (error) {
-    console.log(error);
-    throw new ApiError("Unexpected server error", 500);
+  let res = await sendRequest(backendApiUrl, path, cookieHeaders, options);
+
+  if (res.status === 401) {
+    await refreshToken();
+    res = await sendRequest(backendApiUrl, path, cookieHeaders, options);
   }
 
   const json = await res.json();
   return json;
+}
+
+async function refreshToken() {
+  return api("/api/auth/refresh", {
+    method: "POST",
+  });
 }
 
 async function me() {

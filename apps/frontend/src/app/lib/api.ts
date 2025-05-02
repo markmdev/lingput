@@ -2,16 +2,10 @@ import { ApiError } from "../types/ApiError";
 import { Story, VocabularyItem } from "../types/ApiObjects";
 import { ErrorResponse } from "../types/ErrorResponse";
 
-export async function api<T>({ path, options }: { path: string; options: RequestInit }): Promise<T | undefined> {
-  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (!backendApiUrl) {
-    throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
-  }
-
+async function sendRequest(apiUrl: string, path: string, options: RequestInit) {
   let res: Response;
-
   try {
-    res = await fetch(`${backendApiUrl}${path}`, {
+    res = await fetch(`${apiUrl}${path}`, {
       cache: "no-store",
       headers: {
         "Content-Type": "application/json",
@@ -24,6 +18,22 @@ export async function api<T>({ path, options }: { path: string; options: Request
       throw new Error(`Unexpected error while fetching ${path}: ${error.message}`);
     }
     throw new Error("Unknown error");
+  }
+
+  return res;
+}
+
+export async function api<T>({ path, options }: { path: string; options: RequestInit }): Promise<T | undefined> {
+  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (!backendApiUrl) {
+    throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
+  }
+
+  let res = await sendRequest(backendApiUrl, path, options);
+
+  if (res.status === 401) {
+    await refreshToken();
+    res = await sendRequest(backendApiUrl, path, options);
   }
 
   if (!res.ok) {
@@ -51,6 +61,15 @@ export async function login({ email, password }: { email: string; password: stri
     options: {
       method: "POST",
       body: JSON.stringify({ email, password }),
+    },
+  });
+}
+
+async function refreshToken() {
+  return api({
+    path: "/api/auth/refresh",
+    options: {
+      method: "POST",
     },
   });
 }
