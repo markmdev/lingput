@@ -1,16 +1,18 @@
 "use client";
 
+import { StoryApi } from "@/feautures/story/api";
 import StoryComponent from "@/feautures/story/components/Story";
 import StoryList from "@/feautures/story/components/StoryList";
 import { Story } from "@/feautures/story/types";
-import { StoryApi } from "@/lib/api";
+import { ClientApi } from "@/lib/api.client";
 import { ApiError } from "@/types/ApiError";
 import { useState } from "react";
 import useSWR from "swr";
 
 export default function DashboardPage() {
-  const storyApi = new StoryApi();
-  const { data, error, isLoading } = useSWR("/api/story", storyApi.getAllStories);
+  const clientApi = new ClientApi();
+  const storyApi = new StoryApi(clientApi);
+  const { data, error, isLoading } = useSWR("/api/story", () => storyApi.getAllStories());
   const [chosenStory, setChosenStory] = useState<null | Story>(null);
 
   if (isLoading) return "Loading...";
