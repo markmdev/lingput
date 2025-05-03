@@ -1,6 +1,8 @@
 import { ClientApi } from "@/lib/ClientApi";
 import { UnknownWordApi } from "../api";
 import { UnknownWord } from "../types";
+import { ApiError } from "@/types/ApiError";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function UnknownWordComponent({
   unknownWord,
@@ -13,13 +15,29 @@ export default function UnknownWordComponent({
   const unknownWordApi = new UnknownWordApi(clientApi);
 
   const handleMarkAsLearned = async () => {
-    await unknownWordApi.markAsLearned(unknownWord.id);
-    onWordStatusChange(unknownWord.id, "learned");
+    try {
+      await unknownWordApi.markAsLearned(unknownWord.id);
+      onWordStatusChange(unknownWord.id, "learned");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast(error.message);
+      } else {
+        toast("Unknown error happened");
+      }
+    }
   };
 
   const handleMarkAsLearning = async () => {
-    await unknownWordApi.markAsLearning(unknownWord.id);
-    onWordStatusChange(unknownWord.id, "learning");
+    try {
+      await unknownWordApi.markAsLearning(unknownWord.id);
+      onWordStatusChange(unknownWord.id, "learning");
+    } catch (error) {
+      if (error instanceof ApiError) {
+        toast(error.message);
+      } else {
+        toast("Unknown error happened");
+      }
+    }
   };
 
   return (
@@ -51,6 +69,7 @@ export default function UnknownWordComponent({
           Learning
         </button>
       </p>
+      <ToastContainer />
     </div>
   );
 }
