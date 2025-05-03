@@ -6,26 +6,35 @@ export class ServerApi {
   AUTH_REFRESH_ENDPOINT = "/api/auth/refresh";
   constructor() {}
 
-  async api(path: string, options: RequestInit) {
-    const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendApiUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
-    }
+  private async getCookieHeaders(): Promise<string> {
     const cookieStore = await cookies();
     const cookieHeaders = cookieStore
       .getAll()
       .map((cookie) => `${cookie.name}=${cookie.value}`)
       .join("; ");
+    return cookieHeaders;
+  }
 
+  async api<T>({
+    path,
+    options,
+    noRetry = false,
+  }: {
+    path: string;
+    options: RequestInit;
+    noRetry?: boolean;
+  }): Promise<T> {
+    const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendApiUrl) {
+      throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
+    }
+
+    const cookieHeaders = await this.getCookieHeaders();
     let res = await this.sendRequest(backendApiUrl, path, cookieHeaders, options);
 
-    if (res.status === 401 && path !== this.AUTH_REFRESH_ENDPOINT) {
+    if (res.status === 401 && path !== this.AUTH_REFRESH_ENDPOINT && !noRetry) {
       await this.refreshToken();
-      const newCookies = await cookies();
-      const newCookieHeaders = newCookies
-        .getAll()
-        .map((cookie) => `${cookie.name}=${cookie.value}`)
-        .join("; ");
+      const newCookieHeaders = await this.getCookieHeaders();
       res = await this.sendRequest(backendApiUrl, path, newCookieHeaders, options);
     }
 
@@ -41,12 +50,15 @@ export class ServerApi {
     }
 
     const json = await res.json();
-    return json;
+    return json.data;
   }
 
   refreshToken() {
-    return this.api(this.AUTH_REFRESH_ENDPOINT, {
-      method: "POST",
+    return this.api({
+      path: this.AUTH_REFRESH_ENDPOINT,
+      options: {
+        method: "POST",
+      },
     });
   }
 
@@ -62,10 +74,8 @@ export class ServerApi {
         ...options,
       });
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Unexpected error while fetching ${path}: ${error.message}`);
-      }
-      throw new Error("Unknown error");
+      console.log(error);
+      throw new ApiError("Unexpected server error", 500);
     }
 
     return res;
