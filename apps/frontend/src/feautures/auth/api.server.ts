@@ -1,12 +1,23 @@
-import { ServerApi } from "@/lib/api.server";
+import { ServerApi } from "@/lib/ServerApi";
+
+interface User {
+  user: {
+    userId: number;
+  };
+}
 
 export async function getCurrentUser() {
   const serverApi = new ServerApi();
   try {
-    return await serverApi.api("/api/auth/me", {
-      method: "GET",
+    return await serverApi.api<User>({
+      path: "/api/auth/me",
+      options: {
+        method: "GET",
+      },
+      noRetry: true,
     });
-  } catch {
+  } catch (error) {
+    console.log(error);
     return null;
   }
 }
