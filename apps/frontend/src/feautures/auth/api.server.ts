@@ -1,4 +1,5 @@
 import { ServerApi } from "@/lib/ServerApi";
+import { ApiError } from "@/types/ApiError";
 
 interface User {
   user: {
@@ -18,6 +19,13 @@ export async function getCurrentUser() {
     });
   } catch (error) {
     console.log(error);
-    return null;
+    if (error instanceof ApiError) {
+      if (error.statusCode === 401) {
+        return null;
+      }
+      throw error;
+    }
+
+    throw new ApiError("Unexpected error", 500);
   }
 }
