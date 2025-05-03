@@ -54,6 +54,7 @@ export class ClientApi {
       });
     } catch (error) {
       if (error instanceof Error) {
+        console.log(error);
         throw new Error(`Unexpected error while fetching ${path}: ${error.message}`);
       }
       throw new Error("Unknown error");
