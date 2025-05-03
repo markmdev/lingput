@@ -1,11 +1,5 @@
-import { CustomError } from "./CustomError";
-
-export class ApiError extends CustomError {
-  statusCode: number;
-  details?: unknown;
-  constructor(message: string, statusCode: number, details?: unknown) {
+export class ApiError extends Error {
+  constructor(public message: string, public statusCode: number, public details?: unknown) {
     super(message);
-    this.statusCode = statusCode;
-    this.details = details;
   }
 }
