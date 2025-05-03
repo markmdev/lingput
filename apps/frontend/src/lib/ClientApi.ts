@@ -2,9 +2,21 @@ import { ApiError } from "../types/ApiError";
 import { ErrorResponse } from "../types/ErrorResponse";
 
 export class ClientApi {
-  constructor() {}
+  AUTH_REFRESH_ENDPOINT: string;
 
-  async api<T>({ path, options }: { path: string; options: RequestInit }): Promise<T> {
+  constructor() {
+    this.AUTH_REFRESH_ENDPOINT = "/api/auth/refresh";
+  }
+
+  async api<T>({
+    path,
+    options,
+    noRetry = false,
+  }: {
+    path: string;
+    options: RequestInit;
+    noRetry?: boolean;
+  }): Promise<T> {
     const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backendApiUrl) {
       throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
@@ -12,7 +24,7 @@ export class ClientApi {
 
     let res = await this.sendRequest(backendApiUrl, path, options);
 
-    if (res.status === 401 && path !== "/api/auth/refresh") {
+    if (res.status === 401 && path !== this.AUTH_REFRESH_ENDPOINT && !noRetry) {
       await this.refreshToken();
       res = await this.sendRequest(backendApiUrl, path, options);
     }
@@ -34,7 +46,7 @@ export class ClientApi {
 
   refreshToken() {
     return this.api({
-      path: "/api/auth/refresh",
+      path: this.AUTH_REFRESH_ENDPOINT,
       options: {
         method: "POST",
       },
