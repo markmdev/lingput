@@ -15,13 +15,23 @@ export default function DashboardPage() {
   const { data, error, isLoading } = useSWR("/api/story", () => storyApi.getAllStories());
   const [chosenStory, setChosenStory] = useState<null | Story>(null);
 
+  const handleWordStatusChange = (wordId: number, newStatus: "learned" | "learning") => {
+    if (!chosenStory) return;
+    const updatedStory: Story = {
+      ...chosenStory,
+      unknownWords: chosenStory.unknownWords.map((w) => (w.id === wordId ? { ...w, status: newStatus } : w)),
+    };
+
+    setChosenStory(updatedStory);
+  };
+
   if (isLoading) return "Loading...";
   if (error) return (error as ApiError).message;
 
   return (
     <div className="flex flex-row gap-4">
       <StoryList storyList={data} setChosenStory={setChosenStory}></StoryList>
-      <StoryComponent story={chosenStory} />
+      <StoryComponent story={chosenStory} onWordStatusChange={handleWordStatusChange} />
     </div>
   );
 }

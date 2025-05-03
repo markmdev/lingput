@@ -8,7 +8,6 @@ export default function StoryList({
   setChosenStory: (story: Story) => void;
   storyList?: Story[];
 }) {
-  console.log(storyList);
   return (
     <div className="w-1/3">
       {storyList.map((story) => (

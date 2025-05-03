@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { Story } from "@/feautures/story/types";
-import UnknownWordComponent from "../../../components/UnknownWord";
+import UnknownWordComponent from "../../unknownWord/components/UnknownWord";
 
-export default function StoryComponent({ story }: { story: Story | null }) {
+export default function StoryComponent({
+  story,
+  onWordStatusChange,
+}: {
+  story: Story | null;
+  onWordStatusChange: (wordId: number, newStatus: "learned" | "learning") => void;
+}) {
   const audioBucketUrl = process.env.NEXT_PUBLIC_AUDIO_BUCKET_URL;
   if (!audioBucketUrl) {
     throw new Error("NEXT_PUBLIC_AUDIO_BUCKET_URL env variable is not set.");
@@ -31,7 +37,11 @@ export default function StoryComponent({ story }: { story: Story | null }) {
           <div className="flex flex-col p-4">
             <h3>Unknown words</h3>
             {story.unknownWords.map((unknownWord) => (
-              <UnknownWordComponent key={unknownWord.id} unknownWord={unknownWord} />
+              <UnknownWordComponent
+                key={unknownWord.id}
+                unknownWord={unknownWord}
+                onWordStatusChange={onWordStatusChange}
+              />
             ))}
           </div>
         </>

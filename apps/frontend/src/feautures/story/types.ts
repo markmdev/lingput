@@ -1,4 +1,4 @@
-import { UnknownWord } from "@/types/ApiObjects";
+import { UnknownWord } from "../unknownWord/types";
 
 export interface Story {
   id: number;
