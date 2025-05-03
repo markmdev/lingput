@@ -4,7 +4,7 @@ import { StoryApi } from "@/feautures/story/api";
 import StoryComponent from "@/feautures/story/components/Story";
 import StoryList from "@/feautures/story/components/StoryList";
 import { Story } from "@/feautures/story/types";
-import { ClientApi } from "@/lib/api.client";
+import { ClientApi } from "@/lib/ClientApi";
 import { ApiError } from "@/types/ApiError";
 import { useState } from "react";
 import useSWR from "swr";

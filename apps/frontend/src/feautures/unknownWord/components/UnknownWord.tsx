@@ -1,4 +1,4 @@
-import { ClientApi } from "@/lib/api.client";
+import { ClientApi } from "@/lib/ClientApi";
 import { UnknownWordApi } from "../api";
 import { UnknownWord } from "../types";
 

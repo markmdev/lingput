@@ -1,6 +1,6 @@
 import { VocabularyItem } from "@/types/ApiObjects";
 import { Story } from "./types";
-import { ClientApi } from "@/lib/api.client";
+import { ClientApi } from "@/lib/ClientApi";
 
 export class StoryApi {
   constructor(private clientApi: ClientApi) {}

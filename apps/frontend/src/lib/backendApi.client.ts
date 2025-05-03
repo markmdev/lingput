@@ -1,4 +1,4 @@
-import { ClientApi } from "./api.client";
+import { ClientApi } from "./ClientApi";
 
 export class BackendApi {
   constructor(private clientApi: ClientApi) {}
