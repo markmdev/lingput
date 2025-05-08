@@ -2,7 +2,7 @@ import { ClientApi } from "@/lib/ClientApi";
 import { UnknownWordApi } from "../api";
 import { UnknownWord } from "../types";
 import { ApiError } from "@/types/ApiError";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 export default function UnknownWordComponent({
   unknownWord,
@@ -69,7 +69,6 @@ export default function UnknownWordComponent({
           Learning
         </button>
       </p>
-      <ToastContainer />
     </div>
   );
 }

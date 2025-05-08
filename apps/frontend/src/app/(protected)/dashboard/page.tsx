@@ -8,7 +8,7 @@ import { ClientApi } from "@/lib/ClientApi";
 import { ApiError } from "@/types/ApiError";
 import { useState } from "react";
 import useSWR from "swr";
-
+import { toast } from "react-toastify";
 export default function DashboardPage() {
   const clientApi = new ClientApi();
   const storyApi = new StoryApi(clientApi);
@@ -23,6 +23,7 @@ export default function DashboardPage() {
     };
 
     setChosenStory(updatedStory);
+    toast(`Word marked as ${newStatus}`);
   };
 
   if (isLoading) return "Loading...";
