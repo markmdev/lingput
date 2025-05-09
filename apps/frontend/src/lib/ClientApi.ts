@@ -1,3 +1,4 @@
+import { EnvError } from "@/types/EnvError";
 import { ApiError } from "../types/ApiError";
 import { ErrorResponse } from "../types/ErrorResponse";
 
@@ -19,7 +20,7 @@ export class ClientApi {
   }): Promise<T> {
     const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backendApiUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
+      throw new EnvError("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
     }
 
     let res = await this.sendRequest(backendApiUrl, path, options);

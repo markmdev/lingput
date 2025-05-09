@@ -1,4 +1,5 @@
 import { ApiError } from "@/types/ApiError";
+import { EnvError } from "@/types/EnvError";
 import { ErrorResponse } from "@/types/ErrorResponse";
 import { cookies } from "next/headers";
 
@@ -26,7 +27,7 @@ export class ServerApi {
   }): Promise<T> {
     const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
     if (!backendApiUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
+      throw new EnvError("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
     }
 
     const cookieHeaders = await this.getCookieHeaders();

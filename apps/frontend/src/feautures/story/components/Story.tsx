@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Story } from "@/feautures/story/types";
 import UnknownWordComponent from "../../unknownWord/components/UnknownWord";
-
+import { EnvError } from "@/types/EnvError";
 export default function StoryComponent({
   story,
   onWordStatusChange,
@@ -11,7 +11,7 @@ export default function StoryComponent({
 }) {
   const audioBucketUrl = process.env.NEXT_PUBLIC_AUDIO_BUCKET_URL;
   if (!audioBucketUrl) {
-    throw new Error("NEXT_PUBLIC_AUDIO_BUCKET_URL env variable is not set.");
+    throw new EnvError("NEXT_PUBLIC_AUDIO_BUCKET_URL env variable is not set.");
   }
 
   const [showTranslation, setShowTranslation] = useState(false);
