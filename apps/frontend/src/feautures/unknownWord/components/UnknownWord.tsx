@@ -41,7 +41,7 @@ export default function UnknownWordComponent({
   };
 
   return (
-    <div className="border-1 p-2">
+    <div className="border p-2">
       <p>
         <b>Word:</b> {unknownWord.word}
       </p>
@@ -62,10 +62,10 @@ export default function UnknownWordComponent({
       </p>
       <p>
         <b>Status:</b> {unknownWord.status}
-        <button onClick={handleMarkAsLearned} className="py-2 px-4 border-1">
+        <button onClick={handleMarkAsLearned} className="py-2 px-4 border">
           Learned
         </button>
-        <button onClick={handleMarkAsLearning} className="py-2 px-4 border-1">
+        <button onClick={handleMarkAsLearning} className="py-2 px-4 border">
           Learning
         </button>
       </p>

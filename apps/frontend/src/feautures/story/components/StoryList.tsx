@@ -11,7 +11,7 @@ export default function StoryList({
   return (
     <div className="w-1/3">
       {storyList.map((story) => (
-        <div key={story.id} className="border-1 p-4 cursor-pointer" onClick={() => setChosenStory(story)}>
+        <div key={story.id} className="border p-4 cursor-pointer" onClick={() => setChosenStory(story)}>
           <StoryPreview story={story} />
         </div>
       ))}
