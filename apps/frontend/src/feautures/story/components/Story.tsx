@@ -19,7 +19,7 @@ export default function StoryComponent({
     <div className="border-1 p-4 flex flex-row gap-6 w-2/3">
       {story && (
         <>
-          <div className="flex-1/3 p-4">
+          <div className="p-4">
             <p>{story.storyText}</p>
             <audio controls>
               <source src={`${audioBucketUrl}${story.audioUrl}`} type="audio/mpeg" />
@@ -34,7 +34,7 @@ export default function StoryComponent({
             </button>
             <p>{showTranslation && story.translationText}</p>
           </div>
-          <div className="flex flex-col p-4">
+          <div className="flex flex-col p-4 w-2/3">
             <h3>Unknown words</h3>
             {story.unknownWords.map((unknownWord) => (
               <UnknownWordComponent
