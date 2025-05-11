@@ -30,7 +30,7 @@ export default function StoryComponent({
               onClick={() => setShowTranslation(!showTranslation)}
               className="border-2 px-4 py-2 rounded-xl font-bold cursor-pointer"
             >
-              Show Translation
+              {showTranslation ? "Hide Translation" : "Show Translation"}
             </button>
             <p>{showTranslation && story.translationText}</p>
           </div>
