@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Story } from "@/feautures/story/types";
-import UnknownWordComponent from "../../unknownWord/components/UnknownWord";
+import UnknownWordComponent from "@/feautures/unknownWord/components/UnknownWord";
 import { EnvError } from "@/types/EnvError";
 export default function StoryComponent({
   story,
