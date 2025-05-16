@@ -9,11 +9,18 @@ import { ApiError } from "@/types/ApiError";
 import { useState } from "react";
 import useSWR from "swr";
 import { toast } from "react-toastify";
+import NewStoryButton from "@/components/NewStoryButton";
+import StoryGeneration from "@/feautures/story/components/StoryGeneration";
 export default function DashboardPage() {
   const clientApi = new ClientApi();
   const storyApi = new StoryApi(clientApi);
-  const { data, error, isLoading } = useSWR("/api/story", () => storyApi.getAllStories());
+  const { data, error, isLoading, mutate } = useSWR("/api/story", () => storyApi.getAllStories());
   const [chosenStory, setChosenStory] = useState<null | Story>(null);
+  const [viewMode, setViewMode] = useState<"chosenStory" | "newStory">("chosenStory");
+
+  const refetchStories = () => {
+    mutate();
+  };
 
   const handleWordStatusChange = (wordId: number, newStatus: "learned" | "learning") => {
     if (!chosenStory) return;
@@ -26,13 +33,28 @@ export default function DashboardPage() {
     toast(`Word marked as ${newStatus}`);
   };
 
+  const handleClickOnGenerateNewStory = () => {
+    setViewMode("newStory");
+  };
+
+  const handleClickOnStory = (story: Story) => {
+    setChosenStory(story);
+    setViewMode("chosenStory");
+  };
+
   if (isLoading) return "Loading...";
   if (error) return (error as ApiError).message;
 
   return (
     <div className="flex flex-row gap-4">
-      <StoryList storyList={data} setChosenStory={setChosenStory}></StoryList>
-      <StoryComponent story={chosenStory} onWordStatusChange={handleWordStatusChange} />
+      <div className="flex flex-col gap-4 w-1/3 p-4">
+        <StoryList storyList={data} setChosenStory={handleClickOnStory}></StoryList>
+        <NewStoryButton onClick={handleClickOnGenerateNewStory} />
+      </div>
+      {viewMode === "chosenStory" && <StoryComponent story={chosenStory} onWordStatusChange={handleWordStatusChange} />}
+      {viewMode === "newStory" && (
+        <StoryGeneration refetchStories={refetchStories} setToNewStory={handleClickOnStory} />
+      )}
     </div>
   );
 }

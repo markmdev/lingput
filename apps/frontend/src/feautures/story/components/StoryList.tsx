@@ -9,7 +9,7 @@ export default function StoryList({
   storyList?: Story[];
 }) {
   return (
-    <div className="w-1/3">
+    <div className="">
       {storyList.map((story) => (
         <div key={story.id} className="border p-4 cursor-pointer" onClick={() => setChosenStory(story)}>
           <StoryPreview story={story} />
