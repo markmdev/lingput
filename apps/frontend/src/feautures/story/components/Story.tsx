@@ -16,7 +16,7 @@ export default function StoryComponent({
 
   const [showTranslation, setShowTranslation] = useState(false);
   return (
-    <div className="border p-4 flex flex-row gap-6 w-2/3">
+    <div className="flex flex-row gap-6">
       {story && (
         <>
           <div className="p-4">

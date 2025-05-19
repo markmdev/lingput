@@ -24,7 +24,7 @@ export default function StoryGeneration({
     setToNewStory(story);
   };
   return (
-    <div className="border p-4 flex flex-row gap-6 w-2/3">
+    <div className="flex flex-row gap 6">
       <button className="px-4 py-2 border" onClick={handleGenerateStory}>
         {isLoading ? "Loading..." : "Generate"}
       </button>

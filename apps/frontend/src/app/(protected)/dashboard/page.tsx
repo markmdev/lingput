@@ -46,15 +46,31 @@ export default function DashboardPage() {
   if (error) return (error as ApiError).message;
 
   return (
-    <div className="flex flex-row gap-4">
-      <div className="flex flex-col gap-4 w-1/3 p-4">
-        <StoryList storyList={data} setChosenStory={handleClickOnStory}></StoryList>
+    <div className="flex flex-row gap-8 bg-gray-100 h-screen py-1">
+      {/* LEFT */}
+      <div className="flex flex-col justify-between w-1/3 py-8 px-6 bg-white rounded-lg">
+        {/* TOP */}
+        <div>
+          <h2 className="font-semibold text-2xl">Stories</h2>
+          <hr className="my-4" />
+          <StoryList
+            storyList={data}
+            setChosenStory={handleClickOnStory}
+            chosenStoryId={chosenStory?.id || null}
+          ></StoryList>
+        </div>
+        {/* BOTTOM */}
         <NewStoryButton onClick={handleClickOnGenerateNewStory} />
       </div>
-      {viewMode === "chosenStory" && <StoryComponent story={chosenStory} onWordStatusChange={handleWordStatusChange} />}
-      {viewMode === "newStory" && (
-        <StoryGeneration refetchStories={refetchStories} setToNewStory={handleClickOnStory} />
-      )}
+      {/* RIGHT */}
+      <div className="w-2/3 bg-white rounded-lg">
+        {viewMode === "chosenStory" && (
+          <StoryComponent story={chosenStory} onWordStatusChange={handleWordStatusChange} />
+        )}
+        {viewMode === "newStory" && (
+          <StoryGeneration refetchStories={refetchStories} setToNewStory={handleClickOnStory} />
+        )}
+      </div>
     </div>
   );
 }
