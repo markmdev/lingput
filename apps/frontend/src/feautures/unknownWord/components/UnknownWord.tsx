@@ -41,16 +41,15 @@ export default function UnknownWordComponent({
   };
 
   return (
-    <div className="border p-2">
-      <p>
-        <b>Word:</b> {unknownWord.word}
-      </p>
-      <p>
-        <b>Translation:</b> {unknownWord.translation}
-      </p>
-      <p>
-        <b>Article:</b> {unknownWord.article}
-      </p>
+    <div className="border border-gray-300 p-4 rounded-lg flex flex-col gap-2">
+      <div>
+        <p>
+          <span className="text-gray-500">{unknownWord.article}</span>{" "}
+          <span className="font-bold">{unknownWord.word}</span>
+        </p>
+        <p className="text-gray-500">{unknownWord.translation}</p>
+      </div>
+      <hr className="bg-gray-200" />
       <p>
         <b>Times seen:</b> {unknownWord.timesSeen}
       </p>
