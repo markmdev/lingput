@@ -39,7 +39,6 @@ export default function UnknownWordComponent({
       }
     }
   };
-
   return (
     <div className="border border-gray-300 p-4 rounded-lg flex flex-col gap-2">
       <div>
