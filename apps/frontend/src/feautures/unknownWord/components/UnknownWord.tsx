@@ -48,25 +48,25 @@ export default function UnknownWordComponent({
         </p>
         <p className="text-gray-500">{unknownWord.translation}</p>
       </div>
-      <hr className="bg-gray-200" />
+      <div className="text-sm border-[1px] border-r-0 border-l-0 border-gray-200 py-3">
       <p>
-        <b>Times seen:</b> {unknownWord.timesSeen}
+        <b className="text-purple-500">Example:</b> {unknownWord.exampleSentence}
       </p>
-      <p>
-        <b>Example:</b> {unknownWord.exampleSentence}
+      <p className="italic text-gray-500">
+        "{unknownWord.exampleSentenceTranslation}"
       </p>
-      <p>
-        <b>Example translation:</b> {unknownWord.exampleSentenceTranslation}
-      </p>
-      <p>
-        <b>Status:</b> {unknownWord.status}
-        <button onClick={handleMarkAsLearned} className="py-2 px-4 border">
+      </div>
+      <div className="flex flex-row justify-between text-xs">
+        <p>Status: <span className={`uppercase font-semibold text-${unknownWord.status === "learned" ? 'green-400' : 'orange-400'}`}>{unknownWord.status}</span> <span className="text-sm text-gray-500">(Seen: {unknownWord.timesSeen})</span></p>
+        <div className="flex flex-row gap-2 text-xs self-center">
+        <button onClick={handleMarkAsLearned} className="py-1 px-2 h-fit bg-green-400 text-white font-bold rounded-lg">
           Learned
         </button>
-        <button onClick={handleMarkAsLearning} className="py-2 px-4 border">
+        <button onClick={handleMarkAsLearning} className="py-1 px-2 bg-gray-200 text-black font-semibold rounded-lg">
           Learning
         </button>
-      </p>
+        </div>
+      </div>
     </div>
   );
 }

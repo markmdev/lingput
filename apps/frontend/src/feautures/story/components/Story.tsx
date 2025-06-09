@@ -16,7 +16,7 @@ export default function StoryComponent({
 
   const [showTranslation, setShowTranslation] = useState(false);
   return (
-    <div className="flex flex-col gap-4 py-8 px-6">
+    <div className="flex flex-col gap-4 py-8 px-6 h-full overflow-hidden">
       {story && (
         <>
           {/* TOP */}
@@ -25,9 +25,9 @@ export default function StoryComponent({
             <hr className="my-4" />
           </div>
           {/* BOTTOM */}
-          <div className="flex flex-row gap-6">
+          <div className="flex flex-row gap-6 flex-1 overflow-hidden">
             {/* LEFT PANEL */}
-            <div className="px-4 flex flex-col gap-3">
+            <div className="px-4 flex flex-col gap-3 w-3/5">
               <h3 className="font-semibold">Story text</h3>
               <div className="p-2 bg-blue-50 rounded-lg border-blue-100 border">
                 <p>{story.storyText}</p>
@@ -52,7 +52,7 @@ export default function StoryComponent({
             </div>
             <div className="bg-black w-[1px]"></div>
             {/* RIGHT PANEL */}
-            <div className="flex flex-col gap-3 px-4 w-2/3">
+            <div className="flex flex-col gap-3 px-4 w-2/5 overflow-y-auto">
               <h3 className="font-semibold">Vocabulary</h3>
               {story.unknownWords.map((unknownWord) => (
                 <UnknownWordComponent

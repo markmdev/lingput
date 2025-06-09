@@ -48,7 +48,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-row gap-8 bg-gray-100 h-screen py-1">
       {/* LEFT */}
-      <div className="flex flex-col justify-between w-1/3 py-8 px-6 bg-white rounded-lg">
+      <div className="flex flex-col justify-between w-1/4 py-8 px-6 bg-white rounded-lg">
         {/* TOP */}
         <div>
           <h2 className="font-semibold text-2xl">Stories</h2>
@@ -63,7 +63,7 @@ export default function DashboardPage() {
         <NewStoryButton onClick={handleClickOnGenerateNewStory} />
       </div>
       {/* RIGHT */}
-      <div className="w-2/3 bg-white rounded-lg">
+      <div className="w-3/4 bg-white rounded-lg">
         {viewMode === "chosenStory" && (
           <StoryComponent story={chosenStory} onWordStatusChange={handleWordStatusChange} />
         )}
