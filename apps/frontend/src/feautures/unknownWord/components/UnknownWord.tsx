@@ -59,10 +59,10 @@ export default function UnknownWordComponent({
       <div className="flex flex-row justify-between text-xs">
         <p>Status: <span className={`uppercase font-semibold text-${unknownWord.status === "learned" ? 'green-400' : 'orange-400'}`}>{unknownWord.status}</span> <span className="text-sm text-gray-500">(Seen: {unknownWord.timesSeen})</span></p>
         <div className="flex flex-row gap-2 text-xs self-center">
-        <button onClick={handleMarkAsLearned} className="py-1 px-2 h-fit bg-green-400 text-white font-bold rounded-lg">
+        <button onClick={handleMarkAsLearned} className="py-1 px-2 h-fit bg-green-400 text-white font-bold rounded-lg cursor-pointer">
           Learned
         </button>
-        <button onClick={handleMarkAsLearning} className="py-1 px-2 bg-gray-200 text-black font-semibold rounded-lg">
+        <button onClick={handleMarkAsLearning} className="py-1 px-2 bg-gray-200 text-black font-semibold rounded-lg cursor-pointer">
           Learning
         </button>
         </div>
