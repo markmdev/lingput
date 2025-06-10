@@ -37,7 +37,7 @@ export default function StoryGeneration({
           className="border rounded-lg py-2 px-2 outline-none"
           placeholder="Input your desired topic..."
         />
-        <Button type="submit" className="disabled:bg-gray-500" disabled={isLoading}>
+        <Button type="submit" className="disabled:bg-gray-500" disabled={isLoading} onClick={handleGenerateStory}>
           Generate
         </Button>
       </form>
