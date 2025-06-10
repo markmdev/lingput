@@ -19,7 +19,6 @@ export default function DashboardPage() {
   const storyApi = new StoryApi(clientApi);
   const searchParams = useSearchParams();
   const storyParam = searchParams.get("story");
-  const viewModeParam = searchParams.get("viewMode");
   const { data, error, isLoading, mutate } = useSWR("/api/story", () => storyApi.getAllStories());
   const [chosenStory, setChosenStory] = useState<null | Story>(null);
   const [viewMode, setViewMode] = useState<"chosenStory" | "newStory">("newStory");
