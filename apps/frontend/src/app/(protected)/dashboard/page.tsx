@@ -9,7 +9,6 @@ import { ApiError } from "@/types/ApiError";
 import { useCallback, useEffect, useState } from "react";
 import useSWR from "swr";
 import { toast } from "react-toastify";
-import NewStoryButton from "@/components/NewStoryButton";
 import StoryGeneration from "@/feautures/story/components/StoryGeneration";
 import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
