@@ -15,6 +15,15 @@ export default function StoryComponent({
     throw new EnvError("NEXT_PUBLIC_AUDIO_BUCKET_URL env variable is not set.");
   }
 
+  if (story) {
+    story.unknownWords = story.unknownWords.sort((a, b) => {
+      if (a.status === "learning" && b.status === "learned") return -1;
+      if (a.status === "learned" && b.status === "learning") return 1;
+
+      return b.timesSeen - a.timesSeen;
+    });
+  }
+
   const [showTranslation, setShowTranslation] = useState(false);
   return (
     <RightPanel>
