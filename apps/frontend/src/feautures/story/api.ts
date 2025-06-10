@@ -22,12 +22,13 @@ export class StoryApi {
     return this.fetch<VocabularyItem[]>("/api/vocab/allwords");
   }
 
-  generateNewStory(): Promise<Story> {
+  generateNewStory(topic: string): Promise<Story> {
     return this.clientApi.api<Story>({
       path: "/api/story/generate",
       options: {
         method: "POST",
         body: JSON.stringify({
+          subject: topic,
           languageCode: "DE",
           originalLanguageCode: "EN",
         }),

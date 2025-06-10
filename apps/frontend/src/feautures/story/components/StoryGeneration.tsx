@@ -13,13 +13,14 @@ export default function StoryGeneration({
   setToNewStory: (story: Story) => void;
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [topic, setTopic] = useState("");
 
   const clientApi = new ClientApi();
   const storyApi = new StoryApi(clientApi);
 
   const handleGenerateStory = async () => {
     setIsLoading(true);
-    const story = await storyApi.generateNewStory();
+    const story = await storyApi.generateNewStory(topic);
     console.log(story);
     setIsLoading(false);
     refetchStories();
@@ -34,10 +35,12 @@ export default function StoryGeneration({
         <input
           type="text"
           name="topic"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
           className="border rounded-lg py-2 px-2 outline-none"
           placeholder="Input your desired topic..."
         />
-        <Button type="submit" className="disabled:bg-gray-500" disabled={isLoading} onClick={handleGenerateStory}>
+        <Button type="submit" disabled={isLoading} onClick={handleGenerateStory}>
           Generate
         </Button>
       </form>
