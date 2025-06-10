@@ -4,6 +4,7 @@ import { StoryApi } from "../api";
 import { Story } from "../types";
 import RightPanel from "@/components/RightPanel";
 import Button from "@/components/Button";
+import SuggestedTopic from "./SuggestedTopic";
 
 export default function StoryGeneration({
   refetchStories,
@@ -26,24 +27,42 @@ export default function StoryGeneration({
     refetchStories();
     setToNewStory(story);
   };
+
+  const handleSelectTopic = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setTopic(e.currentTarget.textContent || "");
+  };
   return (
-    <RightPanel>
-      <form className="flex flex-col gap-4 max-w-1/3">
-        <label htmlFor="topic" className="font-bold text-2xl">
-          Topic
-        </label>
-        <input
-          type="text"
-          name="topic"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          className="border rounded-lg py-2 px-2 outline-none"
-          placeholder="Input your desired topic..."
-        />
-        <Button type="submit" disabled={isLoading} onClick={handleGenerateStory}>
-          Generate
-        </Button>
-      </form>
+    <RightPanel styles="bg-linear-to-r from-gray-100 to-white">
+      <div className="w-full h-full flex flex-col justify-center items-center">
+        <form className="flex flex-col gap-4 w-1/2 text-center">
+          <label htmlFor="topic" className="font-bold text-2xl">
+            Topic
+          </label>
+          <div className="flex flex-col gap-2">
+            <input
+              type="text"
+              name="topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className="border rounded-lg py-2 px-2 outline-none"
+              placeholder="Input your desired topic..."
+            />
+            <div className="flex flex-row gap-2">
+              <SuggestedTopic topic="Traveling" onSelectTopic={handleSelectTopic} />
+              <SuggestedTopic topic="Food" onSelectTopic={handleSelectTopic} />
+              <SuggestedTopic topic="Sports" onSelectTopic={handleSelectTopic} />
+              <SuggestedTopic topic="Technology" onSelectTopic={handleSelectTopic} />
+              <SuggestedTopic topic="Sci-Fi" onSelectTopic={handleSelectTopic} />
+              <SuggestedTopic topic="Fantasy" onSelectTopic={handleSelectTopic} />
+              <SuggestedTopic topic="Mystery" onSelectTopic={handleSelectTopic} />
+            </div>
+          </div>
+          <Button type="submit" disabled={isLoading} onClick={handleGenerateStory}>
+            Generate
+          </Button>
+        </form>
+      </div>
     </RightPanel>
   );
 }
