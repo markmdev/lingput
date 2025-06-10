@@ -2,6 +2,8 @@ import { ClientApi } from "@/lib/ClientApi";
 import { useState } from "react";
 import { StoryApi } from "../api";
 import { Story } from "../types";
+import RightPanel from "@/components/RightPanel";
+import Button from "@/components/Button";
 
 export default function StoryGeneration({
   refetchStories,
@@ -24,10 +26,21 @@ export default function StoryGeneration({
     setToNewStory(story);
   };
   return (
-    <div className="flex flex-row gap 6">
-      <button className="px-4 py-2 border" onClick={handleGenerateStory}>
-        {isLoading ? "Loading..." : "Generate"}
-      </button>
-    </div>
+    <RightPanel>
+      <form className="flex flex-col gap-4 max-w-1/3">
+        <label htmlFor="topic" className="font-bold text-2xl">
+          Topic
+        </label>
+        <input
+          type="text"
+          name="topic"
+          className="border rounded-lg py-2 px-2 outline-none"
+          placeholder="Input your desired topic..."
+        />
+        <Button type="submit" className="disabled:bg-gray-500" disabled={isLoading}>
+          Generate
+        </Button>
+      </form>
+    </RightPanel>
   );
 }

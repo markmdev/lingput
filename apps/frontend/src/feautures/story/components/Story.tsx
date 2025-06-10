@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Story } from "@/feautures/story/types";
 import UnknownWordComponent from "@/feautures/unknownWord/components/UnknownWord";
 import { EnvError } from "@/types/EnvError";
+import RightPanel from "@/components/RightPanel";
 export default function StoryComponent({
   story,
   onWordStatusChange,
@@ -16,7 +17,7 @@ export default function StoryComponent({
 
   const [showTranslation, setShowTranslation] = useState(false);
   return (
-    <div className="flex flex-col gap-4 py-8 px-6 h-full overflow-hidden">
+    <RightPanel>
       {story && (
         <>
           {/* TOP */}
@@ -65,6 +66,6 @@ export default function StoryComponent({
           </div>
         </>
       )}
-    </div>
+    </RightPanel>
   );
 }
