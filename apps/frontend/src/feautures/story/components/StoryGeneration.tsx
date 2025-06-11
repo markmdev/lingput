@@ -35,7 +35,7 @@ export default function StoryGeneration({
     <div>
       <div className="w-full h-full flex flex-col items-center">
         <form className="flex flex-col gap-4 w-1/2 text-center">
-          <label htmlFor="topic" className="font-bold text-3xl">
+          <label htmlFor="topic" className="font-bold text-6xl">
             Topic
           </label>
           <div className="flex flex-col gap-2">
@@ -44,7 +44,7 @@ export default function StoryGeneration({
               name="topic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="border rounded-lg py-2 px-2 outline-none"
+              className="border rounded-lg py-4 px-4 outline-none text-2xl"
               placeholder="Input your desired topic..."
             />
             <div className="flex flex-row gap-2">
@@ -57,7 +57,7 @@ export default function StoryGeneration({
               <SuggestedTopic topic="Mystery" onSelectTopic={handleSelectTopic} />
             </div>
           </div>
-          <Button type="submit" disabled={isLoading} onClick={handleGenerateStory}>
+          <Button type="submit" disabled={isLoading} onClick={handleGenerateStory} styles="text-xl">
             Generate
           </Button>
         </form>

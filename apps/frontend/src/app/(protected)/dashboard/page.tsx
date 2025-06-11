@@ -92,7 +92,7 @@ export default function DashboardPage() {
   if (error) throw new ApiError("Unexpected server error", 401);
 
   return (
-    <div className="flex flex-row gap-8 bg-gray-100 h-screen py-1">
+    <div className="flex flex-row gap-8 bg-gray-100 h-screen">
       {/* LEFT */}
       <div className="flex flex-col justify-between w-1/4 py-8 px-6 bg-white rounded-lg">
         {/* TOP */}
@@ -119,7 +119,8 @@ export default function DashboardPage() {
         </RightPanel>
       )}
       {viewMode === "newStory" && (
-        <RightPanel styles="bg-linear-to-r from-gray-100 to-white justify-center">
+        // <RightPanel styles="bg-linear-to-r from-gray-100 to-white justify-center">
+        <RightPanel styles="bg-radial from-white to-gray-100 from-30% justify-center">
           <StoryGeneration refetchStories={refetchStories} setToNewStory={handleClickOnStory} />
         </RightPanel>
       )}

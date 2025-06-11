@@ -6,7 +6,7 @@ export default function SuggestedTopic({
   onSelectTopic: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
-    <button className="border rounded-lg text-gray-500 py-1 px-2 text-xs cursor-pointer" onClick={onSelectTopic}>
+    <button className="border rounded-lg text-gray-500 py-1 px-2 text-sm cursor-pointer" onClick={onSelectTopic}>
       {topic}
     </button>
   );
