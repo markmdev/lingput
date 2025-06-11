@@ -89,7 +89,7 @@ export default function DashboardPage() {
     }
   }, [data, storyParam, handleChangeToNewStoryViewMode, handleClickOnStory]);
 
-  if (error) return (error as ApiError).message;
+  if (error) throw new ApiError("Unexpected server error", 401);
 
   return (
     <div className="flex flex-row gap-8 bg-gray-100 h-screen py-1">

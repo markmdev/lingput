@@ -35,7 +35,7 @@ export default function StoryGeneration({
     <div>
       <div className="w-full h-full flex flex-col items-center">
         <form className="flex flex-col gap-4 w-1/2 text-center">
-          <label htmlFor="topic" className="font-bold text-2xl">
+          <label htmlFor="topic" className="font-bold text-3xl">
             Topic
           </label>
           <div className="flex flex-col gap-2">

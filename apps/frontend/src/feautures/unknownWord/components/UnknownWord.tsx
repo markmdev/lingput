@@ -21,10 +21,11 @@ export default function UnknownWordComponent({
       await unknownWordApi.markAsLearned(unknownWord.id);
       onWordStatusChange(unknownWord.id, "learned");
     } catch (error) {
+      console.log(error);
       if (error instanceof ApiError) {
-        toast(error.message);
+        toast.error(error.message);
       } else {
-        toast("Unknown error happened");
+        toast.error("Unknown error happened");
       }
     }
   };
@@ -34,10 +35,11 @@ export default function UnknownWordComponent({
       await unknownWordApi.markAsLearning(unknownWord.id);
       onWordStatusChange(unknownWord.id, "learning");
     } catch (error) {
+      console.log(error);
       if (error instanceof ApiError) {
-        toast(error.message);
+        toast.error(error.message);
       } else {
-        toast("Unknown error happened");
+        toast.error("Unknown error happened");
       }
     }
   };

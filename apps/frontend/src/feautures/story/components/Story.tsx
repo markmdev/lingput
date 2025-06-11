@@ -26,7 +26,7 @@ export default function StoryComponent({
 
   const [showTranslation, setShowTranslation] = useState(false);
   return (
-    <div>
+    <>
       {/* TOP */}
       <div className="">
         <h2 className="font-semibold text-2xl">
@@ -81,6 +81,6 @@ export default function StoryComponent({
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
