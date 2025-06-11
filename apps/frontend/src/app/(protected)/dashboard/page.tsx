@@ -6,7 +6,7 @@ import StoryList from "@/feautures/story/components/StoryList";
 import { Story } from "@/feautures/story/types";
 import { ClientApi } from "@/lib/ClientApi";
 import { ApiError } from "@/types/ApiError";
-import { useCallback, useEffect, useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import useSWR from "swr";
 import { toast } from "react-toastify";
 import StoryGeneration from "@/feautures/story/components/StoryGeneration";
@@ -22,20 +22,6 @@ export default function DashboardPage() {
   const [chosenStory, setChosenStory] = useState<null | Story>(null);
   const [viewMode, setViewMode] = useState<"chosenStory" | "newStory">("newStory");
   const router = useRouter();
-
-  useEffect(() => {
-    if (!data) return;
-    if (storyParam) {
-      const foundStory = data?.find((story) => String(story.id) === storyParam);
-      if (foundStory) {
-        handleClickOnStory(foundStory);
-      } else {
-        handleChangeToNewStoryViewMode();
-      }
-    } else {
-      handleChangeToNewStoryViewMode();
-    }
-  }, [storyParam, data]);
 
   const refetchStories = () => {
     mutate();
@@ -67,17 +53,34 @@ export default function DashboardPage() {
     toast(`Word marked as ${newStatus}`);
   };
 
-  const handleClickOnStory = (story: Story) => {
-    setChosenStory(story);
-    setViewMode("chosenStory");
-    setParams({ story: String(story.id), viewMode: null });
-  };
+  const handleClickOnStory = useCallback(
+    (story: Story) => {
+      setChosenStory(story);
+      setViewMode("chosenStory");
+      setParams({ story: String(story.id), viewMode: null });
+    },
+    [setParams]
+  );
 
-  const handleChangeToNewStoryViewMode = () => {
+  const handleChangeToNewStoryViewMode = useCallback(() => {
     setChosenStory(null);
     setViewMode("newStory");
     setParams({ viewMode: "newStory", story: null });
-  };
+  }, [setParams]);
+
+  useEffect(() => {
+    if (!data) return;
+    if (storyParam) {
+      const foundStory = data?.find((story) => String(story.id) === storyParam);
+      if (foundStory) {
+        handleClickOnStory(foundStory);
+      } else {
+        handleChangeToNewStoryViewMode();
+      }
+    } else {
+      handleChangeToNewStoryViewMode();
+    }
+  }, [data, storyParam, handleChangeToNewStoryViewMode, handleClickOnStory]);
 
   if (isLoading) return "Loading...";
   if (error) return (error as ApiError).message;
