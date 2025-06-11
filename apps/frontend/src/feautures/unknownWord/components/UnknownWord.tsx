@@ -14,6 +14,8 @@ export default function UnknownWordComponent({
   const clientApi = new ClientApi();
   const unknownWordApi = new UnknownWordApi(clientApi);
 
+  console.log(unknownWord.status);
+
   const handleMarkAsLearned = async () => {
     try {
       await unknownWordApi.markAsLearned(unknownWord.id);
@@ -49,22 +51,36 @@ export default function UnknownWordComponent({
         <p className="text-gray-500">{unknownWord.translation}</p>
       </div>
       <div className="text-sm border-[1px] border-r-0 border-l-0 border-gray-200 py-3">
-      <p>
-        <b className="text-purple-500">Example:</b> {unknownWord.exampleSentence}
-      </p>
-      <p className="italic text-gray-500">
-        "{unknownWord.exampleSentenceTranslation}"
-      </p>
+        <p>
+          <b className="text-purple-500">Example:</b> {unknownWord.exampleSentence}
+        </p>
+        <p className="italic text-gray-500">&quot;{unknownWord.exampleSentenceTranslation}&quot;</p>
       </div>
       <div className="flex flex-row justify-between text-xs">
-        <p>Status: <span className={`uppercase font-semibold text-${unknownWord.status === "learned" ? 'green-400' : 'orange-400'}`}>{unknownWord.status}</span> <span className="text-sm text-gray-500">(Seen: {unknownWord.timesSeen})</span></p>
+        <p>
+          Status:{" "}
+          <span
+            className={`uppercase font-semibold ${
+              unknownWord.status.toLowerCase() === "learned" ? "text-green-400" : "text-orange-400"
+            }`}
+          >
+            {unknownWord.status}
+          </span>{" "}
+          <span className="text-sm text-gray-500">(Seen: {unknownWord.timesSeen})</span>
+        </p>
         <div className="flex flex-row gap-2 text-xs self-center">
-        <button onClick={handleMarkAsLearned} className="py-1 px-2 h-fit bg-green-400 text-white font-bold rounded-lg cursor-pointer">
-          Learned
-        </button>
-        <button onClick={handleMarkAsLearning} className="py-1 px-2 bg-gray-200 text-black font-semibold rounded-lg cursor-pointer">
-          Learning
-        </button>
+          <button
+            onClick={handleMarkAsLearned}
+            className="py-1 px-2 h-fit bg-green-400 text-white font-bold rounded-lg cursor-pointer"
+          >
+            Learned
+          </button>
+          <button
+            onClick={handleMarkAsLearning}
+            className="py-1 px-2 bg-gray-200 text-black font-semibold rounded-lg cursor-pointer"
+          >
+            Learning
+          </button>
         </div>
       </div>
     </div>
