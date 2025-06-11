@@ -12,16 +12,23 @@ import { toast } from "react-toastify";
 import StoryGeneration from "@/feautures/story/components/StoryGeneration";
 import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
+import Skeleton from "react-loading-skeleton";
+import RightPanel from "@/components/RightPanel";
 
 export default function DashboardPage() {
   const clientApi = new ClientApi();
   const storyApi = new StoryApi(clientApi);
   const searchParams = useSearchParams();
   const storyParam = searchParams.get("story");
+  const viewModeParam = searchParams.get("viewMode");
   const { data, error, isLoading, mutate } = useSWR("/api/story", () => storyApi.getAllStories());
   const [chosenStory, setChosenStory] = useState<null | Story>(null);
-  const [viewMode, setViewMode] = useState<"chosenStory" | "newStory">("newStory");
+  const [viewMode, setViewMode] = useState<"chosenStory" | "newStory">("chosenStory");
   const router = useRouter();
+
+  if (viewModeParam === "newStory" && viewMode !== "newStory") {
+    setViewMode("newStory");
+  }
 
   const refetchStories = () => {
     mutate();
@@ -82,7 +89,6 @@ export default function DashboardPage() {
     }
   }, [data, storyParam, handleChangeToNewStoryViewMode, handleClickOnStory]);
 
-  if (isLoading) return "Loading...";
   if (error) return (error as ApiError).message;
 
   return (
@@ -93,24 +99,30 @@ export default function DashboardPage() {
         <div>
           <h2 className="font-semibold text-2xl">Stories</h2>
           <hr className="my-4" />
-          <StoryList
-            storyList={data}
-            setChosenStory={handleClickOnStory}
-            chosenStoryId={chosenStory?.id || null}
-          ></StoryList>
+          {isLoading ? (
+            <Skeleton count={6} height={50} />
+          ) : (
+            <StoryList
+              storyList={data}
+              setChosenStory={handleClickOnStory}
+              chosenStoryId={chosenStory?.id || null}
+            ></StoryList>
+          )}
         </div>
         {/* BOTTOM */}
         <Button onClick={handleChangeToNewStoryViewMode}>Generate New Story</Button>
       </div>
       {/* RIGHT */}
-      <div className="w-3/4 bg-white rounded-lg">
-        {viewMode === "chosenStory" && (
+      {viewMode === "chosenStory" && (
+        <RightPanel>
           <StoryComponent story={chosenStory} onWordStatusChange={handleWordStatusChange} />
-        )}
-        {viewMode === "newStory" && (
+        </RightPanel>
+      )}
+      {viewMode === "newStory" && (
+        <RightPanel styles="bg-linear-to-r from-gray-100 to-white justify-center">
           <StoryGeneration refetchStories={refetchStories} setToNewStory={handleClickOnStory} />
-        )}
-      </div>
+        </RightPanel>
+      )}
     </div>
   );
 }

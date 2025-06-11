@@ -2,7 +2,6 @@ import { ClientApi } from "@/lib/ClientApi";
 import { useState } from "react";
 import { StoryApi } from "../api";
 import { Story } from "../types";
-import RightPanel from "@/components/RightPanel";
 import Button from "@/components/Button";
 import SuggestedTopic from "./SuggestedTopic";
 
@@ -33,8 +32,8 @@ export default function StoryGeneration({
     setTopic(e.currentTarget.textContent || "");
   };
   return (
-    <RightPanel styles="bg-linear-to-r from-gray-100 to-white">
-      <div className="w-full h-full flex flex-col justify-center items-center">
+    <div>
+      <div className="w-full h-full flex flex-col items-center">
         <form className="flex flex-col gap-4 w-1/2 text-center">
           <label htmlFor="topic" className="font-bold text-2xl">
             Topic
@@ -63,6 +62,6 @@ export default function StoryGeneration({
           </Button>
         </form>
       </div>
-    </RightPanel>
+    </div>
   );
 }
