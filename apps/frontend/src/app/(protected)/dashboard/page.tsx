@@ -110,7 +110,13 @@ export default function DashboardPage() {
           )}
         </div>
         {/* BOTTOM */}
-        <Button onClick={handleChangeToNewStoryViewMode}>Generate New Story</Button>
+        <Button
+          styles={viewMode === "newStory" ? "bg-gray-500 cursor-not-allowed" : ""}
+          disabled={viewMode === "newStory"}
+          onClick={handleChangeToNewStoryViewMode}
+        >
+          Generate New Story
+        </Button>
       </div>
       {/* RIGHT */}
       {viewMode === "chosenStory" && (
