@@ -38,7 +38,7 @@ export class ClientApi {
       } catch {
         throw new ApiError(res.statusText, res.status);
       }
-      throw new ApiError(errorPayload.error.message, errorPayload.error.code);
+      throw new ApiError(errorPayload.error.message, errorPayload.error.code, errorPayload.error.details);
     }
 
     const json = await res.json();

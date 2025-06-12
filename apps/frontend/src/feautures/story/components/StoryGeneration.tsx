@@ -4,6 +4,8 @@ import { StoryApi } from "../api";
 import { Story } from "../types";
 import Button from "@/components/Button";
 import SuggestedTopic from "./SuggestedTopic";
+import { toast } from "react-toastify";
+import { errorNormalizer } from "@/lib/errorNormalizer";
 
 export default function StoryGeneration({
   refetchStories,
@@ -14,17 +16,28 @@ export default function StoryGeneration({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [topic, setTopic] = useState("");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
 
   const clientApi = new ClientApi();
   const storyApi = new StoryApi(clientApi);
 
   const handleGenerateStory = async () => {
     setIsLoading(true);
-    const story = await storyApi.generateNewStory(topic);
-    console.log(story);
-    setIsLoading(false);
-    refetchStories();
-    setToNewStory(story);
+    let story;
+    try {
+      story = await storyApi.generateNewStory(topic);
+      refetchStories();
+      setToNewStory(story);
+    } catch (error) {
+      const normalizedErrors = errorNormalizer(error);
+      setFormErrors(normalizedErrors.fields);
+      console.log(normalizedErrors);
+      if (normalizedErrors.general.length > 0) {
+        toast.error(normalizedErrors.general.join(". "));
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSelectTopic = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -44,9 +57,10 @@ export default function StoryGeneration({
               name="topic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="border rounded-lg py-4 px-4 outline-none text-2xl"
+              className={`border rounded-lg py-4 px-4 outline-none text-2xl ${formErrors.subject && "border-red-500"}`}
               placeholder="Input your desired topic..."
             />
+            {formErrors.subject && <div className="text-red-500 text-sm mr-auto">{formErrors.subject}</div>}
             <div className="flex flex-row gap-2">
               <SuggestedTopic topic="Traveling" onSelectTopic={handleSelectTopic} />
               <SuggestedTopic topic="Food" onSelectTopic={handleSelectTopic} />
