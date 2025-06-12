@@ -55,22 +55,36 @@ export class ClientApi {
   }
 
   async sendRequest(apiUrl: string, path: string, options: RequestInit) {
-    let res: Response;
-    try {
-      res = await fetch(`${apiUrl}${path}`, {
-        cache: "no-store",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        ...options,
-      });
-    } catch (error) {
-      if (error instanceof Error) {
-        console.log(error);
-        throw new Error(`Unexpected error while fetching ${path}: ${error.message}`);
+    let res: Response | undefined;
+    let retries = 3;
+    
+    while (retries > 0) {
+      try {
+        res = await fetch(`${apiUrl}${path}`, {
+          cache: "no-store",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          ...options,
+        });
+        
+        break;
+      } catch (error) {
+        retries--;
+        if (retries === 0) {
+          if (error instanceof Error) {
+            console.log(error);
+            throw new Error(`Unexpected error while fetching ${path}: ${error.message}`);
+          }
+          throw new Error("Unknown error");
+        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
-      throw new Error("Unknown error");
+    }
+
+    if (!res) {
+      throw new Error("Failed to get response after retries");
     }
 
     return res;
