@@ -31,7 +31,6 @@ export default function StoryGeneration({
     } catch (error) {
       const normalizedErrors = errorNormalizer(error);
       setFormErrors(normalizedErrors.fields);
-      console.log(normalizedErrors);
       if (normalizedErrors.general.length > 0) {
         toast.error(normalizedErrors.general.join(". "));
       }
