@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { UnknownWord } from "../types";
 
 export default function UnknownWordComponent({
@@ -7,12 +8,18 @@ export default function UnknownWordComponent({
   unknownWord: UnknownWord;
   onWordStatusChange: (wordId: number, newStatus: "learned" | "learning") => void;
 }) {
+  const [isLearnedButtonLoading, setIsLearnedButtonLoading] = useState(false);
+  const [isLearningButtonLoading, setIsLearningButtonLoading] = useState(false);
   const handleMarkAsLearned = async () => {
-    onWordStatusChange(unknownWord.id, "learned");
+    setIsLearnedButtonLoading(true);
+    await onWordStatusChange(unknownWord.id, "learned");
+    setIsLearnedButtonLoading(false);
   };
 
   const handleMarkAsLearning = async () => {
-    onWordStatusChange(unknownWord.id, "learning");
+    setIsLearningButtonLoading(true);
+    await onWordStatusChange(unknownWord.id, "learning");
+    setIsLearningButtonLoading(false);
   };
   return (
     <div className="border border-gray-300 py-2 px-4 lg:p-4 rounded-lg flex flex-col gap-2">
@@ -46,13 +53,15 @@ export default function UnknownWordComponent({
         <div className="flex flex-row sm:flex-col gap-1 text-xs self-center">
           <button
             onClick={handleMarkAsLearned}
-            className="py-1 px-2 h-fit bg-green-400 text-white font-bold rounded-lg cursor-pointer"
+            className="py-1 px-2 h-fit bg-green-400 text-white font-bold rounded-lg cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={isLearnedButtonLoading}
           >
             Learned
           </button>
           <button
             onClick={handleMarkAsLearning}
-            className="py-1 px-2 bg-gray-200 text-black font-semibold rounded-lg cursor-pointer"
+            className="py-1 px-2 bg-gray-200 text-black font-semibold rounded-lg cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+            disabled={isLearningButtonLoading}
           >
             Learning
           </button>
