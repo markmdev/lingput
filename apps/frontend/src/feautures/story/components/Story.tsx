@@ -44,7 +44,7 @@ export default function StoryComponent({
           </div>
           <h3 className="font-semibold">Listen</h3>
           {story ? (
-            <audio controls className="w-1/2">
+            <audio controls className="w-1/2" key={story.id}>
               <source src={`${audioBucketUrl}${story.audioUrl}`} type="audio/mpeg" />
               Your browser does not support the audio element.
             </audio>
