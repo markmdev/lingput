@@ -1,8 +1,4 @@
-import { ClientApi } from "@/lib/ClientApi";
-import { UnknownWordApi } from "../api";
 import { UnknownWord } from "../types";
-import { ApiError } from "@/types/ApiError";
-import { toast } from "react-toastify";
 
 export default function UnknownWordComponent({
   unknownWord,
@@ -11,40 +7,15 @@ export default function UnknownWordComponent({
   unknownWord: UnknownWord;
   onWordStatusChange: (wordId: number, newStatus: "learned" | "learning") => void;
 }) {
-  const clientApi = new ClientApi();
-  const unknownWordApi = new UnknownWordApi(clientApi);
-
-  console.log(unknownWord.status);
-
   const handleMarkAsLearned = async () => {
-    try {
-      await unknownWordApi.markAsLearned(unknownWord.id);
-      onWordStatusChange(unknownWord.id, "learned");
-    } catch (error) {
-      console.log(error);
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("Unknown error happened");
-      }
-    }
+    onWordStatusChange(unknownWord.id, "learned");
   };
 
   const handleMarkAsLearning = async () => {
-    try {
-      await unknownWordApi.markAsLearning(unknownWord.id);
-      onWordStatusChange(unknownWord.id, "learning");
-    } catch (error) {
-      console.log(error);
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("Unknown error happened");
-      }
-    }
+    onWordStatusChange(unknownWord.id, "learning");
   };
   return (
-    <div className="border border-gray-300 p-4 rounded-lg flex flex-col gap-2">
+    <div className="border border-gray-300 py-2 px-4 lg:p-4 rounded-lg flex flex-col gap-2">
       <div>
         <p>
           <span className="text-gray-500">{unknownWord.article}</span>{" "}
@@ -52,25 +23,27 @@ export default function UnknownWordComponent({
         </p>
         <p className="text-gray-500">{unknownWord.translation}</p>
       </div>
-      <div className="text-sm border-[1px] border-r-0 border-l-0 border-gray-200 py-3">
+      <div className="text-sm border-t-[1px] border-gray-200 pt-3">
         <p>
           <b className="text-purple-500">Example:</b> {unknownWord.exampleSentence}
         </p>
         <p className="italic text-gray-500">&quot;{unknownWord.exampleSentenceTranslation}&quot;</p>
       </div>
-      <div className="flex flex-row justify-between text-xs">
-        <p>
-          Status:{" "}
-          <span
-            className={`uppercase font-semibold ${
-              unknownWord.status.toLowerCase() === "learned" ? "text-green-400" : "text-orange-400"
-            }`}
-          >
-            {unknownWord.status}
-          </span>{" "}
-          <span className="text-sm text-gray-500">(Seen: {unknownWord.timesSeen})</span>
-        </p>
-        <div className="flex flex-row gap-2 text-xs self-center">
+      <div className="flex flex-row justify-between text-xs mt-auto border-t-[1px] border-gray-200 pt-3">
+        <div className="flex flex-row sm:flex-col gap-2 sm:gap-0 items-center sm:items-start">
+          <p>
+            Status:{" "}
+            <span
+              className={`uppercase font-semibold ${
+                unknownWord.status.toLowerCase() === "learned" ? "text-green-400" : "text-orange-400"
+              }`}
+            >
+              {unknownWord.status}
+            </span>
+          </p>
+          <p className="text-sm text-gray-500">(Seen: {unknownWord.timesSeen})</p>
+        </div>
+        <div className="flex flex-row sm:flex-col gap-1 text-xs self-center">
           <button
             onClick={handleMarkAsLearned}
             className="py-1 px-2 h-fit bg-green-400 text-white font-bold rounded-lg cursor-pointer"

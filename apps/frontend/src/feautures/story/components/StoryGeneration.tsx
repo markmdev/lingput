@@ -46,7 +46,7 @@ export default function StoryGeneration({
   return (
     <div>
       <div className="w-full h-full flex flex-col items-center">
-        <form className="flex flex-col gap-4 w-1/2 text-center">
+        <form className="flex flex-col gap-4 w-full lg:w-2/3 xl:w-1/2 text-center">
           <label htmlFor="topic" className="font-bold text-6xl">
             Topic
           </label>
@@ -60,7 +60,7 @@ export default function StoryGeneration({
               placeholder="Input your desired topic..."
             />
             {formErrors.subject && <div className="text-red-500 text-sm mr-auto">{formErrors.subject}</div>}
-            <div className="flex flex-row gap-2">
+            <div className="grid gap-2 grid-cols-3 sm:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5">
               <SuggestedTopic topic="Traveling" onSelectTopic={handleSelectTopic} />
               <SuggestedTopic topic="Food" onSelectTopic={handleSelectTopic} />
               <SuggestedTopic topic="Sports" onSelectTopic={handleSelectTopic} />

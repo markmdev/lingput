@@ -34,17 +34,17 @@ export default function StoryComponent({
         </h2>
         <hr className="my-4" />
       </div>
-      {/* BOTTOM */}
-      <div className="flex flex-row gap-6 flex-1 overflow-hidden">
-        {/* LEFT PANEL */}
-        <div className="px-4 flex flex-col gap-3 w-3/5">
+      {/* BOTTOM PART */}
+      <div className="flex flex-col gap-6 flex-1 overflow-hidden">
+        {/* TOP PANEL (STORY) */}
+        <div className="px-4 flex flex-col gap-3 w-full">
           <h3 className="font-semibold">Story text</h3>
           <div className="p-2 bg-blue-50 rounded-lg border-blue-100 border">
             <p>{story ? story.storyText : <Skeleton count={3} />}</p>
           </div>
           <h3 className="font-semibold">Listen</h3>
           {story ? (
-            <audio controls>
+            <audio controls className="w-1/2">
               <source src={`${audioBucketUrl}${story.audioUrl}`} type="audio/mpeg" />
               Your browser does not support the audio element.
             </audio>
@@ -64,21 +64,24 @@ export default function StoryComponent({
             </div>
           )}
         </div>
-        <div className="bg-black w-[1px]"></div>
-        {/* RIGHT PANEL */}
-        <div className="flex flex-col gap-3 px-4 w-2/5 overflow-y-auto">
+        {/* <div className="bg-black w-[1px]"></div> */}
+        <hr />
+        {/* BOTTOM PANEL (VOCABULARY) */}
+        <div className="flex flex-col gap-3 px-4 w-full overflow-y-auto">
           <h3 className="font-semibold">Vocabulary</h3>
-          {story ? (
-            story.unknownWords.map((unknownWord) => (
-              <UnknownWordComponent
-                key={unknownWord.id}
-                unknownWord={unknownWord}
-                onWordStatusChange={onWordStatusChange}
-              />
-            ))
-          ) : (
-            <Skeleton count={8} height={90} />
-          )}
+          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+            {story ? (
+              story.unknownWords.map((unknownWord) => (
+                <UnknownWordComponent
+                  key={unknownWord.id}
+                  unknownWord={unknownWord}
+                  onWordStatusChange={onWordStatusChange}
+                />
+              ))
+            ) : (
+              <Skeleton count={8} height={90} />
+            )}
+          </div>
         </div>
       </div>
     </>
