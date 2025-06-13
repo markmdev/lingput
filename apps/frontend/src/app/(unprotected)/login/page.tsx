@@ -13,10 +13,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Trying to login");
     try {
       await login({ email, password });
-      console.log("Success");
       router.push("/dashboard");
     } catch (error) {
       if (error instanceof ApiError) {

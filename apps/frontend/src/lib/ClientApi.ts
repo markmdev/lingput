@@ -74,7 +74,6 @@ export class ClientApi {
         retries--;
         if (retries === 0) {
           if (error instanceof Error) {
-            console.log(error);
             throw new Error(`Unexpected error while fetching ${path}: ${error.message}`);
           }
           throw new Error("Unknown error");

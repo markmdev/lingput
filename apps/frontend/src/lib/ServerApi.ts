@@ -75,7 +75,6 @@ export class ServerApi {
         ...options,
       });
     } catch (error) {
-      console.log(error);
       throw new ApiError("Unexpected server error", 500);
     }
 

@@ -18,7 +18,6 @@ export async function getCurrentUser() {
       noRetry: true,
     });
   } catch (error) {
-    console.log(error);
     if (error instanceof ApiError) {
       if (error.statusCode === 401) {
         return null;
