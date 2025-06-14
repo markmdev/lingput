@@ -1,7 +1,7 @@
 node_modules
-# Keep environment variables out of version control
 .env
 prisma
 !prisma/schema.prisma
+!prisma/seed-word-ranking.ts
 coverage
 logs

@@ -5,7 +5,8 @@
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/app.ts",
     "dev": "nodemon",
-    "test": "jest"
+    "test": "jest",
+    "seed:word-ranking": "ts-node prisma/seed-word-ranking.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"

@@ -12,6 +12,7 @@ import express from "express";
 import vocabRouter from "./modules/vocabulary/vocabularyRoutes";
 import storiesRouter from "./modules/story/storyRoutes";
 import unknownWordRouter from "./modules/unknownWord/unknownWordRoutes";
+import vocabAssessmentRouter from "./modules/vocabAssessment/vocabAssessmentRoutes";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -54,6 +55,7 @@ app.use("/api/vocab", vocabRouter);
 app.use("/api/story", storiesRouter);
 app.use("/api/unknown-words", unknownWordRouter);
 app.use("/api/auth", authRouter);
+app.use("/api/vocab-assessment", vocabAssessmentRouter);
 
 app.use(errorHandler);
 
