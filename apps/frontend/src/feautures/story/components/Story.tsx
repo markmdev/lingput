@@ -25,6 +25,7 @@ export default function StoryComponent({
   }
 
   const [showTranslation, setShowTranslation] = useState(false);
+  const [wordTranslationsBlurred, setWordTranslationsBlurred] = useState(true);
   return (
     <>
       {/* TOP */}
@@ -68,7 +69,25 @@ export default function StoryComponent({
         <hr />
         {/* BOTTOM PANEL (VOCABULARY) */}
         <div className="flex flex-col gap-3 px-4 w-full overflow-y-auto">
-          <h3 className="font-semibold">Vocabulary</h3>
+          <div className="flex flex-row gap-2 items-center">
+            <h3 className="font-semibold text-xl">Vocabulary</h3>
+            {wordTranslationsBlurred && (
+              <p
+                className="cursor-pointer bg-green-500 text-white py-1 rounded-lg font-bold text-sm px-2"
+                onClick={() => setWordTranslationsBlurred(false)}
+              >
+                Show All Translations
+              </p>
+            )}
+            {!wordTranslationsBlurred && (
+              <p
+                className="cursor-pointer bg-red-500 text-white py-1 rounded-lg font-bold text-sm px-2"
+                onClick={() => setWordTranslationsBlurred(true)}
+              >
+                Hide All Translations
+              </p>
+            )}
+          </div>
           <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {story ? (
               story.unknownWords.map((unknownWord) => (
@@ -76,6 +95,7 @@ export default function StoryComponent({
                   key={unknownWord.id}
                   unknownWord={unknownWord}
                   onWordStatusChange={onWordStatusChange}
+                  globalBlurState={wordTranslationsBlurred}
                 />
               ))
             ) : (

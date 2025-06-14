@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UnknownWord } from "../types";
 
 export default function UnknownWordComponent({
   unknownWord,
   onWordStatusChange,
+  globalBlurState,
 }: {
   unknownWord: UnknownWord;
   onWordStatusChange: (wordId: number, newStatus: "learned" | "learning") => void;
+  globalBlurState: boolean;
 }) {
+  const [isBlurred, setIsBlurred] = useState(true);
   const [isLearnedButtonLoading, setIsLearnedButtonLoading] = useState(false);
   const [isLearningButtonLoading, setIsLearningButtonLoading] = useState(false);
   const handleMarkAsLearned = async () => {
@@ -21,6 +24,11 @@ export default function UnknownWordComponent({
     await onWordStatusChange(unknownWord.id, "learning");
     setIsLearningButtonLoading(false);
   };
+
+  useEffect(() => {
+    setIsBlurred(globalBlurState);
+  }, [globalBlurState]);
+
   return (
     <div className="border border-gray-300 py-2 px-4 lg:p-4 rounded-lg flex flex-col gap-2">
       <div>
@@ -28,13 +36,23 @@ export default function UnknownWordComponent({
           <span className="text-gray-500">{unknownWord.article}</span>{" "}
           <span className="font-bold">{unknownWord.word}</span>
         </p>
-        <p className="text-gray-500">{unknownWord.translation}</p>
+        <p
+          className={`text-gray-500 cursor-pointer transition-all ${isBlurred ? "blur-xs" : ""}`}
+          onClick={() => setIsBlurred(!isBlurred)}
+        >
+          {unknownWord.translation}
+        </p>
       </div>
       <div className="text-sm border-t-[1px] border-gray-200 pt-3">
         <p>
           <b className="text-purple-500">Example:</b> {unknownWord.exampleSentence}
         </p>
-        <p className="italic text-gray-500">&quot;{unknownWord.exampleSentenceTranslation}&quot;</p>
+        <p
+          className={`italic text-gray-500 cursor-pointer transition-all ${isBlurred ? "blur-xs" : ""}`}
+          onClick={() => setIsBlurred(!isBlurred)}
+        >
+          &quot;{unknownWord.exampleSentenceTranslation}&quot;
+        </p>
       </div>
       <div className="flex flex-row justify-between text-xs mt-auto border-t-[1px] border-gray-200 pt-3">
         <div className="flex flex-row sm:flex-col gap-2 sm:gap-0 items-center sm:items-start">
