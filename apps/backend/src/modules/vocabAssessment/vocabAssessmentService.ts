@@ -40,7 +40,7 @@ export class VocabAssessmentService {
     return { sessionId: session.sessionUUID, status: "active", wordsToReview };
   }
 
-  async continueAssessment(sessionUUID: string, answer: Record<string, boolean>) {
+  async continueAssessment(sessionUUID: string, answer: Record<string, boolean> | undefined) {
     const session = await this.sessionService.getSession(sessionUUID);
     if (!session?.state)
       throw new VocabAssessmentError("Session not found or invalid state", null, { session });
@@ -48,6 +48,15 @@ export class VocabAssessmentService {
     const state = session.state as unknown as SessionState;
     if (!this.isValidSessionState(state)) {
       throw new VocabAssessmentError("Invalid session state format", null, { state });
+    }
+
+    if (!answer) {
+      return {
+        sessionId: sessionUUID,
+        status: "active",
+        wordsToReview: state.wordsToReview,
+        last_step: state.last_step,
+      };
     }
 
     const words = await this.vocabAssessmentRepository.getWords("en", "de");
