@@ -1,7 +1,7 @@
 import { VocabAssessmentError } from "@/errors/VocabAssessmentError";
 import { SessionService } from "../session/sessionService";
 import { VocabAssessmentRepository } from "./vocabAssessmentRepository";
-import { WordRanking } from "@prisma/client";
+import { WordRanking, Session } from "@prisma/client";
 import { VocabularyService } from "../vocabulary/vocabularyService";
 import { UserVocabularyDTO } from "../vocabulary/vocabulary.types";
 
@@ -11,6 +11,7 @@ interface SessionState {
   mid: number;
   wordsToReview: WordRanking[];
   range: number;
+  last_step: boolean;
 }
 
 export class VocabAssessmentService {
@@ -33,6 +34,7 @@ export class VocabAssessmentService {
       mid,
       wordsToReview,
       range,
+      last_step: false,
     };
     const session = await this.sessionService.createSession(1, state);
     return { sessionId: session.sessionUUID, status: "active", wordsToReview };
@@ -49,7 +51,6 @@ export class VocabAssessmentService {
     }
 
     const words = await this.vocabAssessmentRepository.getWords("en", "de");
-
     const wordsToReview = state.wordsToReview;
     const result = this.checkAnswer(answer, wordsToReview);
 
@@ -59,37 +60,54 @@ export class VocabAssessmentService {
       state.max = state.mid;
     }
     state.mid = Math.floor((state.max + state.min) / 2);
-    if (session.status === "completed") {
-      const knownVocabularyCount = state.mid;
-      const knownVocabulary = words.slice(0, knownVocabularyCount);
-      await this.sessionService.completeSession(sessionUUID);
-      const vocabularyDTO: UserVocabularyDTO[] = knownVocabulary.map((word) => ({
-        word: word.word,
-        translation: word.translation,
-        article: null,
-      }));
-      await this.vocabularyService.saveManyWords(vocabularyDTO, session.userId);
-      state.wordsToReview = [];
-      state.range = 0;
-      const updatedSession = await this.sessionService.updateSessionState(sessionUUID, state);
-      return { sessionId: sessionUUID, status: "completed" };
+
+    if (state.last_step) {
+      return this.finishAssessment(state, words, sessionUUID, session);
     } else {
       if (state.max - state.min < 50) {
-        await this.sessionService.completeSession(sessionUUID);
+        state.last_step = true;
       }
 
       const range = 15;
       state.wordsToReview = words.slice(state.mid - range / 2, state.mid + range / 2);
       const updatedSession = await this.sessionService.updateSessionState(sessionUUID, state);
-      return { sessionId: sessionUUID, status: "active", wordsToReview: state.wordsToReview };
+      return {
+        sessionId: sessionUUID,
+        status: "active",
+        wordsToReview: state.wordsToReview,
+        last_step: state.last_step,
+      };
     }
   }
 
+  private async finishAssessment(
+    state: SessionState,
+    words: WordRanking[],
+    sessionUUID: string,
+    session: Session
+  ) {
+    const knownVocabularyCount = state.mid;
+    const knownVocabulary = words.slice(0, knownVocabularyCount);
+    await this.sessionService.completeSession(sessionUUID);
+    const vocabularyDTO: UserVocabularyDTO[] = knownVocabulary.map((word) => ({
+      word: word.word,
+      translation: word.translation,
+      article: null,
+    }));
+    await this.vocabularyService.saveManyWords(vocabularyDTO, session.userId);
+    state.wordsToReview = [];
+    state.range = 0;
+    await this.sessionService.updateSessionState(sessionUUID, state);
+    await this.sessionService.completeSession(sessionUUID);
+    return { sessionId: sessionUUID, status: "completed", vocabularySize: vocabularyDTO.length };
+  }
+
   private checkAnswer(answer: Record<string, boolean>, wordsToReview: WordRanking[]) {
+    console.log(answer);
     if (
       !this.arraysEqual(
         Object.keys(answer),
-        wordsToReview.map((item) => item.word)
+        wordsToReview.map((item) => String(item.id))
       )
     ) {
       throw new VocabAssessmentError("Answer doesn't contain all required words", null, {
