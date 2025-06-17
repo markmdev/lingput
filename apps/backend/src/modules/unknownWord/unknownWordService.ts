@@ -40,6 +40,8 @@ export class UnknownWordService {
         wordsToUpdate.push({
           ...existingWord,
           timesSeen: existingWord.timesSeen + 1,
+          exampleSentence: word.exampleSentence,
+          exampleSentenceTranslation: word.exampleSentenceTranslation,
         });
       } else {
         wordsToSave.push(word);
@@ -49,7 +51,10 @@ export class UnknownWordService {
     return { wordsToSave, wordsToUpdate };
   }
 
-  private async updateExistingWords(wordsToUpdate: UnknownWord[], storyId: number): Promise<UnknownWord[]> {
+  private async updateExistingWords(
+    wordsToUpdate: UnknownWord[],
+    storyId: number
+  ): Promise<UnknownWord[]> {
     const tasks = wordsToUpdate.map((word) =>
       this.unknownWordRepository.updateTimesSeenAndConnectStory(word.id, word.timesSeen, storyId)
     );
