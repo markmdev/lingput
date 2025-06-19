@@ -12,6 +12,8 @@ interface SessionState {
   wordsToReview: WordRanking[];
   range: number;
   last_step: boolean;
+  step: number;
+  vocabularySize?: number;
 }
 
 export class VocabAssessmentService {
@@ -35,9 +37,16 @@ export class VocabAssessmentService {
       wordsToReview,
       range,
       last_step: false,
+      step: 1,
     };
     const session = await this.sessionService.createSession(1, state);
-    return { sessionId: session.sessionUUID, status: "active", wordsToReview };
+    return {
+      sessionId: session.sessionUUID,
+      status: "active",
+      wordsToReview,
+      lastStep: state.last_step,
+      step: state.step,
+    };
   }
 
   async continueAssessment(sessionUUID: string, answer: Record<string, boolean> | undefined) {
@@ -53,9 +62,11 @@ export class VocabAssessmentService {
     if (!answer) {
       return {
         sessionId: sessionUUID,
-        status: "active",
+        status: session.status,
         wordsToReview: state.wordsToReview,
-        last_step: state.last_step,
+        lastStep: state.last_step,
+        step: state.step,
+        vocabularySize: state.vocabularySize,
       };
     }
 
@@ -69,6 +80,7 @@ export class VocabAssessmentService {
       state.max = state.mid;
     }
     state.mid = Math.floor((state.max + state.min) / 2);
+    state.step++;
 
     if (state.last_step) {
       return this.finishAssessment(state, words, sessionUUID, session);
@@ -84,7 +96,8 @@ export class VocabAssessmentService {
         sessionId: sessionUUID,
         status: "active",
         wordsToReview: state.wordsToReview,
-        last_step: state.last_step,
+        lastStep: state.last_step,
+        step: state.step,
       };
     }
   }
@@ -106,6 +119,7 @@ export class VocabAssessmentService {
     await this.vocabularyService.saveManyWords(vocabularyDTO, session.userId);
     state.wordsToReview = [];
     state.range = 0;
+    state.vocabularySize = vocabularyDTO.length;
     await this.sessionService.updateSessionState(sessionUUID, state);
     await this.sessionService.completeSession(sessionUUID);
     return { sessionId: sessionUUID, status: "completed", vocabularySize: vocabularyDTO.length };

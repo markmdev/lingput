@@ -12,4 +12,6 @@ export interface AssessmentResponse {
   status: "active" | "completed" | "expired";
   wordsToReview?: WordRanking[];
   vocabularySize?: number;
+  lastStep?: boolean;
+  step?: number;
 }
