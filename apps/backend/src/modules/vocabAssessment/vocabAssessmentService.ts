@@ -126,7 +126,6 @@ export class VocabAssessmentService {
   }
 
   private checkAnswer(answer: Record<string, boolean>, wordsToReview: WordRanking[]) {
-    console.log(answer);
     if (
       !this.arraysEqual(
         Object.keys(answer),
