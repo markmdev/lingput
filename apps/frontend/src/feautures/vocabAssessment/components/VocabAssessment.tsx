@@ -26,7 +26,6 @@ export default function VocabAssessment() {
         const clientApi = new ClientApi();
         const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
         const result = await vocabAssessmentApi.continue(sessionUUID);
-        console.log(result);
         setApiResponse(result);
         if (result.status === "active") {
           setStatus("started");
