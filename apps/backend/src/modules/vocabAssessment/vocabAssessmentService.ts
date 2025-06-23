@@ -5,6 +5,10 @@ import { WordRanking, Session } from "@prisma/client";
 import { VocabularyService } from "../vocabulary/vocabularyService";
 import { UserVocabularyDTO } from "../vocabulary/vocabulary.types";
 
+const WORDS_PER_BATCH = 15;
+const KNOWLEDGE_THRESHOLD = 0.8;
+const MIN_RANGE_FOR_ESTIMATION = 100;
+
 interface SessionState {
   min: number;
   max: number;
@@ -28,14 +32,13 @@ export class VocabAssessmentService {
     const max = words.length - 1;
     const min = 0;
     const mid = (max + min) / 2;
-    const range = 15;
-    const wordsToReview = words.slice(mid - range / 2, mid + range / 2);
+    const wordsToReview = words.slice(mid - WORDS_PER_BATCH / 2, mid + WORDS_PER_BATCH / 2);
     const state: SessionState = {
       min: 1,
       max: words.length,
       mid,
       wordsToReview,
-      range,
+      range: WORDS_PER_BATCH,
       last_step: false,
       step: 1,
     };
@@ -74,7 +77,7 @@ export class VocabAssessmentService {
     const wordsToReview = state.wordsToReview;
     const result = this.checkAnswer(answer, wordsToReview);
 
-    if (result >= 0.8) {
+    if (result >= KNOWLEDGE_THRESHOLD) {
       state.min = state.mid;
     } else {
       state.max = state.mid;
@@ -85,12 +88,14 @@ export class VocabAssessmentService {
     if (state.last_step) {
       return this.finishAssessment(state, words, sessionUUID, session);
     } else {
-      if (state.max - state.min < 50) {
+      if (state.max - state.min < MIN_RANGE_FOR_ESTIMATION) {
         state.last_step = true;
       }
 
-      const range = 15;
-      state.wordsToReview = words.slice(state.mid - range / 2, state.mid + range / 2);
+      state.wordsToReview = words.slice(
+        state.mid - WORDS_PER_BATCH / 2,
+        state.mid + WORDS_PER_BATCH / 2
+      );
       const updatedSession = await this.sessionService.updateSessionState(sessionUUID, state);
       return {
         sessionId: sessionUUID,
