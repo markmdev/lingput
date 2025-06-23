@@ -5,7 +5,7 @@ import { vocabAssessmentController } from "./composition";
 
 const router = Router();
 
-router.get("/start", asyncHandler(vocabAssessmentController.start));
-router.post("/answer", asyncHandler(vocabAssessmentController.answer));
+router.get("/start", authMiddleware, asyncHandler(vocabAssessmentController.start));
+router.post("/answer", authMiddleware, asyncHandler(vocabAssessmentController.answer));
 
 export default router;

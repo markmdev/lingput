@@ -6,7 +6,8 @@ export class VocabAssessmentController {
   constructor(private vocabAssessmentService: VocabAssessmentService) {}
 
   start = async (req: Request, res: Response) => {
-    const result = await this.vocabAssessmentService.startAssessment("en", "de");
+    const user = req.user;
+    const result = await this.vocabAssessmentService.startAssessment(user.userId, "en", "de");
     res.status(200).json(formatResponse(result));
   };
 

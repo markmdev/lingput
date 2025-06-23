@@ -23,7 +23,7 @@ export class VocabAssessmentService {
     private vocabularyService: VocabularyService
   ) {}
 
-  async startAssessment(sourceLanguage: string, targetLanguage: string) {
+  async startAssessment(userId: number, sourceLanguage: string, targetLanguage: string) {
     const words = await this.vocabAssessmentRepository.getWords(sourceLanguage, targetLanguage);
     const max = words.length - 1;
     const min = 0;
@@ -39,7 +39,7 @@ export class VocabAssessmentService {
       last_step: false,
       step: 1,
     };
-    const session = await this.sessionService.createSession(1, state);
+    const session = await this.sessionService.createSession(userId, state);
     return {
       sessionId: session.sessionUUID,
       status: "active",
@@ -121,7 +121,6 @@ export class VocabAssessmentService {
     state.range = 0;
     state.vocabularySize = vocabularyDTO.length;
     await this.sessionService.updateSessionState(sessionUUID, state);
-    await this.sessionService.completeSession(sessionUUID);
     return { sessionId: sessionUUID, status: "completed", vocabularySize: vocabularyDTO.length };
   }
 
