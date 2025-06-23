@@ -1,6 +1,13 @@
 import { Request, Response } from "express";
 import { formatResponse } from "@/middlewares/responseFormatter";
 import { VocabAssessmentService } from "./vocabAssessmentService";
+import { z } from "zod";
+import { validateData } from "@/validation/validateData";
+
+const answerSchema = z.object({
+  sessionUUID: z.string(),
+  wordsData: z.record(z.string(), z.boolean()),
+});
 
 export class VocabAssessmentController {
   constructor(private vocabAssessmentService: VocabAssessmentService) {}
@@ -12,7 +19,7 @@ export class VocabAssessmentController {
   };
 
   answer = async (req: Request, res: Response) => {
-    const { sessionUUID, wordsData } = req.body;
+    const { sessionUUID, wordsData } = validateData(answerSchema, req);
     const result = await this.vocabAssessmentService.continueAssessment(sessionUUID, wordsData);
     res.status(200).json(formatResponse(result));
   };
