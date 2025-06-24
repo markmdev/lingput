@@ -15,7 +15,7 @@ interface SessionState {
   mid: number;
   wordsToReview: WordRanking[];
   range: number;
-  last_step: boolean;
+  isLastStep: boolean;
   step: number;
   vocabularySize?: number;
 }
@@ -39,7 +39,7 @@ export class VocabAssessmentService {
       mid,
       wordsToReview,
       range: WORDS_PER_BATCH,
-      last_step: false,
+      isLastStep: false,
       step: 1,
     };
     const session = await this.sessionService.createSession(userId, state);
@@ -47,7 +47,7 @@ export class VocabAssessmentService {
       sessionId: session.sessionUUID,
       status: "active",
       wordsToReview,
-      lastStep: state.last_step,
+      lastStep: state.isLastStep,
       step: state.step,
     };
   }
@@ -67,7 +67,7 @@ export class VocabAssessmentService {
         sessionId: sessionUUID,
         status: session.status,
         wordsToReview: state.wordsToReview,
-        lastStep: state.last_step,
+        lastStep: state.isLastStep,
         step: state.step,
         vocabularySize: state.vocabularySize,
       };
@@ -85,11 +85,11 @@ export class VocabAssessmentService {
     state.mid = Math.floor((state.max + state.min) / 2);
     state.step++;
 
-    if (state.last_step) {
+    if (state.isLastStep) {
       return this.finishAssessment(state, words, sessionUUID, session);
     } else {
       if (state.max - state.min < MIN_RANGE_FOR_ESTIMATION) {
-        state.last_step = true;
+        state.isLastStep = true;
       }
 
       state.wordsToReview = words.slice(
@@ -101,7 +101,7 @@ export class VocabAssessmentService {
         sessionId: sessionUUID,
         status: "active",
         wordsToReview: state.wordsToReview,
-        lastStep: state.last_step,
+        lastStep: state.isLastStep,
         step: state.step,
       };
     }
