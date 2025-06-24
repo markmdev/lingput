@@ -6,7 +6,7 @@ import { validateData } from "@/validation/validateData";
 
 const answerSchema = z.object({
   sessionUUID: z.string(),
-  wordsData: z.record(z.string(), z.boolean()),
+  wordsData: z.record(z.string(), z.boolean()).optional(),
 });
 
 export class VocabAssessmentController {
@@ -19,7 +19,7 @@ export class VocabAssessmentController {
   };
 
   answer = async (req: Request, res: Response) => {
-    const { sessionUUID, wordsData } = validateData(answerSchema, req);
+    const { sessionUUID, wordsData } = validateData(answerSchema, req.body);
     const result = await this.vocabAssessmentService.continueAssessment(sessionUUID, wordsData);
     res.status(200).json(formatResponse(result));
   };

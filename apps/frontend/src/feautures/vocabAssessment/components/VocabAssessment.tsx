@@ -22,7 +22,7 @@ export default function VocabAssessment() {
 
   useEffect(() => {
     const fetch = async () => {
-      if (sessionUUID) {
+      if (sessionUUID && apiResponse === null) {
         const clientApi = new ClientApi();
         const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
         const result = await vocabAssessmentApi.continue(sessionUUID);
@@ -35,7 +35,7 @@ export default function VocabAssessment() {
       }
     };
     fetch();
-  }, [sessionUUID]);
+  }, [sessionUUID, apiResponse]);
 
   const handleStart = async () => {
     const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
