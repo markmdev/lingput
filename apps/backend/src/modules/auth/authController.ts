@@ -47,7 +47,10 @@ export class AuthController {
       throw new LoginError("Invalid credentials");
     }
 
-    const checkPassword = await this.authService.comparePassword(validatedData.password, user.password);
+    const checkPassword = await this.authService.comparePassword(
+      validatedData.password,
+      user.password
+    );
     if (!checkPassword) {
       throw new LoginError("Invalid credentials");
     }
@@ -96,13 +99,6 @@ export class AuthController {
   };
 
   me = async (req: Request, res: Response) => {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) {
-      throw new AuthError("Refresh token not found", null);
-    }
-
-    const record = await this.authService.verifyRefreshToken(refreshToken);
-    req.user = { userId: record.userId };
-    res.status(200).json(formatResponse({ user: { userId: record.userId } }));
+    res.status(200).json(formatResponse({ user: { userId: req.user.userId } }));
   };
 }
