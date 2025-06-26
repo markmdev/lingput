@@ -83,7 +83,6 @@ export class AuthController {
     if (!oldRefreshToken) {
       throw new AuthError("Refresh token not found", null);
     }
-    await this.authService.verifyRefreshToken(oldRefreshToken);
     const { refreshToken, record } = await this.authService.rotateRefreshToken(oldRefreshToken);
     const accessToken = await this.authService.generateAccessToken(record.userId);
     res
