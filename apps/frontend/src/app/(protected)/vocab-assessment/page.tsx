@@ -9,6 +9,7 @@ import Word from "@/feautures/vocabAssessment/components/Word";
 import { AssessmentResponse } from "@/feautures/vocabAssessment/types";
 import ContinueButton from "@/feautures/vocabAssessment/components/ContinueButton";
 import StartButton from "@/feautures/vocabAssessment/components/StartButton";
+import { ApiError } from "@/types/ApiError";
 
 export default function VocabAssessmentPage() {
   const clientApi = new ClientApi();
@@ -75,13 +76,11 @@ export default function VocabAssessmentPage() {
         setStatus("completed");
       }
     } catch (error) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "statusCode" in error &&
-        error.statusCode === 401
-      ) {
+      if (error instanceof ApiError && error.statusCode === 401) {
         router.replace("/login");
+      } else {
+        console.error(error);
+        throw new Error("Unexpected server error");
       }
     }
   };
