@@ -34,7 +34,11 @@ export class AuthService {
 
   async generateRefreshToken(userId: number) {
     const refreshToken = jwt.sign({ userId }, this.jwtSecret, { expiresIn: "7d" });
-    await this.authRepository.saveRefreshToken(refreshToken, new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), userId);
+    await this.authRepository.saveRefreshToken(
+      refreshToken,
+      new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+      userId
+    );
     return refreshToken;
   }
 
@@ -46,7 +50,7 @@ export class AuthService {
     }
 
     const record = await this.authRepository.getRefreshTokenRecord(token);
-    if (!record || record.revokedAt || record.expiresAt < new Date(Date.now())) {
+    if (!record) {
       throw new AuthError("Invalid refresh token", { token, record });
     }
     return record;
@@ -54,8 +58,11 @@ export class AuthService {
 
   async rotateRefreshToken(oldToken: string) {
     const record = await this.verifyRefreshToken(oldToken);
+    if (!record.userId) {
+      throw new AuthError("Invalid refresh token", { oldToken, record });
+    }
     const newToken = await this.generateRefreshToken(record.userId);
-    await this.authRepository.revokeToken(oldToken, newToken);
+    await this.authRepository.revokeToken(oldToken);
     return { refreshToken: newToken, record };
   }
 

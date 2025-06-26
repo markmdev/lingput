@@ -1,33 +1,29 @@
-import { PrismaClient } from "@prisma/client";
+import { AppRedisClient } from "@/services/redis";
 
 export class AuthRepository {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private redis: AppRedisClient) {}
 
   async saveRefreshToken(refreshToken: string, expiresAt: Date, userId: number) {
-    const result = await this.prisma.refreshToken.create({
-      data: {
+    const timestampInSeconds = Math.floor(expiresAt.getTime() / 1000);
+    await this.redis
+      .multi()
+      .hSet(refreshToken, {
         token: refreshToken,
-        expiresAt: expiresAt,
-        userId,
-      },
-    });
+        userId: userId.toString(),
+      })
+      .expireAt(refreshToken, timestampInSeconds)
+      .exec();
   }
 
   async getRefreshTokenRecord(refreshToken: string) {
-    return this.prisma.refreshToken.findUnique({
-      where: {
-        token: refreshToken,
-      },
-    });
+    const value = await this.redis.hGetAll(refreshToken);
+    return {
+      token: value.token,
+      userId: Number(value.userId),
+    };
   }
 
-  async revokeToken(oldToken: string, newToken?: string) {
-    await this.prisma.refreshToken.update({
-      where: { token: oldToken },
-      data: {
-        revokedAt: new Date(),
-        replacedBy: newToken ?? null,
-      },
-    });
+  async revokeToken(oldToken: string) {
+    await this.redis.del(oldToken);
   }
 }
