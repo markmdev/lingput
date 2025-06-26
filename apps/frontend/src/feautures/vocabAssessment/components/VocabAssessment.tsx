@@ -38,26 +38,48 @@ export default function VocabAssessment() {
   }, [sessionUUID, apiResponse]);
 
   const handleStart = async () => {
-    const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
-    const result = await vocabAssessmentApi.start();
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("sessionid", result.sessionId);
-    router.replace(`${window.location.pathname}?${params.toString()}`);
-    setStatus("started");
-    setApiResponse(result);
+    try {
+      const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
+      const result = await vocabAssessmentApi.start();
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("sessionid", result.sessionId);
+      router.replace(`${window.location.pathname}?${params.toString()}`);
+      setStatus("started");
+      setApiResponse(result);
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "statusCode" in error &&
+        error.statusCode === 401
+      ) {
+        router.replace("/login");
+      }
+    }
   };
 
   const handleContinue = async () => {
-    if (!sessionUUID) return;
-    setStatus("loading");
-    const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
-    const result = await vocabAssessmentApi.continue(sessionUUID, answer);
-    setApiResponse(result);
-    setAnswer({});
-    if (result.status === "active") {
-      setStatus("started");
-    } else if (result.status === "completed") {
-      setStatus("completed");
+    try {
+      if (!sessionUUID) return;
+      setStatus("loading");
+      const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
+      const result = await vocabAssessmentApi.continue(sessionUUID, answer);
+      setApiResponse(result);
+      setAnswer({});
+      if (result.status === "active") {
+        setStatus("started");
+      } else if (result.status === "completed") {
+        setStatus("completed");
+      }
+    } catch (error) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "statusCode" in error &&
+        error.statusCode === 401
+      ) {
+        router.replace("/login");
+      }
     }
   };
 

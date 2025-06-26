@@ -38,7 +38,11 @@ export class ClientApi {
       } catch {
         throw new ApiError(res.statusText, res.status);
       }
-      throw new ApiError(errorPayload.error.message, errorPayload.error.code, errorPayload.error.details);
+      throw new ApiError(
+        errorPayload.error.message,
+        errorPayload.error.code,
+        errorPayload.error.details
+      );
     }
 
     const json = await res.json();
@@ -57,7 +61,7 @@ export class ClientApi {
   async sendRequest(apiUrl: string, path: string, options: RequestInit) {
     let res: Response | undefined;
     let retries = 3;
-    
+
     while (retries > 0) {
       try {
         res = await fetch(`${apiUrl}${path}`, {
@@ -68,7 +72,6 @@ export class ClientApi {
           credentials: "include",
           ...options,
         });
-        
         break;
       } catch (error) {
         retries--;
@@ -78,7 +81,7 @@ export class ClientApi {
           }
           throw new Error("Unknown error");
         }
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
 

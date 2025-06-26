@@ -1,4 +1,4 @@
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 import { getCurrentUser } from "@/feautures/auth/api.server";
 import { redirect } from "next/navigation";
 

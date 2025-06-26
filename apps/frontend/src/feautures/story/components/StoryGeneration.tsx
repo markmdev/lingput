@@ -6,13 +6,16 @@ import Button from "@/components/Button";
 import SuggestedTopic from "./SuggestedTopic";
 import { toast } from "react-toastify";
 import { errorNormalizer } from "@/lib/errorNormalizer";
+import Skeleton from "react-loading-skeleton";
 
 export default function StoryGeneration({
   refetchStories,
   setToNewStory,
+  isPageLoading,
 }: {
   refetchStories: () => void;
   setToNewStory: (story: Story) => void;
+  isPageLoading: boolean;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [topic, setTopic] = useState("");
@@ -56,10 +59,14 @@ export default function StoryGeneration({
               name="topic"
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className={`border rounded-lg py-4 px-4 outline-none text-2xl ${formErrors.subject && "border-red-500"}`}
+              className={`border rounded-lg py-4 px-4 outline-none text-2xl ${
+                formErrors.subject && "border-red-500"
+              }`}
               placeholder="Input your desired topic..."
             />
-            {formErrors.subject && <div className="text-red-500 text-sm mr-auto">{formErrors.subject}</div>}
+            {formErrors.subject && (
+              <div className="text-red-500 text-sm mr-auto">{formErrors.subject}</div>
+            )}
             <div className="grid gap-2 grid-cols-3 sm:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5">
               <SuggestedTopic topic="Traveling" onSelectTopic={handleSelectTopic} />
               <SuggestedTopic topic="Food" onSelectTopic={handleSelectTopic} />
@@ -70,9 +77,18 @@ export default function StoryGeneration({
               <SuggestedTopic topic="Mystery" onSelectTopic={handleSelectTopic} />
             </div>
           </div>
-          <Button type="submit" disabled={isLoading} onClick={handleGenerateStory} styles="text-xl">
-            Generate
-          </Button>
+          {isPageLoading ? (
+            <Skeleton height={50} />
+          ) : (
+            <Button
+              type="submit"
+              disabled={isLoading}
+              onClick={handleGenerateStory}
+              styles="text-xl"
+            >
+              Generate
+            </Button>
+          )}
         </form>
       </div>
     </div>

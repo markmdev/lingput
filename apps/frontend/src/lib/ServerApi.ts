@@ -19,7 +19,6 @@ export class ServerApi {
   async api<T>({
     path,
     options,
-    noRetry = false,
   }: {
     path: string;
     options: RequestInit;
@@ -31,13 +30,7 @@ export class ServerApi {
     }
 
     const cookieHeaders = await this.getCookieHeaders();
-    let res = await this.sendRequest(backendApiUrl, path, cookieHeaders, options);
-
-    if (res.status === 401 && path !== this.AUTH_REFRESH_ENDPOINT && !noRetry) {
-      await this.refreshToken();
-      const newCookieHeaders = await this.getCookieHeaders();
-      res = await this.sendRequest(backendApiUrl, path, newCookieHeaders, options);
-    }
+    const res = await this.sendRequest(backendApiUrl, path, cookieHeaders, options);
 
     if (!res.ok) {
       let errorPayload: ErrorResponse;
@@ -54,15 +47,6 @@ export class ServerApi {
     return json.data;
   }
 
-  refreshToken() {
-    return this.api({
-      path: this.AUTH_REFRESH_ENDPOINT,
-      options: {
-        method: "POST",
-      },
-    });
-  }
-
   async sendRequest(apiUrl: string, path: string, cookieHeaders: string, options: RequestInit) {
     let res: Response;
     try {
@@ -74,7 +58,7 @@ export class ServerApi {
         },
         ...options,
       });
-    } catch (error) {
+    } catch {
       throw new ApiError("Unexpected server error", 500);
     }
 

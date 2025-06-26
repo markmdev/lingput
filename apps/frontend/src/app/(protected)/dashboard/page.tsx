@@ -6,7 +6,7 @@ import StoryList from "@/feautures/story/components/StoryList";
 import { Story } from "@/feautures/story/types";
 import { ClientApi } from "@/lib/ClientApi";
 import { ApiError } from "@/types/ApiError";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import useSWR from "swr";
 import { toast } from "react-toastify";
 import StoryGeneration from "@/feautures/story/components/StoryGeneration";
@@ -28,6 +28,12 @@ export default function DashboardPage() {
     (searchParams.get("viewMode") as "chosenStory" | "newStory" | "allStories") || "newStory";
   const router = useRouter();
   const unknownWordApi = new UnknownWordApi(clientApi);
+
+  useEffect(() => {
+    if (error?.statusCode === 401) {
+      router.replace("/login");
+    }
+  }, [error, router]);
 
   const refetchStories = () => {
     mutate();
@@ -80,7 +86,11 @@ export default function DashboardPage() {
     setViewMode("allStories");
   }, [setViewMode]);
 
-  if (error) throw new ApiError("Unexpected server error", 401);
+  if (error?.statusCode === 401) {
+    return <div>Redirecting...</div>;
+  }
+
+  if (error) throw new ApiError("Unexpected server error", 502);
 
   return (
     <div className="flex flex-col bg-gray-100 h-screen">
@@ -124,7 +134,11 @@ export default function DashboardPage() {
         )}
         {viewMode === "newStory" && (
           <RightPanel styles="bg-radial from-white to-gray-100 from-30% justify-center">
-            <StoryGeneration refetchStories={refetchStories} setToNewStory={handleClickOnStory} />
+            <StoryGeneration
+              refetchStories={refetchStories}
+              setToNewStory={handleClickOnStory}
+              isPageLoading={isLoading}
+            />
           </RightPanel>
         )}
         {viewMode === "allStories" && (
