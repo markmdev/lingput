@@ -15,7 +15,7 @@ export async function getCurrentUser() {
       options: {
         method: "GET",
       },
-      noRetry: true,
+      noRetry: false,
     });
   } catch (error) {
     if (error instanceof ApiError) {
