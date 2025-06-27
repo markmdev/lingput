@@ -5,6 +5,8 @@ import { StorageError } from "@/errors/StorageError";
 import { NotFoundError } from "@/errors/NotFoundError";
 import { PrismaError } from "@/errors/PrismaError";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { AppRedisClient } from "@/services/redis";
+import { logger } from "@/utils/logger";
 function getRandomFileName(extension: string) {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${extension}`;
 }
@@ -15,10 +17,35 @@ function base64ToArrayBuffer(base64: Base64) {
 }
 
 export class StoryRepository {
-  constructor(private prisma: PrismaClient, private storageClient: SupabaseClient) {}
+  constructor(
+    private prisma: PrismaClient,
+    private storageClient: SupabaseClient,
+    private redis: AppRedisClient
+  ) {}
+
+  private parseRedisStory(storyString: string): Story {
+    const storyJson = JSON.parse(storyString);
+    return {
+      id: Number(storyJson.id),
+      storyText: storyJson.storyText,
+      translationText: storyJson.translationText,
+      audioUrl: storyJson.audioUrl,
+      userId: Number(storyJson.userId),
+    };
+  }
+
   async getAllStories(userId: number): Promise<Story[]> {
     try {
-      return this.prisma.story.findMany({
+      const cacheKey = `stories:${userId}`;
+      const cachedStories = await this.redis.lRange(cacheKey, 0, -1);
+      if (cachedStories.length > 0) {
+        logger.info("Cache hit for stories");
+        return cachedStories.map((item) => this.parseRedisStory(item));
+      }
+
+      logger.info("Cache miss for stories");
+
+      const stories = await this.prisma.story.findMany({
         where: {
           userId,
         },
@@ -26,6 +53,13 @@ export class StoryRepository {
           unknownWords: true,
         },
       });
+
+      await this.redis.lPush(
+        cacheKey,
+        stories.map((item) => JSON.stringify(item))
+      );
+
+      return stories;
     } catch (error) {
       throw new PrismaError("Unable to get all stories", error, { userId });
     }
@@ -47,9 +81,11 @@ export class StoryRepository {
     const fileName = getRandomFileName("mp3");
     // story to ArrayBuffer
     const arrayBuffer = base64ToArrayBuffer(story);
-    const { data, error } = await this.storageClient.storage.from("stories").upload(fileName, arrayBuffer, {
-      contentType: "audio/mpeg",
-    });
+    const { data, error } = await this.storageClient.storage
+      .from("stories")
+      .upload(fileName, arrayBuffer, {
+        contentType: "audio/mpeg",
+      });
 
     if (error) {
       throw new StorageError("Unable to save story audio to storage", error, { fileName });
@@ -62,7 +98,9 @@ export class StoryRepository {
   }
 
   async getSignedStoryAudioUrl(audioPath: string, storyId: number): Promise<string> {
-    const { data, error } = await this.storageClient.storage.from("stories").createSignedUrl(audioPath, 60 * 60);
+    const { data, error } = await this.storageClient.storage
+      .from("stories")
+      .createSignedUrl(audioPath, 60 * 60);
     if (error) {
       throw new StorageError("Unable to get story audio", error, { storyId, audioPath });
     }
@@ -87,7 +125,10 @@ export class StoryRepository {
     return story;
   }
 
-  async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {
+  async connectUnknownWords(
+    storyId: number,
+    wordIds: { id: number }[]
+  ): Promise<StoryWithUnknownWords> {
     try {
       const response = await this.prisma.story.update({
         where: { id: storyId },

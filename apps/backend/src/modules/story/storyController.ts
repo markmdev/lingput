@@ -9,7 +9,10 @@ import { logger } from "@/utils/logger";
 import { z } from "zod";
 
 export class StoryController {
-  constructor(private storiesService: StoriesService, private unknownWordService: UnknownWordService) {}
+  constructor(
+    private storiesService: StoriesService,
+    private unknownWordService: UnknownWordService
+  ) {}
 
   generateStory = async (req: Request, res: Response) => {
     const { subject } = validateData(storySubjectRequestSchema, req.body);
@@ -18,17 +21,25 @@ export class StoryController {
       req.body
     );
     const user = req.user;
-    const { story, unknownWords, knownWords } = await this.storiesService.generateFullStoryExperience(
-      user.userId,
-      languageCode,
-      originalLanguageCode,
-      subject
-    );
+    const { story, unknownWords, knownWords } =
+      await this.storiesService.generateFullStoryExperience(
+        user.userId,
+        languageCode,
+        originalLanguageCode,
+        subject
+      );
     const savedStory = await this.storiesService.saveStoryToDB(story);
-    const savedUnknownWords = await this.unknownWordService.saveUnknownWords(unknownWords, savedStory.id, user.userId);
+    const savedUnknownWords = await this.unknownWordService.saveUnknownWords(
+      unknownWords,
+      savedStory.id,
+      user.userId
+    );
 
     const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
-    const storyWithUnknownWords = await this.storiesService.connectUnknownWords(savedStory.id, unknownWordIds);
+    const storyWithUnknownWords = await this.storiesService.connectUnknownWords(
+      savedStory.id,
+      unknownWordIds
+    );
 
     logger.info(
       `User ${user.userId} generated a story. Story ID: ${savedStory.id}. New unknown words: ${unknownWordIds.length}. Known words used: ${knownWords.length}`

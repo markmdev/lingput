@@ -18,9 +18,11 @@ import TopPanelMob from "@/components/TopPanelMob";
 import { UnknownWordApi } from "@/feautures/unknownWord/api";
 import LeftPanel from "@/feautures/dashboard/LeftPanel";
 
+const clientApi = new ClientApi();
+const storyApi = new StoryApi(clientApi);
+const unknownWordApi = new UnknownWordApi(clientApi);
+
 export default function DashboardPage() {
-  const clientApi = new ClientApi();
-  const storyApi = new StoryApi(clientApi);
   const searchParams = useSearchParams();
   const chosenStoryId = searchParams.get("story");
   const { data, error, isLoading, mutate } = useSWR("/api/story", () => storyApi.getAllStories());
@@ -28,7 +30,6 @@ export default function DashboardPage() {
   const viewMode: "chosenStory" | "newStory" | "allStories" =
     (searchParams.get("viewMode") as "chosenStory" | "newStory" | "allStories") || "newStory";
   const router = useRouter();
-  const unknownWordApi = new UnknownWordApi(clientApi);
 
   useEffect(() => {
     if (error?.statusCode === 401) {
