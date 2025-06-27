@@ -1,6 +1,6 @@
 import { Base64 } from "@/types/types";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
-import { PrismaClient, Story } from "@prisma/client";
+import { PrismaClient, Story, UnknownWord } from "@prisma/client";
 import { StorageError } from "@/errors/StorageError";
 import { NotFoundError } from "@/errors/NotFoundError";
 import { PrismaError } from "@/errors/PrismaError";
@@ -23,7 +23,7 @@ export class StoryRepository {
     private redis: AppRedisClient
   ) {}
 
-  private parseRedisStory(storyString: string): Story {
+  private parseRedisStory(storyString: string): Story & { unknownWords: UnknownWord[] } {
     const storyJson = JSON.parse(storyString);
     return {
       id: Number(storyJson.id),
@@ -31,10 +31,11 @@ export class StoryRepository {
       translationText: storyJson.translationText,
       audioUrl: storyJson.audioUrl,
       userId: Number(storyJson.userId),
+      unknownWords: storyJson.unknownWords || [],
     };
   }
 
-  async getAllStories(userId: number): Promise<Story[]> {
+  async getAllStories(userId: number): Promise<(Story & { unknownWords: UnknownWord[] })[]> {
     try {
       const cacheKey = `stories:${userId}`;
       const cachedStories = await this.redis.lRange(cacheKey, 0, -1);
