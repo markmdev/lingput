@@ -31,7 +31,9 @@ export default function StoryComponent({
       {/* TOP */}
       <div className="">
         <h2 className="font-semibold text-2xl">
-          Story #{story ? story?.id : <Skeleton circle={true} width={20} height={20} inline={true} />} details
+          Story #
+          {story ? story?.id : <Skeleton circle={true} width={20} height={20} inline={true} />}{" "}
+          details
         </h2>
         <hr className="my-4" />
       </div>
@@ -89,18 +91,16 @@ export default function StoryComponent({
             )}
           </div>
           <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {story ? (
-              story.unknownWords.map((unknownWord) => (
-                <UnknownWordComponent
-                  key={unknownWord.id}
-                  unknownWord={unknownWord}
-                  onWordStatusChange={onWordStatusChange}
-                  globalBlurState={wordTranslationsBlurred}
-                />
-              ))
-            ) : (
-              <Skeleton count={8} height={90} />
-            )}
+            {story
+              ? story.unknownWords.map((unknownWord) => (
+                  <UnknownWordComponent
+                    key={unknownWord.id}
+                    unknownWord={unknownWord}
+                    onWordStatusChange={onWordStatusChange}
+                    globalBlurState={wordTranslationsBlurred}
+                  />
+                ))
+              : Array.from({ length: 8 }, (_, index) => <Skeleton key={index} height={180} />)}
           </div>
         </div>
       </div>
