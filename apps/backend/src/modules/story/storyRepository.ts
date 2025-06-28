@@ -7,6 +7,7 @@ import { PrismaError } from "@/errors/PrismaError";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { AppRedisClient } from "@/services/redis";
 import { logger } from "@/utils/logger";
+import { RedisStoryCache } from "@/cache/redisStoryCache";
 function getRandomFileName(extension: string) {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${extension}`;
 }
@@ -17,35 +18,10 @@ function base64ToArrayBuffer(base64: Base64) {
 }
 
 export class StoryRepository {
-  constructor(
-    private prisma: PrismaClient,
-    private storageClient: SupabaseClient,
-    private redis: AppRedisClient
-  ) {}
-
-  private parseRedisStory(storyString: string): Story & { unknownWords: UnknownWord[] } {
-    const storyJson = JSON.parse(storyString);
-    return {
-      id: Number(storyJson.id),
-      storyText: storyJson.storyText,
-      translationText: storyJson.translationText,
-      audioUrl: storyJson.audioUrl,
-      userId: Number(storyJson.userId),
-      unknownWords: storyJson.unknownWords || [],
-    };
-  }
+  constructor(private prisma: PrismaClient, private storageClient: SupabaseClient) {}
 
   async getAllStories(userId: number): Promise<(Story & { unknownWords: UnknownWord[] })[]> {
     try {
-      const cacheKey = `stories:${userId}`;
-      const cachedStories = await this.redis.lRange(cacheKey, 0, -1);
-      if (cachedStories.length > 0) {
-        logger.info("Cache hit for stories");
-        return cachedStories.map((item) => this.parseRedisStory(item));
-      }
-
-      logger.info("Cache miss for stories");
-
       const stories = await this.prisma.story.findMany({
         where: {
           userId,
@@ -53,12 +29,10 @@ export class StoryRepository {
         include: {
           unknownWords: true,
         },
+        orderBy: {
+          id: "asc",
+        },
       });
-
-      await this.redis.lPush(
-        cacheKey,
-        stories.map((item) => JSON.stringify(item))
-      );
 
       return stories;
     } catch (error) {

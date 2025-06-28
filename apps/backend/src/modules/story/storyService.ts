@@ -7,13 +7,15 @@ import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
 import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
 import { LanguageCode } from "@/utils/languages";
+import { RedisStoryCache } from "@/cache/redisStoryCache";
 
 export class StoriesService {
   constructor(
     private storyRepository: StoryRepository,
     private storyAssembler: StoryAssembler,
     private lemmaAssembler: LemmaAssembler,
-    private audioAssembler: AudioAssembler
+    private audioAssembler: AudioAssembler,
+    private redisStoryCache: RedisStoryCache
   ) {}
 
   public async generateFullStoryExperience(
@@ -21,13 +23,13 @@ export class StoriesService {
     languageCode: LanguageCode,
     originalLanguageCode: LanguageCode,
     subject: string = ""
-  ): Promise<{ story: CreateStoryDTO; unknownWords: CreateUnknownWordDTO[]; knownWords: UserVocabulary[] }> {
-    const { story, fullTranslation, translationChunks, knownWords } = await this.storyAssembler.assemble(
-      subject,
-      userId,
-      languageCode,
-      originalLanguageCode
-    );
+  ): Promise<{
+    story: CreateStoryDTO;
+    unknownWords: CreateUnknownWordDTO[];
+    knownWords: UserVocabulary[];
+  }> {
+    const { story, fullTranslation, translationChunks, knownWords } =
+      await this.storyAssembler.assemble(subject, userId, languageCode, originalLanguageCode);
     const unknownWords = await this.lemmaAssembler.assemble(
       story,
       knownWords,
@@ -55,14 +57,25 @@ export class StoriesService {
   }
 
   async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
-    return await this.storyRepository.saveStoryToDB(story);
+    const res = await this.storyRepository.saveStoryToDB(story);
+    await this.redisStoryCache.invalidateStoryCache(story.userId);
+    return res;
   }
 
   async getAllStories(userId: number): Promise<Story[]> {
-    return await this.storyRepository.getAllStories(userId);
+    const cachedStories = await this.redisStoryCache.getAllStoriesFromCache(userId);
+    if (cachedStories.length > 0) {
+      return cachedStories;
+    }
+    const stories = await this.storyRepository.getAllStories(userId);
+    await this.redisStoryCache.saveStoriesToCache(userId, stories);
+    return stories;
   }
 
-  async connectUnknownWords(storyId: number, wordIds: { id: number }[]): Promise<StoryWithUnknownWords> {
+  async connectUnknownWords(
+    storyId: number,
+    wordIds: { id: number }[]
+  ): Promise<StoryWithUnknownWords> {
     return await this.storyRepository.connectUnknownWords(storyId, wordIds);
   }
 

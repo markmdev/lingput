@@ -1,9 +1,13 @@
 import { CreateUnknownWordDTO } from "./unknownWord.types";
 import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
+import { RedisStoryCache } from "@/cache/redisStoryCache";
 
 export class UnknownWordService {
-  constructor(private unknownWordRepository: UnknownWordRepository) {}
+  constructor(
+    private unknownWordRepository: UnknownWordRepository,
+    private redisStoryCache: RedisStoryCache
+  ) {}
   async saveUnknownWords(
     unknownWords: CreateUnknownWordDTO[],
     storyId: number,
@@ -14,7 +18,7 @@ export class UnknownWordService {
 
     const { wordsToSave, wordsToUpdate } = this.partitionWords(unknownWords, existingWordsMap);
 
-    const updatedWords = await this.updateExistingWords(wordsToUpdate, storyId);
+    const updatedWords = await this.updateExistingWords(wordsToUpdate, storyId, userId);
     const savedWords = await this.unknownWordRepository.saveUnknownWords(wordsToSave);
 
     return [...updatedWords, ...savedWords];
@@ -53,21 +57,24 @@ export class UnknownWordService {
 
   private async updateExistingWords(
     wordsToUpdate: UnknownWord[],
-    storyId: number
+    storyId: number,
+    userId: number
   ): Promise<UnknownWord[]> {
     const tasks = wordsToUpdate.map((word) =>
       this.unknownWordRepository.updateTimesSeenAndConnectStory(word.id, word.timesSeen, storyId)
     );
-
+    await this.redisStoryCache.invalidateStoryCache(userId);
     return await Promise.all(tasks);
   }
 
   async markAsLearned(wordId: number, userId: number) {
     await this.unknownWordRepository.markAsLearned(wordId, userId);
+    await this.redisStoryCache.invalidateStoryCache(userId);
   }
 
   async markAsLearning(wordId: number, userId: number) {
     await this.unknownWordRepository.markAsLearning(wordId, userId);
+    await this.redisStoryCache.invalidateStoryCache(userId);
   }
 
   async getUnknownWords(userId: number): Promise<UnknownWord[]> {

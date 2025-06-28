@@ -15,9 +15,10 @@ import { StoriesService } from "./storyService";
 import { unknownWordService } from "../unknownWord/composition";
 import { vocabularyService } from "../vocabulary/composition";
 import redisClient from "@/services/redis";
+import { RedisStoryCache } from "@/cache/redisStoryCache";
 
 // Repositories
-export const storyRepository = new StoryRepository(prisma, supabase, redisClient);
+export const storyRepository = new StoryRepository(prisma, supabase);
 
 // Services and Assemblers
 export const translationService = new TranslationService(openai);
@@ -35,11 +36,13 @@ export const storyAudioStorageService = new StoryAudioStorageService(storyReposi
 export const audioAssembler = new AudioAssembler(storyAudioStorageService, textToSpeechService);
 
 // Business logic
+const redisStoryCache = new RedisStoryCache(redisClient);
 export const storyService = new StoriesService(
   storyRepository,
   storyAssembler,
   lemmaAssembler,
-  audioAssembler
+  audioAssembler,
+  redisStoryCache
 );
 
 // Controller
