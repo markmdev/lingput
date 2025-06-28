@@ -44,7 +44,8 @@ export class RedisStoryCache {
     try {
       await this.redis
         .multi()
-        .lPush(
+        .del(cacheKey)
+        .rPush(
           cacheKey,
           stories.map((item) => JSON.stringify(item))
         )

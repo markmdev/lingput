@@ -30,7 +30,7 @@ export class StoryRepository {
           unknownWords: true,
         },
         orderBy: {
-          id: "asc",
+          id: "desc",
         },
       });
 
