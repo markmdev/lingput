@@ -20,7 +20,11 @@ export class VocabAssessmentController {
 
   answer = async (req: Request, res: Response) => {
     const { sessionUUID, wordsData } = validateData(answerSchema, req.body);
-    const result = await this.vocabAssessmentService.continueAssessment(sessionUUID, wordsData);
+    const result = await this.vocabAssessmentService.continueAssessment(
+      req.user.userId,
+      sessionUUID,
+      wordsData
+    );
     res.status(200).json(formatResponse(result));
   };
 }

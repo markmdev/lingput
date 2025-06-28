@@ -1,10 +1,11 @@
 import { VocabAssessmentError } from "@/errors/VocabAssessmentError";
 import { SessionService } from "../session/sessionService";
 import { VocabAssessmentRepository } from "./vocabAssessmentRepository";
-import { WordRanking, Session } from "@prisma/client";
+import { WordRanking } from "@prisma/client";
 import { VocabularyService } from "../vocabulary/vocabularyService";
 import { UserVocabularyDTO } from "../vocabulary/vocabulary.types";
 import { RedisWordsCache } from "@/cache/redisWordsCache";
+import { Session } from "../session/sessionRepository";
 
 const WORDS_PER_BATCH = 15;
 const KNOWLEDGE_THRESHOLD = 0.8;
@@ -61,12 +62,13 @@ export class VocabAssessmentService {
   }
 
   async continueAssessment(
+    userId: number,
     sessionUUID: string,
     answer: Record<string, boolean> | undefined,
     sourceLanguage = "en",
     targetLanguage = "de"
   ) {
-    const session = await this.sessionService.getSession(sessionUUID);
+    const session = await this.sessionService.getSession(userId, sessionUUID);
     if (!session?.state)
       throw new VocabAssessmentError("Session not found or invalid state", null, { session });
 
@@ -105,7 +107,7 @@ export class VocabAssessmentService {
     state.step++;
 
     if (state.isLastStep) {
-      return this.finishAssessment(state, words, sessionUUID, session);
+      return this.finishAssessment(userId, state, words, sessionUUID, session);
     } else {
       if (state.max - state.min < MIN_RANGE_FOR_ESTIMATION) {
         state.isLastStep = true;
@@ -115,7 +117,11 @@ export class VocabAssessmentService {
         state.mid - WORDS_PER_BATCH / 2,
         state.mid + WORDS_PER_BATCH / 2
       );
-      const updatedSession = await this.sessionService.updateSessionState(sessionUUID, state);
+      const updatedSession = await this.sessionService.updateSessionState(
+        userId,
+        sessionUUID,
+        state
+      );
       return {
         sessionId: sessionUUID,
         status: "active",
@@ -127,6 +133,7 @@ export class VocabAssessmentService {
   }
 
   private async finishAssessment(
+    userId: number,
     state: SessionState,
     words: WordRanking[],
     sessionUUID: string,
@@ -134,7 +141,7 @@ export class VocabAssessmentService {
   ) {
     const knownVocabularyCount = state.mid;
     const knownVocabulary = words.slice(0, knownVocabularyCount);
-    await this.sessionService.completeSession(sessionUUID);
+    await this.sessionService.completeSession(userId, sessionUUID);
     const vocabularyDTO: UserVocabularyDTO[] = knownVocabulary.map((word) => ({
       word: word.word,
       translation: word.translation,
@@ -144,7 +151,7 @@ export class VocabAssessmentService {
     state.wordsToReview = [];
     state.range = 0;
     state.vocabularySize = vocabularyDTO.length;
-    await this.sessionService.updateSessionState(sessionUUID, state);
+    await this.sessionService.updateSessionState(userId, sessionUUID, state);
     return { sessionId: sessionUUID, status: "completed", vocabularySize: vocabularyDTO.length };
   }
 

@@ -1,6 +1,6 @@
-import { prisma } from "@/services/prisma";
 import { SessionRepository } from "./sessionRepository";
 import { SessionService } from "./sessionService";
+import redisClient from "@/services/redis";
 
-const sessionRepository = new SessionRepository(prisma);
+const sessionRepository = new SessionRepository(redisClient);
 export const sessionService = new SessionService(sessionRepository);

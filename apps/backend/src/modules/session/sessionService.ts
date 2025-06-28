@@ -8,18 +8,18 @@ export class SessionService {
     return session;
   }
 
-  async getSession(sessionUUID: string) {
-    const session = await this.sessionRepository.getSession(sessionUUID);
+  async getSession(userId: number, sessionUUID: string) {
+    const session = await this.sessionRepository.getSession(userId, sessionUUID);
     return session;
   }
 
-  async updateSessionState(sessionUUID: string, state: any) {
-    const session = await this.sessionRepository.updateSessionState(sessionUUID, state);
+  async updateSessionState(userId: number, sessionUUID: string, state: any) {
+    const session = await this.sessionRepository.updateSessionState(userId, sessionUUID, state);
     return session;
   }
 
-  async completeSession(sessionUUID: string) {
-    const session = await this.sessionRepository.completeSession(sessionUUID);
+  async completeSession(userId: number, sessionUUID: string) {
+    const session = await this.sessionRepository.completeSession(userId, sessionUUID);
     return session;
   }
 }

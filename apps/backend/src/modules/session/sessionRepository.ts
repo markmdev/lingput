@@ -1,79 +1,103 @@
-import { PrismaError } from "@/errors/PrismaError";
-import { PrismaClient } from "@prisma/client";
+import { RedisError } from "@/errors/RedisError";
+import { AppRedisClient } from "@/services/redis";
 import { v4 as uuidv4 } from "uuid";
 
+type SessionStatus = "active" | "completed" | "expired";
+
+export interface Session {
+  userId: number;
+  state: any;
+  sessionUUID: string;
+  status: SessionStatus;
+}
+
 export class SessionRepository {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private redis: AppRedisClient) {}
+
+  private getCacheKey(userId: number, sessionUUID: string) {
+    return `vocabAssessmentSession:${userId}:${sessionUUID}`;
+  }
 
   async createSession(userId: number, state: any) {
     try {
-      const newSession = await this.prisma.session.create({
-        data: {
-          userId,
-          state,
-          sessionUUID: uuidv4(),
-        },
-      });
-      return newSession;
+      const sessionUUID = uuidv4();
+      const cacheKey = this.getCacheKey(userId, sessionUUID);
+      const session = {
+        userId,
+        state: JSON.stringify(state),
+        sessionUUID,
+        status: "active",
+      };
+      await this.redis.hSet(cacheKey, session);
+
+      return session;
     } catch (error) {
-      throw new PrismaError("Unable to create a new session", error, { userId, state });
+      throw new RedisError("Unable to create a new session", error, { userId, state });
     }
   }
 
-  async getSession(sessionUUID: string) {
-    if (!sessionUUID) {
-      throw new PrismaError("SessionID is required", null, { sessionUUID });
-    }
-
+  private parseSession(session: { [x: string]: string }) {
     try {
-      const session = await this.prisma.session.findUnique({
-        where: {
-          sessionUUID,
-        },
-      });
-      return session;
+      return {
+        userId: Number(session.userId),
+        state: JSON.parse(session.state),
+        sessionUUID: session.sessionUUID,
+        status: session.status as SessionStatus,
+      };
     } catch (error) {
-      throw new PrismaError("Unable to retrieve a session", error, { sessionUUID });
+      throw new RedisError("Unable to retrieve a session", error, { session });
     }
   }
 
-  async updateSessionState(sessionUUID: string, state: any) {
+  async getSession(userId: number, sessionUUID: string) {
     if (!sessionUUID) {
-      throw new PrismaError("SessionID is required", null, { sessionUUID });
+      throw new RedisError("SessionID is required", null, { sessionUUID });
     }
 
     try {
-      const session = await this.prisma.session.update({
-        where: {
-          sessionUUID,
-        },
-        data: {
-          state,
-        },
-      });
-      return session;
+      const cacheKey = this.getCacheKey(userId, sessionUUID);
+      const session = await this.redis.hGetAll(cacheKey);
+
+      return this.parseSession(session);
     } catch (error) {
-      throw new PrismaError("Unable to update a session's state", error, { sessionUUID, state });
+      throw new RedisError("Unable to retrieve a session", error, { sessionUUID });
     }
   }
 
-  async completeSession(sessionUUID: string) {
+  async updateSessionState(userId: number, sessionUUID: string, state: any) {
     if (!sessionUUID) {
-      throw new PrismaError("SessionID is required", null, { sessionUUID });
+      throw new RedisError("SessionID is required", null, { sessionUUID });
     }
 
     try {
-      const session = await this.prisma.session.update({
-        where: {
-          sessionUUID,
-        },
-        data: {
-          status: "completed",
-        },
+      const cacheKey = this.getCacheKey(userId, sessionUUID);
+      await this.redis.hSet(cacheKey, {
+        state: JSON.stringify(state),
       });
-      return session;
+      const session = await this.redis.hGetAll(cacheKey);
+
+      return this.parseSession(session);
     } catch (error) {
-      throw new PrismaError("Unable to complete a session", error, { sessionUUID });
+      throw new RedisError("Unable to update a session's state", error, { sessionUUID, state });
+    }
+  }
+
+  async completeSession(userId: number, sessionUUID: string) {
+    if (!sessionUUID) {
+      throw new RedisError("SessionID is required", null, { sessionUUID });
+    }
+
+    try {
+      const cacheKey = this.getCacheKey(userId, sessionUUID);
+      await this.redis.hSet(cacheKey, {
+        status: "completed",
+      });
+
+      const session = await this.redis.hGetAll(cacheKey);
+
+      return this.parseSession(session);
+    } catch (error) {
+      throw new RedisError("Unable to complete a session", error, { sessionUUID });
     }
   }
 }
