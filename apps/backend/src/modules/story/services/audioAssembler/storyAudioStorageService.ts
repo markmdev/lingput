@@ -6,10 +6,4 @@ export class StoryAudioStorageService {
   public async saveToStorage(audio: Base64): Promise<string> {
     return await this.storyRepository.saveStoryAudioToStorage(audio);
   }
-
-  // public async getStoryAudioUrl(storyId: number): Promise<string> {
-  //   const story = await this.storyRepository.getStoryById(storyId);
-
-  //   return await this.storyRepository.getSignedStoryAudioUrl(story.audioUrl, storyId);
-  // }
 }

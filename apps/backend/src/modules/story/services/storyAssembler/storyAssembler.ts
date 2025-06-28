@@ -30,10 +30,18 @@ export class StoryAssembler {
     const knownWordsList = knownWords.map((word) => word.word);
     const unknownWordsList = unknownwordsResult.map((word) => word.word);
     const combinedWordsList = [...knownWordsList, ...unknownWordsList];
-    const story = await this.storyGeneratorService.generateStory(combinedWordsList, subject, languageCode);
+
+    const story = await this.storyGeneratorService.generateStory(
+      combinedWordsList,
+      subject,
+      languageCode
+    );
     const cleanedStoryText = story.replace(/\n/g, " ").trim();
 
-    const translationChunks = await this.translationService.translateChunks(cleanedStoryText, originalLanguageCode);
+    const translationChunks = await this.translationService.translateChunks(
+      cleanedStoryText,
+      originalLanguageCode
+    );
     const fullTranslation = translationChunks.map((chunk) => chunk.translatedChunk).join(" ");
 
     return { story: cleanedStoryText, knownWords, fullTranslation, translationChunks };

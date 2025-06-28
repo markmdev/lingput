@@ -2,9 +2,9 @@ import { Base64 } from "@/types/types";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
 import { PrismaClient, Story, UnknownWord } from "@prisma/client";
 import { StorageError } from "@/errors/StorageError";
-import { NotFoundError } from "@/errors/NotFoundError";
 import { PrismaError } from "@/errors/PrismaError";
 import { SupabaseClient } from "@supabase/supabase-js";
+
 function getRandomFileName(extension: string) {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${extension}`;
 }
@@ -68,34 +68,6 @@ export class StoryRepository {
 
     return data.path;
   }
-
-  // async getSignedStoryAudioUrl(audioPath: string, storyId: number): Promise<string> {
-  //   const { data, error } = await this.storageClient.storage
-  //     .from("stories")
-  //     .createSignedUrl(audioPath, 60 * 60);
-  //   if (error) {
-  //     throw new StorageError("Unable to get story audio", error, { storyId, audioPath });
-  //   }
-  //   if (!data) {
-  //     throw new NotFoundError("Story audio", null, { storyId, audioPath });
-  //   }
-  //   return data.signedUrl;
-  // }
-
-  // async getStoryById(storyId: number): Promise<Story> {
-  //   const story = await this.prisma.story.findUnique({
-  //     where: {
-  //       id: storyId,
-  //     },
-  //     include: {
-  //       unknownWords: true,
-  //     },
-  //   });
-  //   if (!story) {
-  //     throw new NotFoundError("Story", null, { storyId });
-  //   }
-  //   return story;
-  // }
 
   async connectUnknownWords(
     storyId: number,

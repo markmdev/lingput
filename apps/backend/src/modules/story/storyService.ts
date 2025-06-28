@@ -78,9 +78,4 @@ export class StoriesService {
   ): Promise<StoryWithUnknownWords> {
     return await this.storyRepository.connectUnknownWords(storyId, wordIds);
   }
-
-  // async getStoryById(storyId: number, userId: number): Promise<Story> {
-  //   const story = await this.storyRepository.getStoryById(storyId);
-  //   return story;
-  // }
 }
