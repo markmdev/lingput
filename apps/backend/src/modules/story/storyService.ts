@@ -79,10 +79,8 @@ export class StoriesService {
     return await this.storyRepository.connectUnknownWords(storyId, wordIds);
   }
 
-  async getStoryById(storyId: number, userId: number): Promise<Story> {
-    const story = await this.storyRepository.getStoryById(storyId);
-    if (!story) throw new NotFoundError("Story", null, { storyId, userId });
-    if (story.userId !== userId) throw new NotFoundError("Story", null, { storyId, userId });
-    return story;
-  }
+  // async getStoryById(storyId: number, userId: number): Promise<Story> {
+  //   const story = await this.storyRepository.getStoryById(storyId);
+  //   return story;
+  // }
 }

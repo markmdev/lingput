@@ -7,9 +7,9 @@ export class StoryAudioStorageService {
     return await this.storyRepository.saveStoryAudioToStorage(audio);
   }
 
-  public async getStoryAudioUrl(storyId: number): Promise<string> {
-    const story = await this.storyRepository.getStoryById(storyId);
+  // public async getStoryAudioUrl(storyId: number): Promise<string> {
+  //   const story = await this.storyRepository.getStoryById(storyId);
 
-    return await this.storyRepository.getSignedStoryAudioUrl(story.audioUrl, storyId);
-  }
+  //   return await this.storyRepository.getSignedStoryAudioUrl(story.audioUrl, storyId);
+  // }
 }

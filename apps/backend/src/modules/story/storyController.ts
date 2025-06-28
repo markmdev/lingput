@@ -54,18 +54,18 @@ export class StoryController {
     res.status(200).json(formatResponse(stories));
   };
 
-  getStoryById = async (req: Request, res: Response) => {
-    const user = req.user;
-    const { storyId } = validateData(
-      z.object({
-        storyId: z.coerce.number().gt(0),
-      }),
-      req.params
-    );
+  // getStoryById = async (req: Request, res: Response) => {
+  //   const user = req.user;
+  //   const { storyId } = validateData(
+  //     z.object({
+  //       storyId: z.coerce.number().gt(0),
+  //     }),
+  //     req.params
+  //   );
 
-    const story = await this.storiesService.getStoryById(storyId, user.userId);
-    res.status(200).json(formatResponse(story));
-  };
+  //   const story = await this.storiesService.getStoryById(storyId, user.userId);
+  //   res.status(200).json(formatResponse(story));
+  // };
 
   private extractUnknownWordIds(unknownWords: UnknownWord[]): { id: number }[] {
     return unknownWords.map((word) => ({
