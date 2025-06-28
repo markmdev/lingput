@@ -6,3 +6,4 @@ apps/backend/src/words.py
 apps/backend/src/vocabulary.json
 web
 german3000-6000.json
+README_.md
