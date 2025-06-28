@@ -3,7 +3,7 @@ import { AppRedisClient } from "../services/redis";
 import { Story, UnknownWord } from "@prisma/client";
 import { RedisError } from "@/errors/RedisError";
 
-const CACHE_TTL = 1800; // 30 minutes in seconds
+const CACHE_TTL = 1800;
 const CACHE_KEY_PREFIX = "stories";
 
 export class RedisStoryCache {

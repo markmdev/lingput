@@ -4,6 +4,7 @@ import { VocabAssessmentRepository } from "./vocabAssessmentRepository";
 import { WordRanking, Session } from "@prisma/client";
 import { VocabularyService } from "../vocabulary/vocabularyService";
 import { UserVocabularyDTO } from "../vocabulary/vocabulary.types";
+import { RedisWordsCache } from "@/cache/redisWordsCache";
 
 const WORDS_PER_BATCH = 15;
 const KNOWLEDGE_THRESHOLD = 0.8;
@@ -24,11 +25,18 @@ export class VocabAssessmentService {
   constructor(
     private vocabAssessmentRepository: VocabAssessmentRepository,
     private sessionService: SessionService,
-    private vocabularyService: VocabularyService
+    private vocabularyService: VocabularyService,
+    private redisWordsCache: RedisWordsCache
   ) {}
 
   async startAssessment(userId: number, sourceLanguage: string, targetLanguage: string) {
-    const words = await this.vocabAssessmentRepository.getWords(sourceLanguage, targetLanguage);
+    let words: WordRanking[] | undefined;
+    words = await this.redisWordsCache.getWordsFromCache(sourceLanguage, targetLanguage);
+    if (!words) {
+      words = await this.vocabAssessmentRepository.getWords(sourceLanguage, targetLanguage);
+      await this.redisWordsCache.saveWordsToCache(sourceLanguage, targetLanguage, words);
+    }
+
     const max = words.length - 1;
     const min = 0;
     const mid = (max + min) / 2;
@@ -52,7 +60,12 @@ export class VocabAssessmentService {
     };
   }
 
-  async continueAssessment(sessionUUID: string, answer: Record<string, boolean> | undefined) {
+  async continueAssessment(
+    sessionUUID: string,
+    answer: Record<string, boolean> | undefined,
+    sourceLanguage = "en",
+    targetLanguage = "de"
+  ) {
     const session = await this.sessionService.getSession(sessionUUID);
     if (!session?.state)
       throw new VocabAssessmentError("Session not found or invalid state", null, { session });
@@ -73,7 +86,13 @@ export class VocabAssessmentService {
       };
     }
 
-    const words = await this.vocabAssessmentRepository.getWords("en", "de");
+    let words: WordRanking[] | undefined;
+    words = await this.redisWordsCache.getWordsFromCache(sourceLanguage, targetLanguage);
+    if (!words) {
+      words = await this.vocabAssessmentRepository.getWords(sourceLanguage, targetLanguage);
+      await this.redisWordsCache.saveWordsToCache(sourceLanguage, targetLanguage, words);
+    }
+
     const wordsToReview = state.wordsToReview;
     const result = this.checkAnswer(answer, wordsToReview);
 
