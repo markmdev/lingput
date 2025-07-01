@@ -2,6 +2,7 @@ import { CreateUnknownWordDTO } from "./unknownWord.types";
 import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
 import { RedisStoryCache } from "@/cache/redisStoryCache";
+import { queues } from "../jobs/queue";
 
 export class UnknownWordService {
   constructor(
@@ -68,13 +69,21 @@ export class UnknownWordService {
   }
 
   async markAsLearned(wordId: number, userId: number) {
-    await this.unknownWordRepository.markAsLearned(wordId, userId);
-    await this.redisStoryCache.invalidateStoryCache(userId);
+    const job = await queues.wordStatuses.add("mark-as-learned", {
+      wordId,
+      userId,
+      wordStatus: "learned",
+    });
+    return { queueName: queues.wordStatuses.name, jobId: job.id };
   }
 
   async markAsLearning(wordId: number, userId: number) {
-    await this.unknownWordRepository.markAsLearning(wordId, userId);
-    await this.redisStoryCache.invalidateStoryCache(userId);
+    const job = await queues.wordStatuses.add("mark-as-learning", {
+      wordId,
+      userId,
+      wordStatus: "learning",
+    });
+    return { queueName: queues.wordStatuses.name, jobId: job.id };
   }
 
   async getUnknownWords(userId: number): Promise<UnknownWord[]> {

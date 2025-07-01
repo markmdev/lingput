@@ -9,15 +9,15 @@ export class UnknownWordController {
   markAsLearned = async (req: Request, res: Response) => {
     const { wordId } = validateData(wordIdRequestSchema, req.params);
     const user = req.user;
-    await this.unknownWordService.markAsLearned(wordId, user.userId);
-    res.status(200).json(formatResponse({ message: "Word marked as learned" }));
+    const job = await this.unknownWordService.markAsLearned(wordId, user.userId);
+    res.status(200).json(formatResponse(job));
   };
 
   markAsLearning = async (req: Request, res: Response) => {
     const { wordId } = validateData(wordIdRequestSchema, req.params);
     const user = req.user;
-    await this.unknownWordService.markAsLearning(wordId, user.userId);
-    res.status(200).json(formatResponse({ message: "Word marked as learning" }));
+    const job = await this.unknownWordService.markAsLearning(wordId, user.userId);
+    res.status(200).json(formatResponse(job));
   };
 
   getAllWords = async (req: Request, res: Response) => {

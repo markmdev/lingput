@@ -17,10 +17,16 @@ import RightPanel from "@/components/RightPanel";
 import TopPanelMob from "@/components/TopPanelMob";
 import { UnknownWordApi } from "@/feautures/unknownWord/api";
 import LeftPanel from "@/feautures/dashboard/LeftPanel";
+import { JobResponse } from "@/lib/backendApi.client";
 
 const clientApi = new ClientApi();
 const storyApi = new StoryApi(clientApi);
 const unknownWordApi = new UnknownWordApi(clientApi);
+
+interface JobStatusResponse {
+  status: "completed" | "failed" | "waiting" | "active" | "delayed" | "paused";
+  value?: unknown;
+}
 
 export default function DashboardPage() {
   const searchParams = useSearchParams();
@@ -55,22 +61,65 @@ export default function DashboardPage() {
     [router, searchParams]
   );
 
-  const handleWordStatusChange = async (wordId: number, newStatus: "learned" | "learning") => {
-    try {
-      if (newStatus === "learned") {
-        await unknownWordApi.markAsLearned(wordId);
-      } else {
-        await unknownWordApi.markAsLearning(wordId);
+  const updateCurrentDataWithNewWordStatus = (
+    currentData: Story[] | undefined,
+    wordId: number,
+    newStatus: "learned" | "learning"
+  ) => {
+    if (!currentData) return currentData;
+    return currentData.map((story) => {
+      if (story.id !== chosenStory?.id) {
+        return story;
       }
+      return {
+        ...story,
+        unknownWords: story.unknownWords.map((word) =>
+          word.id !== wordId ? word : { ...word, status: newStatus }
+        ),
+      };
+    });
+  };
+
+  const handleStatusChangeJob = async (
+    wordId: number,
+    newStatus: "learned" | "learning",
+    job: JobResponse
+  ) => {
+    mutate(
+      (currentData) => updateCurrentDataWithNewWordStatus(currentData, wordId, newStatus),
+      false
+    );
+    let res: JobStatusResponse | undefined;
+    while (!res || res.status !== "completed") {
+      res = await unknownWordApi.checkJobStatus(job.queueName, job.jobId);
+      console.log(res);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    mutate();
+  };
+
+  const handleWordStatusChange = async (wordId: number, newStatus: "learned" | "learning") => {
+    const previousData = data;
+    try {
+      let job: JobResponse;
+
+      if (newStatus === "learned") {
+        job = await unknownWordApi.markAsLearned(wordId);
+      } else {
+        job = await unknownWordApi.markAsLearning(wordId);
+      }
+      console.log(job);
+      await handleStatusChangeJob(wordId, newStatus, job);
     } catch (error) {
+      mutate(() => previousData, false);
       if (error instanceof ApiError) {
         toast.error(error.message);
       } else {
         toast.error("Unknown error happened");
       }
+      mutate();
     }
     toast(`Word marked as ${newStatus}`);
-    mutate();
   };
 
   const handleClickOnStory = useCallback(

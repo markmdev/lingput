@@ -5,6 +5,8 @@
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/app.ts",
     "dev": "nodemon",
+    "worker": "ts-node -r tsconfig-paths/register src/worker.ts",
+    "worker:dev": "nodemon --exec ts-node -r tsconfig-paths/register src/worker.ts",
     "test": "jest",
     "seed:word-ranking": "ts-node prisma/seed-word-ranking.ts"
   },
@@ -22,6 +24,7 @@
     "base64-arraybuffer": "^1.0.2",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
+    "bullmq": "^5.56.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
