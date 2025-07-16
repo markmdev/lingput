@@ -14,7 +14,7 @@ import { createVocabAssessmentModule } from "./modules/vocabAssessment/compositi
 import { createVocabularyModule } from "./modules/vocabulary/composition";
 import { openai } from "./services/openai";
 import { prisma } from "./services/prisma";
-import redisClient from "./services/redis";
+import redisClient from "./services/redis/redisClient";
 import supabase from "./services/supabase";
 
 const storyGeneratorService = new StoryGeneratorService(openai);

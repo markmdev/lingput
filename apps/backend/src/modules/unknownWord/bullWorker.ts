@@ -6,7 +6,7 @@ import { logger } from "@/utils/logger";
 import { UnknownWordRepository } from "./unknownWordRepository";
 import { prisma } from "@/services/prisma";
 import { RedisStoryCache } from "@/cache/redisStoryCache";
-import redisClient from "@/services/redis";
+import redisClient from "@/services/redis/redisClient";
 
 const unknownWordRepository = new UnknownWordRepository(prisma);
 const redisStoryCache = new RedisStoryCache(redisClient);

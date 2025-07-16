@@ -2,7 +2,7 @@ import { RedisStoryCache } from "@/cache/redisStoryCache";
 import { UnknownWordController } from "./unknownWordController";
 import { UnknownWordRepository } from "./unknownWordRepository";
 import { UnknownWordService } from "./unknownWordService";
-import { AppRedisClient } from "@/services/redis";
+import { AppRedisClient } from "@/services/redis/redisClient";
 import { PrismaClient } from "@prisma/client";
 import { buildUnknownWordRouter } from "./unknownWordRoutes";
 import { NextFunction, Request, Response } from "express";

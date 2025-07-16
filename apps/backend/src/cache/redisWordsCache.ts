@@ -1,16 +1,16 @@
 import { RedisError } from "@/errors/RedisError";
-import { AppRedisClient } from "@/services/redis";
+import { AppRedisClient } from "@/services/redis/redisClient";
 import { logger } from "@/utils/logger";
 import { WordRanking } from "@prisma/client";
 
 const CACHE_TTL = 86400;
-const CACHE_KEY_PREFIX = "stories";
+const CACHE_KEY_PREFIX = "words";
 
 export class RedisWordsCache {
   constructor(private redis: AppRedisClient) {}
 
   private getCacheKey(sourceLanguage: string, targetLanguage: string): string {
-    return `words:${sourceLanguage}:${targetLanguage}`;
+    return `${CACHE_KEY_PREFIX}:${sourceLanguage}:${targetLanguage}`;
   }
 
   async getWordsFromCache(sourceLanguage: string, targetLanguage: string) {
@@ -32,7 +32,7 @@ export class RedisWordsCache {
     const cacheKey = this.getCacheKey(sourceLanguage, targetLanguage);
     try {
       await this.redis.set(cacheKey, JSON.stringify(words), {
-        expiration: { type: "EX", value: 86400 },
+        expiration: { type: "EX", value: CACHE_TTL },
       });
       logger.info("Words set in Redis");
     } catch (error) {

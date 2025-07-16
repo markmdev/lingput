@@ -1,4 +1,4 @@
-import { AppRedisClient } from "@/services/redis";
+import { AppRedisClient } from "@/services/redis/redisClient";
 
 export class AuthRepository {
   constructor(private redis: AppRedisClient) {}

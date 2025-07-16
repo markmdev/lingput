@@ -4,7 +4,7 @@ import { StoriesService } from "./storyService";
 import { StoryRepository } from "./storyRepository";
 import { PrismaClient } from "@prisma/client";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { AppRedisClient } from "@/services/redis";
+import { AppRedisClient } from "@/services/redis/redisClient";
 import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
 import { VocabularyService } from "../vocabulary/vocabularyService";
 import { StoryGeneratorService } from "./services/storyAssembler/storyGeneratorService";

@@ -1,5 +1,5 @@
 import { RedisError } from "@/errors/RedisError";
-import { AppRedisClient } from "@/services/redis";
+import { AppRedisClient } from "@/services/redis/redisClient";
 import { v4 as uuidv4 } from "uuid";
 
 type SessionStatus = "active" | "completed" | "expired";

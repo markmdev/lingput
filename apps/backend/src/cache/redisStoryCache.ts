@@ -1,5 +1,5 @@
 import { logger } from "@/utils/logger";
-import { AppRedisClient } from "../services/redis";
+import { AppRedisClient } from "../services/redis/redisClient";
 import { Story, UnknownWord } from "@prisma/client";
 import { RedisError } from "@/errors/RedisError";
 
@@ -64,7 +64,9 @@ export class RedisStoryCache {
     try {
       await this.redis
         .multi()
+        // Invalidate old story data if exists
         .del(cacheKey)
+        // Save a new version of the story
         .rPush(
           cacheKey,
           stories.map((item) => JSON.stringify(item))

@@ -1,7 +1,7 @@
 import { VocabAssessmentController } from "./vocabAssessmentController";
 import { VocabAssessmentRepository } from "./vocabAssessmentRepository";
 import { VocabAssessmentService } from "./vocabAssessmentService";
-import { AppRedisClient } from "@/services/redis";
+import { AppRedisClient } from "@/services/redis/redisClient";
 import { RedisWordsCache } from "@/cache/redisWordsCache";
 import { SessionService } from "../session/sessionService";
 import { VocabularyService } from "../vocabulary/vocabularyService";

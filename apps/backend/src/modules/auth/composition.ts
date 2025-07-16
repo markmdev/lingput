@@ -1,7 +1,7 @@
 import { AuthRepository } from "./authRepository";
 import { AuthController } from "./authController";
 import { AuthService } from "./authService";
-import { AppRedisClient } from "@/services/redis";
+import { AppRedisClient } from "@/services/redis/redisClient";
 import { UserRepository } from "../user/userRepository";
 import { buildAuthRouter } from "./authRoutes";
 
