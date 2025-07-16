@@ -1,6 +1,10 @@
 import { SessionRepository } from "./sessionRepository";
 import { SessionService } from "./sessionService";
-import redisClient from "@/services/redis";
+import { AppRedisClient } from "@/services/redis";
 
-const sessionRepository = new SessionRepository(redisClient);
-export const sessionService = new SessionService(sessionRepository);
+export function createSessionModule(deps: { redis: AppRedisClient }) {
+  const repository = new SessionRepository(deps.redis);
+  const service = new SessionService(repository);
+
+  return { service };
+}

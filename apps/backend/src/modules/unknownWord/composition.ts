@@ -2,15 +2,20 @@ import { RedisStoryCache } from "@/cache/redisStoryCache";
 import { UnknownWordController } from "./unknownWordController";
 import { UnknownWordRepository } from "./unknownWordRepository";
 import { UnknownWordService } from "./unknownWordService";
-import { prisma } from "@/services/prisma";
-import redisClient from "@/services/redis";
+import { AppRedisClient } from "@/services/redis";
+import { PrismaClient } from "@prisma/client";
+import { buildUnknownWordRouter } from "./unknownWordRoutes";
+import { NextFunction, Request, Response } from "express";
 
-// Repositories
-const unknownWordRepository = new UnknownWordRepository(prisma);
-const redisStoryCache = new RedisStoryCache(redisClient);
+export function createUnknownWordModule(deps: {
+  prisma: PrismaClient;
+  redis: AppRedisClient;
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void;
+}) {
+  const repository = new UnknownWordRepository(deps.prisma);
+  const cache = new RedisStoryCache(deps.redis);
+  const service = new UnknownWordService(repository, cache);
+  const controller = new UnknownWordController(service);
 
-// Business logic
-export const unknownWordService = new UnknownWordService(unknownWordRepository, redisStoryCache);
-
-// Controller
-export const unknownWordController = new UnknownWordController(unknownWordService);
+  return { service, controller, router: buildUnknownWordRouter(controller, deps.authMiddleware) };
+}

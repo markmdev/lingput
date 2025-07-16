@@ -1,14 +1,14 @@
-import { userRepository } from "../user/composition";
 import { AuthRepository } from "./authRepository";
 import { AuthController } from "./authController";
 import { AuthService } from "./authService";
-import redisClient from "@/services/redis";
+import { AppRedisClient } from "@/services/redis";
+import { UserRepository } from "../user/userRepository";
+import { buildAuthRouter } from "./authRoutes";
 
-// Repositories
-const authRepository = new AuthRepository(redisClient);
+export function createAuthModule(deps: { redis: AppRedisClient; userRepository: UserRepository }) {
+  const repository = new AuthRepository(deps.redis);
+  const service = new AuthService(repository);
+  const controller = new AuthController(service, deps.userRepository);
 
-// Business logic
-export const authService = new AuthService(authRepository);
-
-// Controller
-export const authController = new AuthController(authService, userRepository);
+  return { service, controller };
+}

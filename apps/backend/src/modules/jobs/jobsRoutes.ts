@@ -1,11 +1,13 @@
-import { Router } from "express";
+import { Request, Response, NextFunction, Router } from "express";
 import { asyncHandler } from "@/middlewares/asyncHandler";
-import { authMiddleware } from "@/middlewares/authMiddlewareFactory";
 import { JobsController } from "./jobsController";
 
-const router = Router();
-const jobsController = new JobsController();
+export function buildJobsRouter(
+  controller: JobsController,
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+) {
+  const router = Router();
 
-router.get("/status/:queue/:jobId", authMiddleware, asyncHandler(jobsController.jobStatus));
-
-export default router;
+  router.get("/status/:queue/:jobId", authMiddleware, asyncHandler(controller.jobStatus));
+  return router;
+}

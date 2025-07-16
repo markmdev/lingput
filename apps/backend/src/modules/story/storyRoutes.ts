@@ -1,11 +1,14 @@
-import { Router } from "express";
+import { NextFunction, Router, Request, Response } from "express";
 import { asyncHandler } from "@/middlewares/asyncHandler";
-import { authMiddleware } from "@/middlewares/authMiddlewareFactory";
-import { storyController } from "./composition";
+import { StoryController } from "./storyController";
 
-const router = Router();
+export function buildStoryRouter(
+  controller: StoryController,
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+) {
+  const router = Router();
+  router.post("/generate", authMiddleware, asyncHandler(controller.generateStory));
+  router.get("/", authMiddleware, asyncHandler(controller.getAllStories));
 
-router.post("/generate", authMiddleware, asyncHandler(storyController.generateStory));
-router.get("/", authMiddleware, asyncHandler(storyController.getAllStories));
-
-export default router;
+  return router;
+}

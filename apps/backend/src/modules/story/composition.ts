@@ -1,49 +1,53 @@
-import { openai } from "@/services/openai";
-import { prisma } from "@/services/prisma";
-import supabase from "@/services/supabase";
+import { RedisStoryCache } from "@/cache/redisStoryCache";
+import { StoryController } from "./storyController";
+import { StoriesService } from "./storyService";
+import { StoryRepository } from "./storyRepository";
+import { PrismaClient } from "@prisma/client";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { AppRedisClient } from "@/services/redis";
+import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
+import { VocabularyService } from "../vocabulary/vocabularyService";
+import { StoryGeneratorService } from "./services/storyAssembler/storyGeneratorService";
+import { TranslationService } from "./services/storyAssembler/translationService";
+import { UnknownWordService } from "../unknownWord/unknownWordService";
+import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
+import { LemmatizationService } from "./services/lemmaAssembler/lemmatizationService";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
 import { StoryAudioStorageService } from "./services/audioAssembler/storyAudioStorageService";
 import { TextToSpeechService } from "./services/audioAssembler/textToSpeechService";
-import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
-import { LemmatizationService } from "./services/lemmaAssembler/lemmatizationService";
-import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
-import { StoryGeneratorService } from "./services/storyAssembler/storyGeneratorService";
-import { TranslationService } from "./services/storyAssembler/translationService";
-import { StoryController } from "./storyController";
-import { StoryRepository } from "./storyRepository";
-import { StoriesService } from "./storyService";
-import { unknownWordService } from "../unknownWord/composition";
-import { vocabularyService } from "../vocabulary/composition";
-import redisClient from "@/services/redis";
-import { RedisStoryCache } from "@/cache/redisStoryCache";
+import { buildStoryRouter } from "./storyRoutes";
+import { NextFunction, Request, Response } from "express";
 
-// Repositories
-export const storyRepository = new StoryRepository(prisma, supabase);
-
-// Services and Assemblers
-export const translationService = new TranslationService(openai);
-export const storyGeneratorService = new StoryGeneratorService(openai);
-export const storyAssembler = new StoryAssembler(
-  vocabularyService,
-  storyGeneratorService,
-  translationService,
-  unknownWordService
-);
-export const lemmatizationService = new LemmatizationService(openai);
-export const lemmaAssembler = new LemmaAssembler(lemmatizationService);
-export const textToSpeechService = new TextToSpeechService(openai);
-export const storyAudioStorageService = new StoryAudioStorageService(storyRepository);
-export const audioAssembler = new AudioAssembler(storyAudioStorageService, textToSpeechService);
-
-// Business logic
-const redisStoryCache = new RedisStoryCache(redisClient);
-export const storyService = new StoriesService(
-  storyRepository,
-  storyAssembler,
-  lemmaAssembler,
-  audioAssembler,
-  redisStoryCache
-);
-
-// Controller
-export const storyController = new StoryController(storyService, unknownWordService);
+export function createStoryModule(deps: {
+  prisma: PrismaClient;
+  storage: SupabaseClient;
+  redis: AppRedisClient;
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void;
+  vocabularyService: VocabularyService;
+  storyGeneratorService: StoryGeneratorService;
+  translationService: TranslationService;
+  unknownWordService: UnknownWordService;
+  lemmatizationService: LemmatizationService;
+  textToSpeechService: TextToSpeechService;
+}) {
+  const repository = new StoryRepository(deps.prisma, deps.storage);
+  const cache = new RedisStoryCache(deps.redis);
+  const storyAssembler = new StoryAssembler(
+    deps.vocabularyService,
+    deps.storyGeneratorService,
+    deps.translationService,
+    deps.unknownWordService
+  );
+  const lemmaAssembler = new LemmaAssembler(deps.lemmatizationService);
+  const storyAudioStorageService = new StoryAudioStorageService(repository);
+  const audioAssembler = new AudioAssembler(storyAudioStorageService, deps.textToSpeechService);
+  const service = new StoriesService(
+    repository,
+    storyAssembler,
+    lemmaAssembler,
+    audioAssembler,
+    cache
+  );
+  const controller = new StoryController(service, deps.unknownWordService);
+  return { controller, router: buildStoryRouter(controller, deps.authMiddleware) };
+}

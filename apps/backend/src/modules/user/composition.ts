@@ -1,4 +1,7 @@
-import { prisma } from "@/services/prisma";
 import { UserRepository } from "./userRepository";
+import { PrismaClient } from "@prisma/client";
 
-export const userRepository = new UserRepository(prisma);
+export function createUserModule(deps: { prisma: PrismaClient }) {
+  const repository = new UserRepository(deps.prisma);
+  return { repository };
+}

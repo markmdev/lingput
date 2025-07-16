@@ -1,15 +1,19 @@
 import { asyncHandler } from "@/middlewares/asyncHandler";
-import { authMiddleware } from "@/middlewares/authMiddlewareFactory";
-import express from "express";
-import { vocabularyController } from "./composition";
+import express, { NextFunction, Request, Response } from "express";
+import { VocabularyController } from "./vocabularyController";
 
-const router = express.Router();
+export function buildVocabularyRouter(
+  controller: VocabularyController,
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+) {
+  const router = express.Router();
 
-router.get("/words", authMiddleware, asyncHandler(vocabularyController.getAllWords));
-router.get("/allwords", authMiddleware, asyncHandler(vocabularyController.getWordsWithoutPagination));
-router.post("/words", authMiddleware, asyncHandler(vocabularyController.saveNewWord));
-router.post("/words/list", authMiddleware, asyncHandler(vocabularyController.saveManyWords));
-router.delete("/words/:id", authMiddleware, asyncHandler(vocabularyController.deleteWord));
-router.patch("/words/:id", authMiddleware, asyncHandler(vocabularyController.updateWord));
+  router.get("/words", authMiddleware, asyncHandler(controller.getAllWords));
+  router.get("/allwords", authMiddleware, asyncHandler(controller.getWordsWithoutPagination));
+  router.post("/words", authMiddleware, asyncHandler(controller.saveNewWord));
+  router.post("/words/list", authMiddleware, asyncHandler(controller.saveManyWords));
+  router.delete("/words/:id", authMiddleware, asyncHandler(controller.deleteWord));
+  router.patch("/words/:id", authMiddleware, asyncHandler(controller.updateWord));
 
-export default router;
+  return router;
+}

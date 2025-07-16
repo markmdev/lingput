@@ -1,18 +1,30 @@
-import { prisma } from "@/services/prisma";
 import { VocabAssessmentController } from "./vocabAssessmentController";
 import { VocabAssessmentRepository } from "./vocabAssessmentRepository";
 import { VocabAssessmentService } from "./vocabAssessmentService";
-import { sessionService } from "../session/composition";
-import { vocabularyService } from "../vocabulary/composition";
-import redisClient from "@/services/redis";
+import { AppRedisClient } from "@/services/redis";
 import { RedisWordsCache } from "@/cache/redisWordsCache";
+import { SessionService } from "../session/sessionService";
+import { VocabularyService } from "../vocabulary/vocabularyService";
+import { PrismaClient } from "@prisma/client";
+import { buildVocabAssessmentRouter } from "./vocabAssessmentRoutes";
+import { NextFunction, Request, Response } from "express";
 
-const vocabAssessmentRepository = new VocabAssessmentRepository(prisma);
-const redisWordsCache = new RedisWordsCache(redisClient);
-const vocabAssessmentService = new VocabAssessmentService(
-  vocabAssessmentRepository,
-  sessionService,
-  vocabularyService,
-  redisWordsCache
-);
-export const vocabAssessmentController = new VocabAssessmentController(vocabAssessmentService);
+export function createVocabAssessmentModule(deps: {
+  prisma: PrismaClient;
+  redis: AppRedisClient;
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void;
+  sessionService: SessionService;
+  vocabularyService: VocabularyService;
+}) {
+  const repository = new VocabAssessmentRepository(deps.prisma);
+  const cache = new RedisWordsCache(deps.redis);
+  const service = new VocabAssessmentService(
+    repository,
+    deps.sessionService,
+    deps.vocabularyService,
+    cache
+  );
+
+  const controller = new VocabAssessmentController(service);
+  return { controller, router: buildVocabAssessmentRouter(controller, deps.authMiddleware) };
+}

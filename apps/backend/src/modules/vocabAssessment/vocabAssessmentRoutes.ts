@@ -1,11 +1,15 @@
 import { asyncHandler } from "@/middlewares/asyncHandler";
-import { authMiddleware } from "@/middlewares/authMiddlewareFactory";
-import { Router } from "express";
-import { vocabAssessmentController } from "./composition";
+import { NextFunction, Router, Request, Response } from "express";
+import { VocabAssessmentController } from "./vocabAssessmentController";
 
-const router = Router();
+export function buildVocabAssessmentRouter(
+  controller: VocabAssessmentController,
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+) {
+  const router = Router();
 
-router.get("/start", authMiddleware, asyncHandler(vocabAssessmentController.start));
-router.post("/answer", authMiddleware, asyncHandler(vocabAssessmentController.answer));
+  router.get("/start", authMiddleware, asyncHandler(controller.start));
+  router.post("/answer", authMiddleware, asyncHandler(controller.answer));
 
-export default router;
+  return router;
+}

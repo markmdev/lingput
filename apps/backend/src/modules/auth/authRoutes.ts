@@ -1,12 +1,17 @@
-import { Router } from "express";
+import { NextFunction, Router, Request, Response } from "express";
 import { asyncHandler } from "@/middlewares/asyncHandler";
-import { authController } from "./composition";
-import { authMiddleware } from "@/middlewares/authMiddlewareFactory";
+import { AuthController } from "./authController";
 
-export const authRouter = Router();
+export function buildAuthRouter(
+  controller: AuthController,
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+) {
+  const router = Router();
+  router.post("/register", asyncHandler(controller.register));
+  router.post("/login", asyncHandler(controller.login));
+  router.post("/logout", asyncHandler(controller.logout));
+  router.post("/refresh", asyncHandler(controller.refresh));
+  router.get("/me", authMiddleware, asyncHandler(controller.me));
 
-authRouter.post("/register", asyncHandler(authController.register));
-authRouter.post("/login", asyncHandler(authController.login));
-authRouter.post("/logout", asyncHandler(authController.logout));
-authRouter.post("/refresh", asyncHandler(authController.refresh));
-authRouter.get("/me", authMiddleware, asyncHandler(authController.me));
+  return router;
+}

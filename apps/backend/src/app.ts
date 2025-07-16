@@ -9,21 +9,23 @@ declare global {
 
 import dotenv from "dotenv";
 import express from "express";
-import vocabRouter from "./modules/vocabulary/vocabularyRoutes";
-import storiesRouter from "./modules/story/storyRoutes";
-import unknownWordRouter from "./modules/unknownWord/unknownWordRoutes";
-import vocabAssessmentRouter from "./modules/vocabAssessment/vocabAssessmentRoutes";
-import jobsRouter from "./modules/jobs/jobsRoutes";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import cors from "cors";
 import { errorHandler } from "./middlewares/errorHandler";
-import { authRouter } from "./modules/auth/authRoutes";
 import { requestLogger } from "./middlewares/requestLogger";
 import { logger } from "./utils/logger";
 import { prisma } from "./services/prisma";
 import { ApiResponse } from "./types/response.types";
+import {
+  authRouter,
+  jobsModule,
+  storyModule,
+  unknownWordModule,
+  vocabAssessmentModule,
+  vocabularyModule,
+} from "./container";
 
 dotenv.config();
 const app = express();
@@ -52,12 +54,12 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/vocab", vocabRouter);
-app.use("/api/story", storiesRouter);
-app.use("/api/unknown-words", unknownWordRouter);
+app.use("/api/vocab", vocabularyModule.router);
+app.use("/api/story", storyModule.router);
+app.use("/api/unknown-words", unknownWordModule.router);
 app.use("/api/auth", authRouter);
-app.use("/api/vocab-assessment", vocabAssessmentRouter);
-app.use("/api/jobs", jobsRouter);
+app.use("/api/vocab-assessment", vocabAssessmentModule.router);
+app.use("/api/jobs", jobsModule.router);
 
 app.use(errorHandler);
 

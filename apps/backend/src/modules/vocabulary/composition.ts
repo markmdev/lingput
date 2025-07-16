@@ -1,13 +1,16 @@
-import { prisma } from "@/services/prisma";
 import { VocabularyController } from "./vocabularyController";
 import { VocabularyRepository } from "./vocabularyRepository";
 import { VocabularyService } from "./vocabularyService";
+import { PrismaClient } from "@prisma/client";
+import { buildVocabularyRouter } from "./vocabularyRoutes";
+import { NextFunction, Request, Response } from "express";
 
-// Repositories
-export const vocabularyRepository = new VocabularyRepository(prisma);
-
-// Business logic
-export const vocabularyService = new VocabularyService(vocabularyRepository);
-
-// Controller
-export const vocabularyController = new VocabularyController(vocabularyService);
+export function createVocabularyModule(deps: {
+  prisma: PrismaClient;
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void;
+}) {
+  const repository = new VocabularyRepository(deps.prisma);
+  const service = new VocabularyService(repository);
+  const controller = new VocabularyController(service);
+  return { service, controller, router: buildVocabularyRouter(controller, deps.authMiddleware) };
+}
