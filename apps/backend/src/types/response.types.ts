@@ -14,6 +14,7 @@ export interface ApiResponse<T> {
   error?: {
     message: string;
     code?: number;
+    // details for user
     details?: ZodIssue[];
   };
 }

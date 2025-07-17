@@ -1,14 +1,28 @@
+import { ZodIssue } from "zod";
+import { IHandleableError, serializeError } from "./common";
 import { ErrorDetails } from "./ErrorDetails";
 
-export class CustomError extends Error {
-  statusCode: number;
-  details?: unknown;
-  originalError: unknown | null;
-  constructor(message: string, statusCode = 500, originalError: unknown | null = null, details?: ErrorDetails) {
+export class CustomError extends Error implements IHandleableError {
+  constructor(
+    public message: string,
+    public statusCode: number,
+    public originalError: unknown,
+    public details?: ErrorDetails
+  ) {
     super(message);
-    this.statusCode = statusCode;
-    this.originalError = originalError;
-    this.details = details;
-    Object.setPrototypeOf(this, new.target.prototype);
+  }
+
+  formatResponse(): { message: string; statusCode: number; userDetails?: ZodIssue[] } {
+    return {
+      message: this.message,
+      statusCode: this.statusCode,
+    };
+  }
+
+  log() {
+    return {
+      details: this.details,
+      originalError: serializeError(this.originalError),
+    };
   }
 }

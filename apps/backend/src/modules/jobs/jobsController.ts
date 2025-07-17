@@ -11,13 +11,17 @@ export class JobsController {
     const { queue, jobId } = req.params;
 
     if (!this.isQueueNameValid(queue)) {
-      return res.status(400).json(formatErrorResponse("Invalid queue name", 400));
+      return res
+        .status(400)
+        .json(formatErrorResponse({ message: "Invalid queue name", statusCode: 400 }));
     }
 
     const queueInstance = getQueueByName(queue);
     const job: Job = await queueInstance.getJob(jobId);
     if (!job) {
-      return res.status(404).json(formatErrorResponse("Job not found", 404));
+      return res
+        .status(404)
+        .json(formatErrorResponse({ message: "Job not found", statusCode: 404 }));
     }
     const state = await job.getState();
     res.status(200).json(formatResponse({ status: state, value: job.returnvalue }));
