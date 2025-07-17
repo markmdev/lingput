@@ -8,6 +8,7 @@ import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
 import { LanguageCode } from "@/utils/languages";
 import { RedisStoryCache } from "@/cache/redisStoryCache";
+import { logger } from "@/utils/logger";
 
 export class StoriesService {
   constructor(
@@ -58,7 +59,11 @@ export class StoriesService {
 
   async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
     const res = await this.storyRepository.saveStoryToDB(story);
-    await this.redisStoryCache.invalidateStoryCache(story.userId);
+    try {
+      await this.redisStoryCache.invalidateStoryCache(story.userId);
+    } catch (error) {
+      logger.error("Failed invalidating story cache", error);
+    }
     return res;
   }
 
@@ -67,8 +72,13 @@ export class StoriesService {
     if (cachedStories.length > 0) {
       return cachedStories;
     }
+
     const stories = await this.storyRepository.getAllStories(userId);
-    await this.redisStoryCache.saveStoriesToCache(userId, stories);
+    try {
+      await this.redisStoryCache.saveStoriesToCache(userId, stories);
+    } catch (error) {
+      logger.warn("Redis cache error", { error, userId });
+    }
     return stories;
   }
 

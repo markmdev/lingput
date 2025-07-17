@@ -1,42 +1,34 @@
-import { RedisError } from "@/errors/RedisError";
+import { BaseRedisCache } from "@/services/redis/baseRedisCache";
 import { AppRedisClient } from "@/services/redis/redisClient";
 import { logger } from "@/utils/logger";
 import { WordRanking } from "@prisma/client";
 
-const CACHE_TTL = 86400;
-const CACHE_KEY_PREFIX = "words";
+export class RedisWordsCache extends BaseRedisCache {
+  protected ttl = 86400;
+  protected prefix = "words";
 
-export class RedisWordsCache {
-  constructor(private redis: AppRedisClient) {}
-
-  private getCacheKey(sourceLanguage: string, targetLanguage: string): string {
-    return `${CACHE_KEY_PREFIX}:${sourceLanguage}:${targetLanguage}`;
+  constructor(redis: AppRedisClient) {
+    super(redis);
   }
 
-  async getWordsFromCache(sourceLanguage: string, targetLanguage: string) {
-    const cacheKey = this.getCacheKey(sourceLanguage, targetLanguage);
-    try {
-      const cachedWords = await this.redis.get(cacheKey);
-      if (cachedWords) {
-        logger.info("Cache hit for word ranking");
-        const result = JSON.parse(cachedWords) as WordRanking[];
-        return result;
-      }
-    } catch (error) {
-      logger.error("Unable to retrieve cached words from Redis", error);
+  async getWords(sourceLanguage: string, targetLanguage: string): Promise<WordRanking[] | null> {
+    const cacheKey = this.getKey(sourceLanguage, targetLanguage);
+    const cachedWords = await this.get<WordRanking[]>(cacheKey);
+    if (cachedWords) {
+      logger.info("Cache hit for word ranking");
+    } else {
+      logger.info("Cache miss for word ranking");
     }
-    logger.info("Cache miss for word ranking");
+    return cachedWords;
   }
 
-  async saveWordsToCache(sourceLanguage: string, targetLanguage: string, words: WordRanking[]) {
-    const cacheKey = this.getCacheKey(sourceLanguage, targetLanguage);
-    try {
-      await this.redis.set(cacheKey, JSON.stringify(words), {
-        expiration: { type: "EX", value: CACHE_TTL },
-      });
-      logger.info("Words set in Redis");
-    } catch (error) {
-      throw new RedisError("Unable to set words in Redis", error);
-    }
+  async saveWords(
+    sourceLanguage: string,
+    targetLanguage: string,
+    words: WordRanking[]
+  ): Promise<void> {
+    const cacheKey = this.getKey(sourceLanguage, targetLanguage);
+    await this.set(cacheKey, words);
+    logger.info("Words set in Redis");
   }
 }

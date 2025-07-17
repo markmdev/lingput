@@ -6,6 +6,7 @@ import { VocabularyService } from "../vocabulary/vocabularyService";
 import { UserVocabularyDTO } from "../vocabulary/vocabulary.types";
 import { RedisWordsCache } from "@/cache/redisWordsCache";
 import { Session } from "../session/sessionRepository";
+import { logger } from "@/utils/logger";
 
 const WORDS_PER_BATCH = 15;
 const KNOWLEDGE_THRESHOLD = 0.8;
@@ -31,11 +32,15 @@ export class VocabAssessmentService {
   ) {}
 
   async startAssessment(userId: number, sourceLanguage: string, targetLanguage: string) {
-    let words: WordRanking[] | undefined;
-    words = await this.redisWordsCache.getWordsFromCache(sourceLanguage, targetLanguage);
+    let words: WordRanking[] | null;
+    words = await this.redisWordsCache.getWords(sourceLanguage, targetLanguage);
     if (!words) {
       words = await this.vocabAssessmentRepository.getWords(sourceLanguage, targetLanguage);
-      await this.redisWordsCache.saveWordsToCache(sourceLanguage, targetLanguage, words);
+      try {
+        await this.redisWordsCache.saveWords(sourceLanguage, targetLanguage, words);
+      } catch (error) {
+        logger.error("[cache] Failed to save words in Redis", error);
+      }
     }
 
     const max = words.length - 1;
@@ -88,11 +93,15 @@ export class VocabAssessmentService {
       };
     }
 
-    let words: WordRanking[] | undefined;
-    words = await this.redisWordsCache.getWordsFromCache(sourceLanguage, targetLanguage);
+    let words: WordRanking[] | null;
+    words = await this.redisWordsCache.getWords(sourceLanguage, targetLanguage);
     if (!words) {
       words = await this.vocabAssessmentRepository.getWords(sourceLanguage, targetLanguage);
-      await this.redisWordsCache.saveWordsToCache(sourceLanguage, targetLanguage, words);
+      try {
+        await this.redisWordsCache.saveWords(sourceLanguage, targetLanguage, words);
+      } catch (error) {
+        logger.error("[cache] Failed to save words in Redis", error);
+      }
     }
 
     const wordsToReview = state.wordsToReview;

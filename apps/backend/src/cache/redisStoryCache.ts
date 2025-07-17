@@ -1,16 +1,15 @@
 import { logger } from "@/utils/logger";
-import { AppRedisClient } from "../services/redis/redisClient";
 import { Story, UnknownWord } from "@prisma/client";
 import { RedisError } from "@/errors/RedisError";
+import { BaseRedisCache } from "@/services/redis/baseRedisCache";
+import { AppRedisClient } from "@/services/redis/redisClient";
 
-const CACHE_TTL = 1800;
-const CACHE_KEY_PREFIX = "stories";
+export class RedisStoryCache extends BaseRedisCache {
+  protected ttl = 1800;
+  protected prefix = "stories";
 
-export class RedisStoryCache {
-  constructor(private redis: AppRedisClient) {}
-
-  private getCacheKey(userId: number): string {
-    return `${CACHE_KEY_PREFIX}:${userId}`;
+  constructor(redis: AppRedisClient) {
+    super(redis);
   }
 
   private parseRedisStory(storyString: string): Story & { unknownWords: UnknownWord[] } {
@@ -31,51 +30,33 @@ export class RedisStoryCache {
   }
 
   async invalidateStoryCache(userId: number): Promise<void> {
-    const cacheKey = this.getCacheKey(userId);
-    try {
-      await this.redis.del(cacheKey);
-      logger.info("Story cache invalidated", { userId });
-    } catch (error) {
-      logger.error("Failed to invalidate story cache", { error, userId });
-    }
+    const cacheKey = this.getKey(userId);
+    await this.delKey(cacheKey);
+    logger.info(`[cache] Key ${cacheKey} deleted`);
   }
 
   async getAllStoriesFromCache(
     userId: number
   ): Promise<(Story & { unknownWords: UnknownWord[] })[]> {
-    const cacheKey = this.getCacheKey(userId);
-    try {
-      const cachedStories = await this.redis.lRange(cacheKey, 0, -1);
-      if (cachedStories.length > 0) {
-        logger.info("Cache hit for stories", { userId, count: cachedStories.length });
-        return cachedStories.map((item) => this.parseRedisStory(item));
-      }
-    } catch (error) {
-      logger.warn("Redis cache error", { error, userId });
+    const cacheKey = this.getKey(userId);
+    const cachedStories = await this.lRange(cacheKey);
+    if (cachedStories.length > 0) {
+      logger.info("Cache hit for stories", { userId, count: cachedStories.length });
+    } else {
+      logger.info("Cache miss for stories", { userId });
     }
-    return [];
+    return cachedStories.map((item) => this.parseRedisStory(item));
   }
 
   async saveStoriesToCache(
     userId: number,
     stories: (Story & { unknownWords: UnknownWord[] })[]
   ): Promise<void> {
-    const cacheKey = this.getCacheKey(userId);
-    try {
-      await this.redis
-        .multi()
-        // Invalidate old story data if exists
-        .del(cacheKey)
-        // Save a new version of the story
-        .rPush(
-          cacheKey,
-          stories.map((item) => JSON.stringify(item))
-        )
-        .expire(cacheKey, CACHE_TTL)
-        .exec();
-      logger.info("Stories saved to cache", { userId, count: stories.length });
-    } catch (error) {
-      logger.warn("Redis cache error", { error, userId });
-    }
+    const cacheKey = this.getKey(userId);
+    await this.setList(
+      cacheKey,
+      stories.map((item) => JSON.stringify(item))
+    );
+    logger.info("Stories saved to cache", { userId, count: stories.length });
   }
 }
