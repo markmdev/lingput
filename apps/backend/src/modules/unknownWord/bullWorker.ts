@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { redisConnection } from "@/services/redisConnection";
+import { redisConnection } from "@/services/redis/redisConnection";
 import { Job, Worker } from "bullmq";
 import { logger } from "@/utils/logger";
 import { UnknownWordRepository } from "./unknownWordRepository";

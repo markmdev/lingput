@@ -1,4 +1,4 @@
-import { redisConnection } from "@/services/redisConnection";
+import { redisConnection } from "@/services/redis/redisConnection";
 import { Queue } from "bullmq";
 
 export const queues = {
