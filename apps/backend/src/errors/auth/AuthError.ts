@@ -1,3 +1,4 @@
+import { ZodIssue } from "zod";
 import { CustomError } from "../CustomError";
 import { ErrorDetails } from "../ErrorDetails";
 
@@ -6,7 +7,7 @@ export class AuthError extends CustomError {
     super(message, 401, originalError, details);
   }
 
-  formatResponse(): { message: string; statusCode: number } {
+  formatResponse(): { message: string; statusCode: number; userDetails?: ZodIssue[] } {
     return {
       message: this.message,
       statusCode: this.statusCode,
