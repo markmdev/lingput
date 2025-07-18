@@ -1,13 +1,9 @@
-import { ApiResponse, Pagination } from "@/types/response.types";
+import { ErrorResponse, Pagination, SuccessResponse } from "@/types/response.types";
 import { ZodIssue } from "zod";
 
-export function formatResponse<T>(
-  data: T,
-  pagination?: Pagination,
-  statusCode = 200
-): ApiResponse<T> {
+export function formatResponse<T>(data: T, pagination?: Pagination): SuccessResponse<T> {
   return {
-    success: statusCode >= 200 && statusCode < 300,
+    success: true,
     data,
     pagination,
   };
@@ -21,7 +17,7 @@ export function formatErrorResponse({
   message: string;
   statusCode: number;
   userDetails?: ZodIssue[];
-}): ApiResponse<undefined> {
+}): ErrorResponse {
   return {
     success: false,
     error: {

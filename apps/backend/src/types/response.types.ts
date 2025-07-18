@@ -7,14 +7,20 @@ export interface Pagination {
   pageSize: number;
 }
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
+export interface SuccessResponse<T> {
+  success: true;
+  data: T;
   pagination?: Pagination;
-  error?: {
+}
+
+export interface ErrorResponse {
+  success: false;
+  error: {
     message: string;
     code?: number;
     // details for user
     details?: ZodIssue[];
   };
 }
+
+export type ApiResponse<T> = SuccessResponse<T> | ErrorResponse;

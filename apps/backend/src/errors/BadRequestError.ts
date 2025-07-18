@@ -21,9 +21,8 @@ export class BadRequestError extends CustomError {
 
   log() {
     return {
+      ...super.log(),
       validationErrors: this.errors,
-      details: this.details,
-      originalError: serializeError(this.originalError),
     };
   }
 }

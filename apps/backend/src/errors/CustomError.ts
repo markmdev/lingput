@@ -21,6 +21,8 @@ export class CustomError extends Error implements IHandleableError {
 
   log() {
     return {
+      name: this.constructor.name,
+      message: this.message,
       details: this.details,
       originalError: serializeError(this.originalError),
     };

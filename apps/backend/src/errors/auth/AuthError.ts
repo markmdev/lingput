@@ -12,11 +12,4 @@ export class AuthError extends CustomError {
       statusCode: this.statusCode,
     };
   }
-
-  log() {
-    return {
-      details: this.details,
-      originalError: null,
-    };
-  }
 }

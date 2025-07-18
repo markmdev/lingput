@@ -26,7 +26,6 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
   if (err instanceof Error && "formatResponse" in err && "log" in err && "statusCode" in err) {
     const handleableError = err as IHandleableError;
     const logObject = {
-      message: err.message,
       ...logBase,
       ...handleableError.log(),
     };
