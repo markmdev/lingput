@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, Router } from "express";
 import { asyncHandler } from "@/middlewares/asyncHandler";
 import { JobsController } from "./jobsController";
+import { AuthedRequest } from "@/types/types";
 
 export function buildJobsRouter(
   controller: JobsController,
@@ -8,6 +9,10 @@ export function buildJobsRouter(
 ) {
   const router = Router();
 
-  router.get("/status/:queue/:jobId", authMiddleware, asyncHandler(controller.jobStatus));
+  router.get(
+    "/status/:queue/:jobId",
+    authMiddleware,
+    asyncHandler<AuthedRequest>(controller.jobStatus)
+  );
   return router;
 }

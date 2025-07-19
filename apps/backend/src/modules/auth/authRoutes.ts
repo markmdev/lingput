@@ -1,6 +1,7 @@
 import { NextFunction, Router, Request, Response } from "express";
 import { asyncHandler } from "@/middlewares/asyncHandler";
 import { AuthController } from "./authController";
+import { AuthedRequest } from "@/types/types";
 
 export function buildAuthRouter(
   controller: AuthController,
@@ -11,7 +12,7 @@ export function buildAuthRouter(
   router.post("/login", asyncHandler(controller.login));
   router.post("/logout", asyncHandler(controller.logout));
   router.post("/refresh", asyncHandler(controller.refresh));
-  router.get("/me", authMiddleware, asyncHandler(controller.me));
+  router.get("/me", authMiddleware, asyncHandler<AuthedRequest>(controller.me));
 
   return router;
 }
