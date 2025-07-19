@@ -7,6 +7,7 @@ import { formatResponse } from "@/middlewares/responseFormatter";
 import { validateData } from "@/validation/validateData";
 import { userCredentialsSchema } from "./authSchemas";
 import { AuthError } from "@/errors/auth/AuthError";
+import { AuthedRequest } from "@/types/types";
 
 export class AuthController {
   cookieOpts: { httpOnly: boolean; secure: boolean; sameSite: "lax"; maxAge?: number };
@@ -97,7 +98,7 @@ export class AuthController {
       .json(formatResponse({ id: record.userId }));
   };
 
-  me = async (req: Request, res: Response) => {
+  me = async (req: AuthedRequest, res: Response) => {
     res.status(200).json(formatResponse({ user: { userId: req.user.userId } }));
   };
 }

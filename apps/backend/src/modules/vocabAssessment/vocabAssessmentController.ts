@@ -3,6 +3,8 @@ import { formatResponse } from "@/middlewares/responseFormatter";
 import { VocabAssessmentService } from "./vocabAssessmentService";
 import { z } from "zod";
 import { validateData } from "@/validation/validateData";
+import { AuthError } from "@/errors/auth/AuthError";
+import { AuthedRequest } from "@/types/types";
 
 const answerSchema = z.object({
   sessionUUID: z.string(),
@@ -12,16 +14,19 @@ const answerSchema = z.object({
 export class VocabAssessmentController {
   constructor(private vocabAssessmentService: VocabAssessmentService) {}
 
-  start = async (req: Request, res: Response) => {
+  start = async (req: AuthedRequest, res: Response) => {
     const user = req.user;
+
     const result = await this.vocabAssessmentService.startAssessment(user.userId, "en", "de");
     res.status(200).json(formatResponse(result));
   };
 
-  answer = async (req: Request, res: Response) => {
+  answer = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
     const { sessionUUID, wordsData } = validateData(answerSchema, req.body);
     const result = await this.vocabAssessmentService.continueAssessment(
-      req.user.userId,
+      user.userId,
       sessionUUID,
       wordsData
     );

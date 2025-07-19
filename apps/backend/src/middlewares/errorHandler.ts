@@ -3,23 +3,12 @@ import { formatErrorResponse } from "./responseFormatter";
 import { logger } from "@/utils/logger";
 import { IHandleableError } from "@/errors/common";
 
-function serializeError(error?: unknown) {
-  if (error instanceof Error) {
-    return {
-      message: error.message,
-      type: error.constructor.name,
-      name: error.name,
-      stack: error.stack,
-    };
-  }
-  return error;
-}
-
 export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
+  const user = req.user;
   const logBase = {
     method: req.method,
     url: req.originalUrl,
-    user: req.user || null,
+    user: user || null,
   };
 
   // Check if err matches IHandleableError

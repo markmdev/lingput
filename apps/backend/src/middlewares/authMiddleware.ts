@@ -16,7 +16,7 @@ export const createAuthMiddleware =
       if (user.userId === null) {
         next(new AuthError("Unauthorized", null, { message: "Unable to verify access token" }));
       }
-      req.user = user;
+      req.user = { userId: user.userId };
       next();
     } catch (error) {
       next(new AuthError("Unauthorized", error, { message: "Unable to verify access token" }));

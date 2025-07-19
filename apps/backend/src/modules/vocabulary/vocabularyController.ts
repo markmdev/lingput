@@ -3,15 +3,23 @@ import { VocabularyService } from "./vocabularyService";
 import { formatResponse } from "@/middlewares/responseFormatter";
 import { validateData } from "@/validation/validateData";
 import { z } from "zod";
+import { AuthError } from "@/errors/auth/AuthError";
+import { AuthedRequest } from "@/types/types";
 
 export class VocabularyController {
   constructor(private vocabularyService: VocabularyService) {}
-  getAllWords = async (req: Request, res: Response) => {
-    const { userId } = req.user;
+  getAllWords = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
+    const { userId } = user;
     const { page, pageSize } = validateData(
       z.object({
         page: z.coerce.number().gt(0).default(1),
-        pageSize: z.coerce.number().gt(0).lt(200, { message: "Maximum pageSize is 200" }).default(20),
+        pageSize: z.coerce
+          .number()
+          .gt(0)
+          .lt(200, { message: "Maximum pageSize is 200" })
+          .default(20),
       }),
       req.query
     );
@@ -19,15 +27,19 @@ export class VocabularyController {
     res.status(200).json(formatResponse(result.data, result.pagination));
   };
 
-  getWordsWithoutPagination = async (req: Request, res: Response) => {
-    const { userId } = req.user;
+  getWordsWithoutPagination = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
+    const { userId } = user;
 
     const result = await this.vocabularyService.getWordsWithoutPagination(userId);
     res.status(200).json(formatResponse(result));
   };
 
-  saveNewWord = async (req: Request, res: Response) => {
-    const { userId } = req.user;
+  saveNewWord = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
+    const { userId } = user;
     const { word, translation, article } = validateData(
       z.object({
         word: z.string().min(1).max(50),
@@ -36,12 +48,19 @@ export class VocabularyController {
       }),
       req.body
     );
-    const newWord = await this.vocabularyService.saveNewWord({ word, translation, article, userId });
+    const newWord = await this.vocabularyService.saveNewWord({
+      word,
+      translation,
+      article,
+      userId,
+    });
     res.status(201).json(formatResponse(newWord));
   };
 
-  saveManyWords = async (req: Request, res: Response) => {
-    const { userId } = req.user;
+  saveManyWords = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
+    const { userId } = user;
     const { words } = validateData(
       z.object({
         words: z.array(
@@ -58,22 +77,28 @@ export class VocabularyController {
     res.status(201).json(formatResponse(savedWords));
   };
 
-  deleteWord = async (req: Request, res: Response) => {
-    const { userId } = req.user;
+  deleteWord = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
+    const { userId } = user;
     const wordId = validateData(z.coerce.number(), req.params.id);
     await this.vocabularyService.deleteWord(wordId, userId);
     res.status(204).send();
   };
 
-  getWordById = async (req: Request, res: Response) => {
-    const { userId } = req.user;
+  getWordById = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
+    const { userId } = user;
     const wordId = validateData(z.coerce.number(), req.params.id);
     const word = await this.vocabularyService.getWordByID(wordId, userId);
     res.status(200).json(formatResponse(word));
   };
 
-  updateWord = async (req: Request, res: Response) => {
-    const { userId } = req.user;
+  updateWord = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
+    const { userId } = user;
     const wordId = validateData(z.coerce.number(), req.params.id);
     const wordData = validateData(
       z.object({
