@@ -3,6 +3,7 @@ import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
 import { RedisStoryCache } from "@/cache/redisStoryCache";
 import { queues } from "../jobs/queue";
+import { CustomError } from "@/errors/CustomError";
 
 export class UnknownWordService {
   constructor(
@@ -69,21 +70,38 @@ export class UnknownWordService {
   }
 
   async markAsLearned(wordId: number, userId: number) {
-    const job = await queues.wordStatuses.add("mark-as-learned", {
+    const job = await queues.mainQueue.add("updateWordStatus", {
       wordId,
       userId,
       wordStatus: "learned",
     });
-    return { queueName: queues.wordStatuses.name, jobId: job.id };
+    return { queueName: queues.mainQueue.name, jobId: job.id };
   }
 
   async markAsLearning(wordId: number, userId: number) {
-    const job = await queues.wordStatuses.add("mark-as-learning", {
+    const job = await queues.mainQueue.add("updateWordStatus", {
       wordId,
       userId,
       wordStatus: "learning",
     });
-    return { queueName: queues.wordStatuses.name, jobId: job.id };
+    return { queueName: queues.mainQueue.name, jobId: job.id };
+  }
+
+  async processUpdateWordStatus(jobData: any) {
+    const wordId = jobData.wordId;
+    const userId = jobData.userId;
+    const wordStatus = jobData.wordStatus;
+    if (!wordId || !userId || !wordStatus) {
+      throw new CustomError("Unable to update word status", 500, null, { jobData });
+    }
+
+    if (wordStatus === "learned") {
+      await this.unknownWordRepository.markAsLearned(wordId, userId);
+    } else {
+      await this.unknownWordRepository.markAsLearning(wordId, userId);
+    }
+    await this.redisStoryCache.invalidateStoryCache(userId);
+    return { success: true };
   }
 
   async getUnknownWords(userId: number): Promise<UnknownWord[]> {

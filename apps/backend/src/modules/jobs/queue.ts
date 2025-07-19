@@ -2,7 +2,7 @@ import { redisConnection } from "@/services/redis/redisConnection";
 import { Queue } from "bullmq";
 
 export const queues = {
-  wordStatuses: new Queue("wordStatuses", { connection: redisConnection }),
+  mainQueue: new Queue("mainQueue", { connection: redisConnection }),
 };
 
 export type QueueNames = keyof typeof queues;
