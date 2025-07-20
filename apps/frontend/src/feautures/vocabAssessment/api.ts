@@ -1,21 +1,15 @@
-import { FeatureApi } from "@/lib/FeatureApi";
 import { AssessmentResponse } from "./types";
+import { BackendApi } from "@/lib/backendApi";
 
-export class VocabAssessmentApi extends FeatureApi {
+export class VocabAssessmentApi extends BackendApi {
   start(): Promise<AssessmentResponse> {
     return this.fetch("/api/vocab-assessment/start");
   }
 
   continue(sessionUUID: string, wordsData?: Record<string, boolean>): Promise<AssessmentResponse> {
-    return this.clientApi.api({
-      path: "/api/vocab-assessment/answer",
-      options: {
-        method: "POST",
-        body: JSON.stringify({
-          sessionUUID,
-          wordsData,
-        }),
-      },
+    return this.post<AssessmentResponse>("/api/vocab-assessment/answer", {
+      sessionUUID,
+      wordsData,
     });
   }
 }

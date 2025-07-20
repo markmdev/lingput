@@ -17,7 +17,7 @@ import RightPanel from "@/components/RightPanel";
 import TopPanelMob from "@/components/TopPanelMob";
 import { UnknownWordApi } from "@/feautures/unknownWord/api";
 import LeftPanel from "@/feautures/dashboard/LeftPanel";
-import { JobResponse } from "@/lib/backendApi.client";
+import { JobResponse } from "@/lib/backendApi";
 
 const clientApi = new ClientApi();
 const storyApi = new StoryApi(clientApi);

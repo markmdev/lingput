@@ -1,4 +1,4 @@
-import { BackendApi, JobResponse } from "@/lib/backendApi.client";
+import { BackendApi, JobResponse } from "@/lib/backendApi";
 
 export class UnknownWordApi extends BackendApi {
   async markAsLearned(wordId: number) {

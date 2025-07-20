@@ -1,7 +1,6 @@
 import { ClientApi } from "./ClientApi";
 
 export interface JobResponse {
-  queueName: string;
   jobId: string;
 }
 

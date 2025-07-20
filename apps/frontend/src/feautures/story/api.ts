@@ -1,8 +1,8 @@
 import { VocabularyItem } from "@/types/ApiObjects";
 import { Story } from "./types";
-import { FeatureApi } from "@/lib/FeatureApi";
+import { BackendApi } from "@/lib/backendApi";
 
-export class StoryApi extends FeatureApi {
+export class StoryApi extends BackendApi {
   getAllStories(): Promise<Story[]> {
     return this.fetch<Story[]>("/api/story");
   }
@@ -12,16 +12,10 @@ export class StoryApi extends FeatureApi {
   }
 
   generateNewStory(topic: string): Promise<Story> {
-    return this.clientApi.api<Story>({
-      path: "/api/story/generate",
-      options: {
-        method: "POST",
-        body: JSON.stringify({
-          subject: topic,
-          languageCode: "DE",
-          originalLanguageCode: "EN",
-        }),
-      },
+    return this.post<Story>("/api/story/generate", {
+      subject: topic,
+      languageCode: "DE",
+      originalLanguageCode: "EN",
     });
   }
 }
