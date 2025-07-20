@@ -18,4 +18,8 @@ export class StoryApi extends BackendApi {
       originalLanguageCode: "EN",
     });
   }
+
+  checkJobStatus(jobId: string) {
+    return this.jobStatus(jobId);
+  }
 }

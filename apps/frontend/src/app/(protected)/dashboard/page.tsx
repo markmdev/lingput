@@ -17,16 +17,11 @@ import RightPanel from "@/components/RightPanel";
 import TopPanelMob from "@/components/TopPanelMob";
 import { UnknownWordApi } from "@/feautures/unknownWord/api";
 import LeftPanel from "@/feautures/dashboard/LeftPanel";
-import { JobResponse } from "@/lib/backendApi";
+import { handleJob, JobStarter } from "@/lib/jobHandler";
 
 const clientApi = new ClientApi();
 const storyApi = new StoryApi(clientApi);
 const unknownWordApi = new UnknownWordApi(clientApi);
-
-interface JobStatusResponse {
-  status: "completed" | "failed" | "waiting" | "active" | "delayed" | "paused";
-  value?: unknown;
-}
 
 export default function DashboardPage() {
   const searchParams = useSearchParams();
@@ -80,46 +75,24 @@ export default function DashboardPage() {
     });
   };
 
-  const handleStatusChangeJob = async (
-    wordId: number,
-    newStatus: "learned" | "learning",
-    job: JobResponse
-  ) => {
-    mutate(
-      (currentData) => updateCurrentDataWithNewWordStatus(currentData, wordId, newStatus),
-      false
-    );
-    let res: JobStatusResponse | undefined;
-    while (!res || res.status !== "completed") {
-      res = await unknownWordApi.checkJobStatus(job.jobId);
-      console.log(res);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-    mutate();
-  };
-
   const handleWordStatusChange = async (wordId: number, newStatus: "learned" | "learning") => {
-    const previousData = data;
-    try {
-      let job: JobResponse;
+    let jobStarter: JobStarter;
+    const optimisticUpdate = (data: Story[] | undefined) =>
+      updateCurrentDataWithNewWordStatus(data, wordId, newStatus);
+    const onSuccess = () => {
+      toast(`Word marked as ${newStatus}`);
+    };
+    const onError = (error: Error) => {
+      toast.error(error.message);
+    };
 
-      if (newStatus === "learned") {
-        job = await unknownWordApi.markAsLearned(wordId);
-      } else {
-        job = await unknownWordApi.markAsLearning(wordId);
-      }
-      console.log(job);
-      await handleStatusChangeJob(wordId, newStatus, job);
-    } catch (error) {
-      mutate(() => previousData, false);
-      if (error instanceof ApiError) {
-        toast.error(error.message);
-      } else {
-        toast.error("Unknown error happened");
-      }
-      mutate();
+    const jobStatusChecker = (jobId: string) => unknownWordApi.checkJobStatus(jobId);
+    if (newStatus === "learned") {
+      jobStarter = () => unknownWordApi.markAsLearned(wordId);
+    } else {
+      jobStarter = () => unknownWordApi.markAsLearning(wordId);
     }
-    toast(`Word marked as ${newStatus}`);
+    await handleJob({ jobStarter, jobStatusChecker, optimisticUpdate, mutate, onSuccess, onError });
   };
 
   const handleClickOnStory = useCallback(
