@@ -7,7 +7,7 @@ export class UnknownWordApi extends BackendApi {
   async markAsLearning(wordId: number) {
     return this.post<JobResponse>(`/api/unknown-words/mark-as-learning/${wordId}`);
   }
-  async checkJobStatus(queueName: string, jobId: string) {
-    return this.jobStatus(queueName, jobId);
+  async checkJobStatus(jobId: string) {
+    return this.jobStatus(jobId);
   }
 }

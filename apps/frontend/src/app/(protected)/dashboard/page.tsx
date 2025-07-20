@@ -91,7 +91,7 @@ export default function DashboardPage() {
     );
     let res: JobStatusResponse | undefined;
     while (!res || res.status !== "completed") {
-      res = await unknownWordApi.checkJobStatus(job.queueName, job.jobId);
+      res = await unknownWordApi.checkJobStatus(job.jobId);
       console.log(res);
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }

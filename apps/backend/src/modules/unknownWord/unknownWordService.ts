@@ -2,13 +2,14 @@ import { CreateUnknownWordDTO } from "./unknownWord.types";
 import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
 import { RedisStoryCache } from "@/cache/redisStoryCache";
-import { queues } from "../jobs/queue";
 import { CustomError } from "@/errors/CustomError";
+import { Queue } from "bullmq";
 
 export class UnknownWordService {
   constructor(
     private unknownWordRepository: UnknownWordRepository,
-    private redisStoryCache: RedisStoryCache
+    private redisStoryCache: RedisStoryCache,
+    private jobQueue: Queue
   ) {}
   async saveUnknownWords(
     unknownWords: CreateUnknownWordDTO[],
@@ -70,21 +71,21 @@ export class UnknownWordService {
   }
 
   async markAsLearned(wordId: number, userId: number) {
-    const job = await queues.mainQueue.add("updateWordStatus", {
+    const job = await this.jobQueue.add("updateWordStatus", {
       wordId,
       userId,
       wordStatus: "learned",
     });
-    return { queueName: queues.mainQueue.name, jobId: job.id };
+    return { jobId: job.id };
   }
 
   async markAsLearning(wordId: number, userId: number) {
-    const job = await queues.mainQueue.add("updateWordStatus", {
+    const job = await this.jobQueue.add("updateWordStatus", {
       wordId,
       userId,
       wordStatus: "learning",
     });
-    return { queueName: queues.mainQueue.name, jobId: job.id };
+    return { jobId: job.id };
   }
 
   async processUpdateWordStatus(jobData: any) {

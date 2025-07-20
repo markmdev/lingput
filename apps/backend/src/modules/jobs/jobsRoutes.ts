@@ -9,10 +9,6 @@ export function buildJobsRouter(
 ) {
   const router = Router();
 
-  router.get(
-    "/status/:queue/:jobId",
-    authMiddleware,
-    asyncHandler<AuthedRequest>(controller.jobStatus)
-  );
+  router.get("/status/:jobId", authMiddleware, asyncHandler<AuthedRequest>(controller.jobStatus));
   return router;
 }

@@ -34,9 +34,9 @@ export class BackendApi {
     });
   }
 
-  protected jobStatus(queueName: string, jobId: string): Promise<JobStatusResponse> {
+  protected jobStatus(jobId: string): Promise<JobStatusResponse> {
     return this.clientApi.api<JobStatusResponse>({
-      path: `/api/jobs/status/${queueName}/${jobId}`,
+      path: `/api/jobs/status/${jobId}`,
       options: {
         method: "GET",
       },
