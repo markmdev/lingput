@@ -24,31 +24,18 @@ export class StoryController {
     );
     const user = req.user;
 
-    const { story, unknownWords, knownWords } =
-      await this.storiesService.generateFullStoryExperience(
-        user.userId,
-        languageCode,
-        originalLanguageCode,
-        subject
-      );
-    const savedStory = await this.storiesService.saveStoryToDB(story);
-    const savedUnknownWords = await this.unknownWordService.saveUnknownWords(
-      unknownWords,
-      savedStory.id,
-      user.userId
+    const job = await this.storiesService.generateFullStoryExperience(
+      user.userId,
+      languageCode,
+      originalLanguageCode,
+      subject
     );
 
-    const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
-    const storyWithUnknownWords = await this.storiesService.connectUnknownWords(
-      savedStory.id,
-      unknownWordIds
-    );
+    // logger.info(
+    //   `User ${user.userId} generated a story. Story ID: ${savedStory.id}. New unknown words: ${unknownWordIds.length}. Known words used: ${knownWords.length}`
+    // );
 
-    logger.info(
-      `User ${user.userId} generated a story. Story ID: ${savedStory.id}. New unknown words: ${unknownWordIds.length}. Known words used: ${knownWords.length}`
-    );
-
-    res.status(200).json(formatResponse(storyWithUnknownWords));
+    res.status(200).json(formatResponse(job));
   };
 
   getAllStories = async (req: AuthedRequest, res: Response) => {

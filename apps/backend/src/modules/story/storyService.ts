@@ -1,14 +1,16 @@
 import { StoryRepository } from "./storyRepository";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
-import { Story, UserVocabulary } from "@prisma/client";
-import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
-import { NotFoundError } from "@/errors/NotFoundError";
+import { Story, UnknownWord } from "@prisma/client";
 import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
 import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
 import { LanguageCode } from "@/utils/languages";
 import { RedisStoryCache } from "@/cache/redisStoryCache";
 import { logger } from "@/utils/logger";
+import { Job, Queue } from "bullmq";
+import { CustomError } from "@/errors/CustomError";
+import { UnknownWordService } from "../unknownWord/unknownWordService";
+import { GENERATION_PHASES } from "./generationPhases";
 
 export class StoriesService {
   constructor(
@@ -16,28 +18,81 @@ export class StoriesService {
     private storyAssembler: StoryAssembler,
     private lemmaAssembler: LemmaAssembler,
     private audioAssembler: AudioAssembler,
-    private redisStoryCache: RedisStoryCache
+    private redisStoryCache: RedisStoryCache,
+    private jobQueue: Queue,
+    private unknownWordService: UnknownWordService
   ) {}
 
-  public async generateFullStoryExperience(
+  async generateFullStoryExperience(
     userId: number,
     languageCode: LanguageCode,
     originalLanguageCode: LanguageCode,
     subject: string = ""
-  ): Promise<{
-    story: CreateStoryDTO;
-    unknownWords: CreateUnknownWordDTO[];
-    knownWords: UserVocabulary[];
-  }> {
+  ) {
+    const job = await this.jobQueue.add("generateStory", {
+      userId,
+      languageCode,
+      originalLanguageCode,
+      subject,
+    });
+
+    return { jobId: job.id };
+  }
+
+  async processStoryGenerationJob(job: Job): Promise<StoryWithUnknownWords> {
+    const { userId, languageCode, originalLanguageCode, subject } = job.data;
+    if (!userId || !languageCode || !originalLanguageCode || !subject) {
+      throw new CustomError("Unable to generate a story: Invalud parameters", 500, null, {
+        data: job.data,
+      });
+    }
+
+    console.log("Creating a story");
+
+    const { story, unknownWords, knownWords } = await this.createStory(
+      subject,
+      userId,
+      languageCode,
+      originalLanguageCode,
+      job
+    );
+
+    console.log("Created a story");
+
+    job.updateProgress({ phase: GENERATION_PHASES["saving"] });
+    const savedStory = await this.saveStoryToDB(story);
+    const savedUnknownWords = await this.unknownWordService.saveUnknownWords(
+      unknownWords,
+      savedStory.id,
+      userId
+    );
+
+    const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
+    const storyWithUnknownWords = await this.connectUnknownWords(savedStory.id, unknownWordIds);
+
+    return storyWithUnknownWords;
+  }
+
+  private async createStory(
+    subject: string,
+    userId: number,
+    languageCode: "DE",
+    originalLanguageCode: "EN",
+    job: Job
+  ) {
     const { story, fullTranslation, translationChunks, knownWords } =
-      await this.storyAssembler.assemble(subject, userId, languageCode, originalLanguageCode);
+      await this.storyAssembler.assemble(subject, userId, languageCode, originalLanguageCode, job);
+
+    console.log("Story generated");
     const unknownWords = await this.lemmaAssembler.assemble(
       story,
       knownWords,
       userId,
       languageCode,
-      originalLanguageCode
+      originalLanguageCode,
+      job
     );
+    job.updateProgress({ phase: GENERATION_PHASES["creatingAudio"] });
     const audioUrl = await this.audioAssembler.assemble(
       translationChunks,
       unknownWords,
@@ -57,7 +112,7 @@ export class StoriesService {
     };
   }
 
-  async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
+  private async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
     const res = await this.storyRepository.saveStoryToDB(story);
     try {
       await this.redisStoryCache.invalidateStoryCache(story.userId);
@@ -82,10 +137,16 @@ export class StoriesService {
     return stories;
   }
 
-  async connectUnknownWords(
+  private async connectUnknownWords(
     storyId: number,
     wordIds: { id: number }[]
   ): Promise<StoryWithUnknownWords> {
     return await this.storyRepository.connectUnknownWords(storyId, wordIds);
+  }
+
+  private extractUnknownWordIds(unknownWords: UnknownWord[]): { id: number }[] {
+    return unknownWords.map((word) => ({
+      id: word.id,
+    }));
   }
 }

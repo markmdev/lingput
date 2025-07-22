@@ -3,7 +3,7 @@ import { UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
 import { RedisStoryCache } from "@/cache/redisStoryCache";
 import { CustomError } from "@/errors/CustomError";
-import { Queue } from "bullmq";
+import { Job, Queue } from "bullmq";
 
 export class UnknownWordService {
   constructor(
@@ -66,7 +66,7 @@ export class UnknownWordService {
     const tasks = wordsToUpdate.map((word) =>
       this.unknownWordRepository.updateTimesSeenAndConnectStory(word.id, word.timesSeen, storyId)
     );
-    await this.redisStoryCache.invalidateStoryCache(userId);
+    // await this.redisStoryCache.invalidateStoryCache(userId);
     return await Promise.all(tasks);
   }
 
@@ -88,7 +88,8 @@ export class UnknownWordService {
     return { jobId: job.id };
   }
 
-  async processUpdateWordStatus(jobData: any) {
+  async processUpdateWordStatus(job: Job) {
+    const jobData = job.data;
     const wordId = jobData.wordId;
     const userId = jobData.userId;
     const wordStatus = jobData.wordStatus;

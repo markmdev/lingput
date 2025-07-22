@@ -6,16 +6,17 @@ import { AppRedisClient } from "@/services/redis/redisClient";
 import { PrismaClient } from "@prisma/client";
 import { buildUnknownWordRouter } from "./unknownWordRoutes";
 import { NextFunction, Request, Response } from "express";
-import { mainQueue } from "../../services/jobQueue/queue";
+import { Queue } from "bullmq";
 
 export function createUnknownWordModule(deps: {
   prisma: PrismaClient;
   redis: AppRedisClient;
+  queue: Queue;
   authMiddleware: (req: Request, res: Response, next: NextFunction) => void;
 }) {
   const repository = new UnknownWordRepository(deps.prisma);
   const cache = new RedisStoryCache(deps.redis);
-  const service = new UnknownWordService(repository, cache, mainQueue);
+  const service = new UnknownWordService(repository, cache, deps.queue);
   const controller = new UnknownWordController(service);
 
   return { service, controller, router: buildUnknownWordRouter(controller, deps.authMiddleware) };

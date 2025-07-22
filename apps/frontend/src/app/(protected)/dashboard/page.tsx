@@ -38,10 +38,6 @@ export default function DashboardPage() {
     }
   }, [error, router]);
 
-  const refetchStories = () => {
-    mutate();
-  };
-
   const setViewMode = useCallback(
     (mode: "chosenStory" | "newStory" | "allStories", storyId?: string | null) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -82,8 +78,10 @@ export default function DashboardPage() {
     const onSuccess = () => {
       toast(`Word marked as ${newStatus}`);
     };
-    const onError = (error: Error) => {
-      toast.error(error.message);
+    const onError = ({ error }: { error?: Error }) => {
+      if (error) {
+        toast.error(error.message);
+      }
     };
 
     const jobStatusChecker = (jobId: string) => unknownWordApi.checkJobStatus(jobId);
@@ -92,7 +90,14 @@ export default function DashboardPage() {
     } else {
       jobStarter = () => unknownWordApi.markAsLearning(wordId);
     }
-    await handleJob({ jobStarter, jobStatusChecker, optimisticUpdate, mutate, onSuccess, onError });
+    await handleJob({
+      jobStarter,
+      jobStatusChecker,
+      optimisticUpdate,
+      mutate,
+      onSuccess,
+      onError,
+    });
   };
 
   const handleClickOnStory = useCallback(
@@ -143,7 +148,7 @@ export default function DashboardPage() {
         {viewMode === "newStory" && (
           <RightPanel styles="bg-radial from-white to-gray-100 from-30% justify-center">
             <StoryGeneration
-              refetchStories={refetchStories}
+              mutate={mutate}
               setToNewStory={handleClickOnStory}
               isPageLoading={isLoading}
             />

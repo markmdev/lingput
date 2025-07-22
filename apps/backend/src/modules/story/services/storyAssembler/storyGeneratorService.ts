@@ -5,7 +5,11 @@ import { ChatCompletion } from "openai/resources/chat/completions";
 
 export class StoryGeneratorService {
   constructor(private openai: OpenAI) {}
-  async generateStory(targetLanguageWords: string[], subject: string, languageCode: LanguageCode): Promise<string> {
+  async generateStory(
+    targetLanguageWords: string[],
+    subject: string,
+    languageCode: LanguageCode
+  ): Promise<string> {
     let response: ChatCompletion;
     try {
       response = await this.openai.chat.completions.create({
@@ -44,7 +48,7 @@ export class StoryGeneratorService {
         ],
       });
     } catch (error) {
-      throw new OpenAIError("Unable to generate a story", error, { targetLanguageWords, subject });
+      throw new OpenAIError("Unable to generate a story", error, { subject });
     }
 
     const story = response.choices[0].message.content;

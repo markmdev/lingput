@@ -17,11 +17,13 @@ import { StoryAudioStorageService } from "./services/audioAssembler/storyAudioSt
 import { TextToSpeechService } from "./services/audioAssembler/textToSpeechService";
 import { buildStoryRouter } from "./storyRoutes";
 import { NextFunction, Request, Response } from "express";
+import { Queue } from "bullmq";
 
 export function createStoryModule(deps: {
   prisma: PrismaClient;
   storage: SupabaseClient;
   redis: AppRedisClient;
+  queue: Queue;
   authMiddleware: (req: Request, res: Response, next: NextFunction) => void;
   vocabularyService: VocabularyService;
   storyGeneratorService: StoryGeneratorService;
@@ -46,8 +48,10 @@ export function createStoryModule(deps: {
     storyAssembler,
     lemmaAssembler,
     audioAssembler,
-    cache
+    cache,
+    deps.queue,
+    deps.unknownWordService
   );
   const controller = new StoryController(service, deps.unknownWordService);
-  return { controller, router: buildStoryRouter(controller, deps.authMiddleware) };
+  return { service, controller, router: buildStoryRouter(controller, deps.authMiddleware) };
 }

@@ -7,6 +7,9 @@ export interface JobResponse {
 export interface JobStatusResponse {
   status: "completed" | "failed" | "waiting" | "active" | "delayed" | "paused";
   value?: unknown;
+  failedReason?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  progress?: any;
 }
 
 export class BackendApi {

@@ -14,6 +14,15 @@ export class JobsController {
         .json(formatErrorResponse({ message: "Job not found", statusCode: 404 }));
     }
     const state = await job.getState();
-    res.status(200).json(formatResponse({ status: state, value: job.returnvalue }));
+    res
+      .status(200)
+      .json(
+        formatResponse({
+          status: state,
+          value: job.returnvalue,
+          failedReason: job.failedReason,
+          progress: job.progress,
+        })
+      );
   };
 }

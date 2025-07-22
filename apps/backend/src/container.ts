@@ -12,6 +12,7 @@ import { createUnknownWordModule } from "./modules/unknownWord/composition";
 import { createUserModule } from "./modules/user/composition";
 import { createVocabAssessmentModule } from "./modules/vocabAssessment/composition";
 import { createVocabularyModule } from "./modules/vocabulary/composition";
+import { mainQueue } from "./services/jobQueue/queue";
 import { openai } from "./services/openai";
 import { prisma } from "./services/prisma";
 import redisClient from "./services/redis/redisClient";
@@ -38,6 +39,7 @@ export const sessionModule = createSessionModule({ redis: redisClient });
 export const unknownWordModule = createUnknownWordModule({
   prisma,
   redis: redisClient,
+  queue: mainQueue,
   authMiddleware,
 });
 
@@ -47,6 +49,7 @@ export const storyModule = createStoryModule({
   prisma,
   storage: supabase,
   redis: redisClient,
+  queue: mainQueue,
   authMiddleware,
   vocabularyService: vocabularyModule.service,
   storyGeneratorService,
