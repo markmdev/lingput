@@ -10,6 +10,15 @@ import Skeleton from "react-loading-skeleton";
 import { handleJob } from "@/lib/jobHandler";
 import { KeyedMutator } from "swr";
 
+type Progress = {
+  phase: {
+    name: string;
+    index: number;
+    description: string;
+  };
+  totalSteps: number;
+};
+
 export default function StoryGeneration({
   mutate,
   setToNewStory,
@@ -22,7 +31,7 @@ export default function StoryGeneration({
   const [isLoading, setIsLoading] = useState(false);
   const [topic, setTopic] = useState("");
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [progress, setProgress] = useState("");
+  const [progress, setProgress] = useState<Progress | null>(null);
 
   const clientApi = new ClientApi();
   const storyApi = new StoryApi(clientApi);
@@ -47,8 +56,9 @@ export default function StoryGeneration({
       }
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onProgress = (newProgress: any) => {
-      setProgress(JSON.stringify(newProgress));
+    const onProgress = (newProgress: Progress) => {
+      console.log(`newProgress: ${JSON.stringify(newProgress)}`);
+      setProgress(newProgress);
     };
 
     await handleJob({ jobStarter, jobStatusChecker, mutate, onSuccess, onError, onProgress });
@@ -63,7 +73,25 @@ export default function StoryGeneration({
     <div>
       <div className="w-full h-full flex flex-col items-center">
         {isLoading ? (
-          <p>{progress}</p>
+          progress !== null ? (
+            <div className="w-full flex flex-col items-center gap-4 text-center">
+              <p className="font-bold text-2xl">{progress?.phase.description}</p>
+              {progress && (
+                <div className="w-full lg:w-2/3 xl:w-1/2">
+                  <div className="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700">
+                    <div
+                      className="bg-blue-600 h-4 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${(progress.phase.index / (progress.totalSteps - 1)) * 100}%`,
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            "Loading..."
+          )
         ) : (
           <form className="flex flex-col gap-4 w-full lg:w-2/3 xl:w-1/2 text-center">
             <label htmlFor="topic" className="font-bold text-6xl">

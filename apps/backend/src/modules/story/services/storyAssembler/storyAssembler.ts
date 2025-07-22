@@ -27,7 +27,10 @@ export class StoryAssembler {
     fullTranslation: string;
     translationChunks: ChunkTranslation[];
   }> {
-    job.updateProgress({ phase: GENERATION_PHASES["fetchingWords"] });
+    job.updateProgress({
+      phase: GENERATION_PHASES["fetchingWords"],
+      totalSteps: Object.keys(GENERATION_PHASES).length,
+    });
     const vocabularyResult = await this.vocabularyService.getWords(userId);
     const unknownwordsResult = await this.unknownWordService.getUnknownWords(userId);
     const knownWords = vocabularyResult.data;
@@ -35,7 +38,10 @@ export class StoryAssembler {
     const unknownWordsList = unknownwordsResult.map((word) => word.word);
     const combinedWordsList = [...knownWordsList, ...unknownWordsList];
 
-    job.updateProgress({ phase: GENERATION_PHASES["generation"] });
+    job.updateProgress({
+      phase: GENERATION_PHASES["generation"],
+      totalSteps: Object.keys(GENERATION_PHASES).length,
+    });
     const story = await this.storyGeneratorService.generateStory(
       combinedWordsList,
       subject,
@@ -43,7 +49,10 @@ export class StoryAssembler {
     );
     const cleanedStoryText = story.replace(/\n/g, " ").trim();
 
-    job.updateProgress({ phase: GENERATION_PHASES["translation"] });
+    job.updateProgress({
+      phase: GENERATION_PHASES["translation"],
+      totalSteps: Object.keys(GENERATION_PHASES).length,
+    });
     const translationChunks = await this.translationService.translateChunks(
       cleanedStoryText,
       originalLanguageCode

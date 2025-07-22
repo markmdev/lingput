@@ -36,6 +36,12 @@ export class StoriesService {
       subject,
     });
 
+    logger.info(`Added job ${job.id} to the queue.`);
+    job.updateProgress({
+      phase: GENERATION_PHASES["starting"],
+      totalSteps: Object.keys(GENERATION_PHASES).length,
+    });
+
     return { jobId: job.id };
   }
 
@@ -59,7 +65,10 @@ export class StoriesService {
 
     console.log("Created a story");
 
-    job.updateProgress({ phase: GENERATION_PHASES["saving"] });
+    job.updateProgress({
+      phase: GENERATION_PHASES["saving"],
+      totalSteps: Object.keys(GENERATION_PHASES).length,
+    });
     const savedStory = await this.saveStoryToDB(story);
     const savedUnknownWords = await this.unknownWordService.saveUnknownWords(
       unknownWords,
@@ -92,7 +101,10 @@ export class StoriesService {
       originalLanguageCode,
       job
     );
-    job.updateProgress({ phase: GENERATION_PHASES["creatingAudio"] });
+    job.updateProgress({
+      phase: GENERATION_PHASES["creatingAudio"],
+      totalSteps: Object.keys(GENERATION_PHASES).length,
+    });
     const audioUrl = await this.audioAssembler.assemble(
       translationChunks,
       unknownWords,

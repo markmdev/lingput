@@ -17,10 +17,16 @@ export class LemmaAssembler {
     originalLanguageCode: LanguageCode,
     job: Job
   ): Promise<CreateUnknownWordDTO[]> {
-    job.updateProgress({ phase: GENERATION_PHASES["lemmatization"] });
+    job.updateProgress({
+      phase: GENERATION_PHASES["lemmatization"],
+      totalSteps: Object.keys(GENERATION_PHASES).length,
+    });
     const storyLemmas = await this.lemmatizationService.lemmatize(story);
     const unknownLemmas = this.filterUnknownLemmas(storyLemmas, knownWords);
-    job.updateProgress({ phase: GENERATION_PHASES["creatingExamples"] });
+    job.updateProgress({
+      phase: GENERATION_PHASES["creatingExamples"],
+      totalSteps: Object.keys(GENERATION_PHASES).length,
+    });
     const translatedUnknownLemmas = await this.lemmatizationService.translateLemmas(
       unknownLemmas,
       languageCode,

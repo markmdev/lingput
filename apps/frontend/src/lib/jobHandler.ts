@@ -43,7 +43,7 @@ export async function handleJob<T>({
       res = await jobStatusChecker(job.jobId);
       console.log(res);
 
-      if (res.status === "active" && onProgress) {
+      if (res.status === "active" && onProgress && res.progress !== 0) {
         onProgress(res.progress);
       }
       await new Promise((resolve) => setTimeout(resolve, 1000));

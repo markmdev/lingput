@@ -66,7 +66,6 @@ export class UnknownWordService {
     const tasks = wordsToUpdate.map((word) =>
       this.unknownWordRepository.updateTimesSeenAndConnectStory(word.id, word.timesSeen, storyId)
     );
-    // await this.redisStoryCache.invalidateStoryCache(userId);
     return await Promise.all(tasks);
   }
 
