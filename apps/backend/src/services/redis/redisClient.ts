@@ -12,7 +12,7 @@ const redisClient = createClient({
 });
 
 redisClient.on("error", (err) => {
-  throw new RedisError("Redis client error", err);
+  logger.error("Redis client error", err);
 });
 
 const connectRedis = async () => {
@@ -24,8 +24,6 @@ const connectRedis = async () => {
   }
 };
 
-connectRedis();
-
 export type AppRedisClient = typeof redisClient;
 
-export default redisClient;
+export { connectRedis, redisClient };

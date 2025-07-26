@@ -55,7 +55,6 @@ export default function StoryGeneration({
         toast.error(`${data?.failedReason || ""}`);
       }
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onProgress = (newProgress: Progress) => {
       console.log(`newProgress: ${JSON.stringify(newProgress)}`);
       setProgress(newProgress);

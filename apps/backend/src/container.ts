@@ -15,7 +15,7 @@ import { createVocabularyModule } from "./modules/vocabulary/composition";
 import { mainQueue } from "./services/jobQueue/queue";
 import { openai } from "./services/openai";
 import { prisma } from "./services/prisma";
-import redisClient from "./services/redis/redisClient";
+import { redisClient } from "./services/redis/redisClient";
 import supabase from "./services/supabase";
 
 const storyGeneratorService = new StoryGeneratorService(openai);
