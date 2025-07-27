@@ -1,4 +1,4 @@
-import { Story } from "@/feautures/story/types";
+import { Story } from "@/features/story/types";
 import StoryPreview from "./StoryPreview";
 
 export default function StoryList({

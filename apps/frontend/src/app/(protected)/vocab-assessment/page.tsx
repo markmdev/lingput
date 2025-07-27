@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 import { ClientApi } from "@/lib/ClientApi";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { VocabAssessmentApi } from "@/feautures/vocabAssessment/api";
-import Word from "@/feautures/vocabAssessment/components/Word";
-import { AssessmentResponse } from "@/feautures/vocabAssessment/types";
-import ContinueButton from "@/feautures/vocabAssessment/components/ContinueButton";
-import StartButton from "@/feautures/vocabAssessment/components/StartButton";
+import { VocabAssessmentApi } from "@/features/vocabAssessment/api";
+import Word from "@/features/vocabAssessment/components/Word";
+import { AssessmentResponse } from "@/features/vocabAssessment/types";
+import ContinueButton from "@/features/vocabAssessment/components/ContinueButton";
+import StartButton from "@/features/vocabAssessment/components/StartButton";
 import { ApiError } from "@/types/ApiError";
 
 export default function VocabAssessmentPage() {

@@ -1,22 +1,22 @@
 "use client";
 
-import { StoryApi } from "@/feautures/story/api";
-import StoryComponent from "@/feautures/story/components/Story";
-import StoryList from "@/feautures/story/components/StoryList";
-import { Story } from "@/feautures/story/types";
+import { StoryApi } from "@/features/story/api";
+import StoryComponent from "@/features/story/components/Story";
+import StoryList from "@/features/story/components/StoryList";
+import { Story } from "@/features/story/types";
 import { ClientApi } from "@/lib/ClientApi";
 import { ApiError } from "@/types/ApiError";
 import { useCallback, useEffect } from "react";
 import useSWR from "swr";
 import { toast } from "react-toastify";
-import StoryGeneration from "@/feautures/story/components/StoryGeneration";
+import StoryGeneration from "@/features/story/components/StoryGeneration";
 import { useRouter, useSearchParams } from "next/navigation";
 import Button from "@/components/Button";
 import Skeleton from "react-loading-skeleton";
 import RightPanel from "@/components/RightPanel";
 import TopPanelMob from "@/components/TopPanelMob";
-import { UnknownWordApi } from "@/feautures/unknownWord/api";
-import LeftPanel from "@/feautures/dashboard/LeftPanel";
+import { UnknownWordApi } from "@/features/unknownWord/api";
+import LeftPanel from "@/features/dashboard/LeftPanel";
 import { handleJob, JobStarter } from "@/lib/jobHandler";
 
 const clientApi = new ClientApi();
