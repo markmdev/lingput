@@ -19,9 +19,9 @@ export default function LeftPanel({
   handleChangeToNewStoryViewMode: () => void;
 }) {
   return (
-    <div className="justify-between w-1/4 py-8 px-6 bg-white rounded-lg hidden lg:flex lg:flex-col">
+    <div className="justify-between w-1/4 py-8 px-6 bg-white rounded-lg hidden lg:flex lg:flex-col h-full">
       {/* TOP */}
-      <div>
+      <div className="h-full overflow-auto">
         <h2 className="font-semibold text-2xl">Stories</h2>
         <hr className="my-4" />
         {isLoading ? (
