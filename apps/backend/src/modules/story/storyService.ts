@@ -1,6 +1,6 @@
 import { StoryRepository } from "./storyRepository";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
-import { Story, UnknownWord } from "@prisma/client";
+import { Prisma, PrismaClient, Story, UnknownWord } from "@prisma/client";
 import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
 import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
@@ -45,7 +45,7 @@ export class StoriesService {
     return { jobId: job.id };
   }
 
-  async processStoryGenerationJob(job: Job): Promise<StoryWithUnknownWords> {
+  async processStoryGenerationJob(job: Job, prisma: PrismaClient): Promise<StoryWithUnknownWords> {
     const { userId, languageCode, originalLanguageCode, subject } = job.data;
     if (!userId || !languageCode || !originalLanguageCode || !subject) {
       throw new CustomError("Unable to generate a story: Invalud parameters", 500, null, {
@@ -69,17 +69,29 @@ export class StoriesService {
       phase: GENERATION_PHASES["saving"],
       totalSteps: Object.keys(GENERATION_PHASES).length,
     });
-    const savedStory = await this.saveStoryToDB(story);
-    const savedUnknownWords = await this.unknownWordService.saveUnknownWords(
-      unknownWords,
-      savedStory.id,
-      userId
-    );
-
-    const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
-    const storyWithUnknownWords = await this.connectUnknownWords(savedStory.id, unknownWordIds);
-
-    return storyWithUnknownWords;
+    try {
+      const storyWithUnknownWords = await prisma.$transaction(async (tx) => {
+        const savedStory = await this.saveStoryToDB(story, tx);
+        const savedUnknownWords = await this.unknownWordService.saveUnknownWords(
+          unknownWords,
+          savedStory.id,
+          userId,
+          tx
+        );
+        const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
+        const storyWithUnknownWords = await this.connectUnknownWords(
+          savedStory.id,
+          unknownWordIds,
+          tx
+        );
+        return storyWithUnknownWords;
+      });
+      logger.info("Prisma transaction completed!");
+      return storyWithUnknownWords;
+    } catch (error) {
+      logger.error("Prisma transaction failed", error);
+      throw error;
+    }
   }
 
   private async createStory(
@@ -124,8 +136,8 @@ export class StoriesService {
     };
   }
 
-  private async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
-    const res = await this.storyRepository.saveStoryToDB(story);
+  private async saveStoryToDB(story: CreateStoryDTO, tx: Prisma.TransactionClient): Promise<Story> {
+    const res = await this.storyRepository.saveStoryToDB(story, tx);
     try {
       await this.redisStoryCache.invalidateStoryCache(story.userId);
     } catch (error) {
@@ -151,9 +163,10 @@ export class StoriesService {
 
   private async connectUnknownWords(
     storyId: number,
-    wordIds: { id: number }[]
+    wordIds: { id: number }[],
+    tx: Prisma.TransactionClient
   ): Promise<StoryWithUnknownWords> {
-    return await this.storyRepository.connectUnknownWords(storyId, wordIds);
+    return await this.storyRepository.connectUnknownWords(storyId, wordIds, tx);
   }
 
   private extractUnknownWordIds(unknownWords: UnknownWord[]): { id: number }[] {

@@ -1,5 +1,5 @@
 import { CreateUnknownWordDTO } from "./unknownWord.types";
-import { UnknownWord } from "@prisma/client";
+import { Prisma, UnknownWord } from "@prisma/client";
 import { UnknownWordRepository } from "./unknownWordRepository";
 import { RedisStoryCache } from "@/cache/redisStoryCache";
 import { CustomError } from "@/errors/CustomError";
@@ -14,15 +14,16 @@ export class UnknownWordService {
   async saveUnknownWords(
     unknownWords: CreateUnknownWordDTO[],
     storyId: number,
-    userId: number
+    userId: number,
+    tx: Prisma.TransactionClient
   ): Promise<UnknownWord[]> {
-    const existingWords = await this.unknownWordRepository.getUnknownWords(userId);
+    const existingWords = await this.unknownWordRepository.getUnknownWords(userId, tx);
     const existingWordsMap = this.createWordsMap(existingWords);
 
     const { wordsToSave, wordsToUpdate } = this.partitionWords(unknownWords, existingWordsMap);
 
-    const updatedWords = await this.updateExistingWords(wordsToUpdate, storyId, userId);
-    const savedWords = await this.unknownWordRepository.saveUnknownWords(wordsToSave);
+    const updatedWords = await this.updateExistingWords(wordsToUpdate, storyId, userId, tx);
+    const savedWords = await this.unknownWordRepository.saveUnknownWords(wordsToSave, tx);
 
     return [...updatedWords, ...savedWords];
   }
@@ -61,10 +62,16 @@ export class UnknownWordService {
   private async updateExistingWords(
     wordsToUpdate: UnknownWord[],
     storyId: number,
-    userId: number
+    userId: number,
+    tx: Prisma.TransactionClient
   ): Promise<UnknownWord[]> {
     const tasks = wordsToUpdate.map((word) =>
-      this.unknownWordRepository.updateTimesSeenAndConnectStory(word.id, word.timesSeen, storyId)
+      this.unknownWordRepository.updateTimesSeenAndConnectStory(
+        word.id,
+        word.timesSeen,
+        storyId,
+        tx
+      )
     );
     return await Promise.all(tasks);
   }

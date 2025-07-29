@@ -1,8 +1,13 @@
 import { createLogger, format, transports } from "winston";
 
-const fileFormat = format.combine(format.timestamp(), format.errors({ stack: true }), format.json());
+const fileFormat = format.combine(
+  format.timestamp(),
+  format.errors({ stack: true }),
+  format.json()
+);
 
 const consoleFormat = format.combine(
+  format.errors({ stack: true }),
   format.colorize(),
   format.timestamp(),
   format.printf(({ timestamp, level, message, ...meta }) => {
@@ -14,9 +19,10 @@ const consoleFormat = format.combine(
 
 export const logger = createLogger({
   level: "info",
+  format: consoleFormat,
   transports: [
     new transports.Console({
-      format: consoleFormat,
+      // format: consoleFormat,
     }),
     new transports.File({ filename: "logs/error.log", level: "error", format: fileFormat }),
     new transports.File({ filename: "logs/combined.log", format: fileFormat }),

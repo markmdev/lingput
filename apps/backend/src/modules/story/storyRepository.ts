@@ -1,6 +1,6 @@
 import { Base64 } from "@/types/types";
 import { CreateStoryDTO, StoryWithUnknownWords } from "./story.types";
-import { PrismaClient, Story, UnknownWord } from "@prisma/client";
+import { Prisma, PrismaClient, Story, UnknownWord } from "@prisma/client";
 import { StorageError } from "@/errors/StorageError";
 import { PrismaError } from "@/errors/PrismaError";
 import { SupabaseClient } from "@supabase/supabase-js";
@@ -17,9 +17,17 @@ function base64ToArrayBuffer(base64: Base64) {
 export class StoryRepository {
   constructor(private prisma: PrismaClient, private storageClient: SupabaseClient) {}
 
-  async getAllStories(userId: number): Promise<(Story & { unknownWords: UnknownWord[] })[]> {
+  private getClient(tx?: Prisma.TransactionClient): Prisma.TransactionClient | PrismaClient {
+    return tx ? tx : this.prisma;
+  }
+
+  async getAllStories(
+    userId: number,
+    tx?: Prisma.TransactionClient
+  ): Promise<(Story & { unknownWords: UnknownWord[] })[]> {
+    const client = this.getClient(tx);
     try {
-      const stories = await this.prisma.story.findMany({
+      const stories = await client.story.findMany({
         where: {
           userId,
         },
@@ -37,9 +45,10 @@ export class StoryRepository {
     }
   }
 
-  async saveStoryToDB(story: CreateStoryDTO): Promise<Story> {
+  async saveStoryToDB(story: CreateStoryDTO, tx?: Prisma.TransactionClient): Promise<Story> {
+    const client = this.getClient(tx);
     try {
-      const savedStory = await this.prisma.story.create({
+      const savedStory = await client.story.create({
         data: story,
       });
       return savedStory;
@@ -71,10 +80,12 @@ export class StoryRepository {
 
   async connectUnknownWords(
     storyId: number,
-    wordIds: { id: number }[]
+    wordIds: { id: number }[],
+    tx?: Prisma.TransactionClient
   ): Promise<StoryWithUnknownWords> {
+    const client = this.getClient(tx);
     try {
-      const response = await this.prisma.story.update({
+      const response = await client.story.update({
         where: { id: storyId },
         data: {
           unknownWords: {
