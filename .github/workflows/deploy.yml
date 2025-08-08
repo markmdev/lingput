@@ -31,7 +31,7 @@ jobs:
         uses: einaregilsson/beanstalk-deploy@v18
         with:
           application_name: compinput-aws
-          environment_name: compinput-aws-env
+          environment_name: compinput-aws-env-2023
           existing_bucket_name: elasticbeanstalk-us-east-2-399672341471
           region: us-east-2
           version_label: ${{ github.sha }}

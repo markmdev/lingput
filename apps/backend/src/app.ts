@@ -21,7 +21,7 @@ import {
 
 dotenv.config();
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 4000;
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
