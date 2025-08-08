@@ -5,7 +5,7 @@ services:
       context: ./nginx
       dockerfile: Dockerfile.dev
     ports:
-      - "3050:80"
+      - "80:80"
   lemma:
     image: "markmdev/python_lemmas"
   backend:
