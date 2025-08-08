@@ -1,5 +1,6 @@
 services:
   nginx:
+    mem_limit: 128m
     restart: always
     build:
       context: ./nginx
@@ -7,8 +8,10 @@ services:
     ports:
       - "80:80"
   lemma:
+    mem_limit: 256m
     image: "markmdev/python_lemmas"
   backend:
+    mem_limit: 512m
     build:
       context: ./apps/backend
       dockerfile: Dockerfile.dev
@@ -27,6 +30,7 @@ services:
       - REDIS_STRING=$REDIS_STRING
       - DATABASE_URL=$DATABASE_URL
   worker:
+    mem_limit: 384m
     build:
       context: ./apps/backend
       dockerfile: Dockerfile.dev
@@ -44,6 +48,7 @@ services:
       - REDIS_STRING=$REDIS_STRING
       - DATABASE_URL=$DATABASE_URL
   frontend:
+    mem_limit: 256m
     build:
       context: ./apps/frontend
       dockerfile: Dockerfile.dev

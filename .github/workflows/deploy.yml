@@ -30,8 +30,8 @@ jobs:
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v18
         with:
-          application_name: compinput
-          environment_name: compinput-env
+          application_name: compinput-aws
+          environment_name: compinput-aws-env
           existing_bucket_name: elasticbeanstalk-us-east-2-399672341471
           region: us-east-2
           version_label: ${{ github.sha }}
