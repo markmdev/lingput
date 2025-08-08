@@ -1,0 +1,44 @@
+services:
+  nginx:
+    restart: always
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3050:80"
+  lemma:
+    image: "markmdev/python_lemmas"
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.dev
+    image: markmdev/compinput-backend
+    command: npm run dev
+    env_file:
+      - ./apps/backend/.env
+    environment:
+      - SUPABASE_URL=$SUPABASE_URL
+      - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
+      - PORT=$PORT
+      - OPENAI_API_KEY=$OPENAI_API_KEY
+      - JWT_SECRET=$JWT_SECRET
+      - LEMMA_SERVICE_URL=$LEMMA_SERVICE_URL
+      - FRONTEND_URL=$FRONTEND_URL
+      - REDIS_URL=$REDIS_URL
+      - REDIS_PASSWORD=$REDIS_PASSWORD
+      - REDIS_STRING=$REDIS_STRING
+      - DATABASE_URL=$DATABASE_URL
+  worker:
+    image: "markmdev/compinput-backend"
+    command: npm run worker:dev
+    env_file:
+      - ./apps/backend/.env
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./apps/frontend/.env
+    environment:
+      - NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
+      - NEXT_PUBLIC_AUDIO_BUCKET_URL=$NEXT_PUBLIC_AUDIO_BUCKET_URL

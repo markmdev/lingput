@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+
+# Builds
+.dist
+dist
+build
+coverage
+
+# VCS
+.git
+.gitignore
+
+# Env and configs
+.env
+.env.*
+*.local
+
+# OS/editor
+.DS_Store
+.vscode
+.eslintcache
+
+# Logs and caches
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.cache 
