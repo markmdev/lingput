@@ -27,8 +27,10 @@ services:
       - REDIS_STRING=$REDIS_STRING
       - DATABASE_URL=$DATABASE_URL
   worker:
-    image: "markmdev/compinput-backend"
-    command: npm run worker:dev
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.dev
+    command: npm run worker
     environment:
       - SUPABASE_URL=$SUPABASE_URL
       - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
