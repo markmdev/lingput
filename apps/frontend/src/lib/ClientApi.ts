@@ -64,7 +64,7 @@ export class ClientApi {
 
     while (retries > 0) {
       try {
-        res = await fetch(`${apiUrl}${path}`, {
+        res = await fetch(`${path}`, {
           cache: "no-store",
           headers: {
             "Content-Type": "application/json",

@@ -1,0 +1,35 @@
+services:
+  nginx:
+    restart: unless-stopped
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3050:80"
+  lemma:
+    image: "markmdev/python_lemmas"
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.dev
+    image: markmdev/compinput-backend
+    command: npm run dev
+    env_file:
+      - ./apps/backend/.env
+    volumes:
+      - /app/node_modules
+      - ./apps/backend:/app
+  worker:
+    image: "markmdev/compinput-backend"
+    command: npm run worker:dev
+    env_file:
+      - ./apps/backend/.env
+  frontend:
+    build:
+      context: ./apps/frontend
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./apps/frontend/.env
+    volumes:
+      - /app/node_modules
+      - ./apps/frontend:/app

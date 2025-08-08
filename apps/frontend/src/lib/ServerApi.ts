@@ -50,7 +50,7 @@ export class ServerApi {
   async sendRequest(apiUrl: string, path: string, cookieHeaders: string, options: RequestInit) {
     let res: Response;
     try {
-      res = await fetch(`${apiUrl}${path}`, {
+      res = await fetch(`${path}`, {
         cache: "no-store",
         headers: {
           "Content-Type": "application/json",
