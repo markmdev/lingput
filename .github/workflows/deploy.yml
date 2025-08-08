@@ -16,7 +16,7 @@ jobs:
         run: |
           docker build -t markmdev/compinput-backend ./apps/backend
           docker build -t markmdev/compinput-frontend ./apps/frontend
-          docker build -t markmdev/compinput-nginx ./apps/nginx
+          docker build -t markmdev/compinput-nginx ./nginx
 
       - name: Push images to Docker Hub
         run: |
