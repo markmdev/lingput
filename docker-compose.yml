@@ -1,6 +1,7 @@
 services:
   nginx:
     mem_limit: 128m
+    hostname: nginx
     restart: always
     build:
       context: ./nginx
@@ -8,9 +9,11 @@ services:
     ports:
       - "80:80"
   lemma:
+    hostname: lemma
     mem_limit: 256m
     image: "markmdev/python_lemmas"
   backend:
+    hostname: backend
     mem_limit: 512m
     build:
       context: ./apps/backend
@@ -30,6 +33,7 @@ services:
       - REDIS_STRING=$REDIS_STRING
       - DATABASE_URL=$DATABASE_URL
   worker:
+    hostname: worker
     mem_limit: 384m
     build:
       context: ./apps/backend
@@ -48,6 +52,7 @@ services:
       - REDIS_STRING=$REDIS_STRING
       - DATABASE_URL=$DATABASE_URL
   frontend:
+    hostname: frontend
     mem_limit: 256m
     build:
       context: ./apps/frontend
