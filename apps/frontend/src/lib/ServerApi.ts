@@ -1,5 +1,4 @@
 import { ApiError } from "@/types/ApiError";
-import { EnvError } from "@/types/EnvError";
 import { ErrorResponse } from "@/types/ErrorResponse";
 import { cookies } from "next/headers";
 
