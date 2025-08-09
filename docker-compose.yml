@@ -2,17 +2,16 @@ services:
   nginx:
     mem_limit: 128m
     hostname: nginx
-    restart: always
     image: "markmdev/compinput-nginx"
     ports:
       - "80:80"
   lemma:
     hostname: lemma
-    mem_limit: 256m
+    mem_limit: 128m
     image: "markmdev/python_lemmas"
   backend:
     hostname: backend
-    mem_limit: 512m
+    mem_limit: 128m
     image: "markmdev/compinput-backend"
     command: npm run start
     environment:
@@ -29,7 +28,7 @@ services:
       - DATABASE_URL=$DATABASE_URL
   worker:
     hostname: worker
-    mem_limit: 384m
+    mem_limit: 128m
     image: "markmdev/compinput-worker"
     command: npm run worker
     environment:
@@ -46,5 +45,5 @@ services:
       - DATABASE_URL=$DATABASE_URL
   frontend:
     hostname: frontend
-    mem_limit: 256m
+    mem_limit: 128m
     image: "markmdev/compinput-frontend"
