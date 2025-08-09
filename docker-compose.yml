@@ -3,9 +3,7 @@ services:
     mem_limit: 128m
     hostname: nginx
     restart: always
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile.dev
+    image: "markmdev/compinput-nginx"
     ports:
       - "80:80"
   lemma:
@@ -15,11 +13,8 @@ services:
   backend:
     hostname: backend
     mem_limit: 512m
-    build:
-      context: ./apps/backend
-      dockerfile: Dockerfile.dev
-    image: markmdev/compinput-backend
-    command: npm run dev
+    image: "markmdev/compinput-backend"
+    command: npm run start
     environment:
       - SUPABASE_URL=$SUPABASE_URL
       - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
@@ -35,9 +30,7 @@ services:
   worker:
     hostname: worker
     mem_limit: 384m
-    build:
-      context: ./apps/backend
-      dockerfile: Dockerfile.dev
+    image: "markmdev/compinput-worker"
     command: npm run worker
     environment:
       - SUPABASE_URL=$SUPABASE_URL
@@ -54,9 +47,4 @@ services:
   frontend:
     hostname: frontend
     mem_limit: 256m
-    build:
-      context: ./apps/frontend
-      dockerfile: Dockerfile.dev
-    environment:
-      - NEXT_PUBLIC_BACKEND_URL=$NEXT_PUBLIC_BACKEND_URL
-      - NEXT_PUBLIC_AUDIO_BUCKET_URL=$NEXT_PUBLIC_AUDIO_BUCKET_URL
+    image: "markmdev/compinput-frontend"
