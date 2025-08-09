@@ -21,7 +21,7 @@ export async function middleware(req: NextRequest) {
 
 async function refreshTokenAndContinue(req: NextRequest, refreshToken: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${AUTH_REFRESH_ENDPOINT}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${AUTH_REFRESH_ENDPOINT}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
