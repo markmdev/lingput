@@ -7,7 +7,6 @@ services:
     hostname: backend
     mem_limit: 768m
     image: "markmdev/compinput-backend"
-    command: npm run start
     environment:
       - SUPABASE_URL=$SUPABASE_URL
       - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
