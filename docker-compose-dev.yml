@@ -1,11 +1,19 @@
 services:
-  nginx:
-    restart: unless-stopped
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile.dev
-    ports:
-      - "3050:80"
+  redis:
+    image: "redis:latest"
+  postgres:
+    image: "postgres:latest"
+    environment:
+      - POSTGRES_DB=compinput
+      - POSTGRES_USER=compinput
+      - POSTGRES_PASSWORD=cmpinputpswd
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   lemma:
     image: "markmdev/python_lemmas"
   backend:
@@ -13,17 +21,35 @@ services:
       context: ./apps/backend
       dockerfile: Dockerfile.dev
     image: markmdev/compinput-backend
-    command: npm run dev
     env_file:
       - ./apps/backend/.env
     volumes:
       - /app/node_modules
       - ./apps/backend:/app
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
+      - LEMMA_SERVICE_URL=http://lemma:8000
+      - APP_PORT=4000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      lemma:
+        condition: service_started
   worker:
     image: "markmdev/compinput-backend"
     command: npm run worker:dev
     env_file:
       - ./apps/backend/.env
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
+    depends_on:
+      - backend
   frontend:
     build:
       context: ./apps/frontend
@@ -33,3 +59,30 @@ services:
     volumes:
       - /app/node_modules
       - ./apps/frontend:/app
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:4000
+  nginx:
+    restart: unless-stopped
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3050:80"
+    depends_on:
+      - frontend
+      - backend
+  prisma-studio:
+    image: node:lts-alpine3.17
+    working_dir: /usr/src/app
+    volumes:
+      - .:/usr/src/app
+    command: npx prisma studio --port 5555 --browser none --schema ./apps/backend/prisma/schema.prisma
+    ports:
+      - "5555:5555"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

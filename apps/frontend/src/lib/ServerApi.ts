@@ -24,13 +24,8 @@ export class ServerApi {
     options: RequestInit;
     noRetry?: boolean;
   }): Promise<T> {
-    const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-    if (!backendApiUrl) {
-      throw new EnvError("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
-    }
-
     const cookieHeaders = await this.getCookieHeaders();
-    const res = await this.sendRequest(backendApiUrl, path, cookieHeaders, options);
+    const res = await this.sendRequest(path, cookieHeaders, options);
 
     if (!res.ok) {
       let errorPayload: ErrorResponse;
@@ -47,7 +42,7 @@ export class ServerApi {
     return json.data;
   }
 
-  async sendRequest(apiUrl: string, path: string, cookieHeaders: string, options: RequestInit) {
+  async sendRequest(path: string, cookieHeaders: string, options: RequestInit) {
     let res: Response;
     try {
       res = await fetch(`${path}`, {

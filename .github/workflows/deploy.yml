@@ -14,7 +14,7 @@ jobs:
 
       - name: Build frontend Docker image
         run: |
-          docker build --build-arg NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }} \
+          docker build --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
                       --build-arg NEXT_PUBLIC_AUDIO_BUCKET_URL=${{ secrets.NEXT_PUBLIC_AUDIO_BUCKET_URL }} \
                       -t markmdev/compinput-frontend ./apps/frontend
 

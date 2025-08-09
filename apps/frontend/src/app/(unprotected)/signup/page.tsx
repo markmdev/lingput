@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ApiError } from "@/types/ApiError";
-import { login } from "@/features/auth/api.client";
+import { register } from "@/features/auth/api.client";
 
-export default function LoginPage() {
+export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<ApiError | null>(null);
@@ -15,7 +15,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await login({ email, password });
+      await register({ email, password });
       router.push("/dashboard");
     } catch (error) {
       if (error instanceof ApiError) {
@@ -50,14 +50,14 @@ export default function LoginPage() {
           ></input>
           <button
             type="submit"
-            className="bg-blue-500 py-2 px-10 w-fit text-xl font-semibold rounded-lg text-white self-center mt-4 cursor-pointer"
+            className="bg-green-600 py-2 px-10 w-fit text-xl font-semibold rounded-lg text-white self-center mt-4 cursor-pointer"
           >
-            Login
+            Sign up
           </button>
           <p className="text-sm text-gray-600 self-center mt-2">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-blue-600 underline">
-              Sign up
+            Already have an account?{" "}
+            <Link href="/login" className="text-blue-600 underline">
+              Log in
             </Link>
           </p>
           <p className="text-red-500">{error?.message}</p>

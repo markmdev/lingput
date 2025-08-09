@@ -2,13 +2,15 @@ import { RedisError } from "@/errors/RedisError";
 import { createClient } from "redis";
 import { logger } from "../../utils/logger";
 
-if (!process.env.REDIS_URL) {
-  throw new Error("REDIS_URL environment variable is required");
+if (!process.env.REDIS_HOST || !process.env.REDIS_PORT) {
+  throw new Error("REDIS_HOST and REDIS_PORT environment variables are required");
 }
 
+const redisHost = process.env.REDIS_HOST;
+const redisPort = process.env.REDIS_PORT;
+
 const redisClient = createClient({
-  url: process.env.REDIS_URL,
-  password: process.env.REDIS_PASSWORD,
+  url: `redis://${redisHost}:${redisPort}`,
 });
 
 redisClient.on("error", (err) => {

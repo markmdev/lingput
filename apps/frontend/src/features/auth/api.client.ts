@@ -11,3 +11,15 @@ export async function login({ email, password }: { email: string; password: stri
     noRetry: true,
   });
 }
+
+export async function register({ email, password }: { email: string; password: string }) {
+  const clientApi = new ClientApi();
+  return clientApi.api({
+    path: "/api/auth/register",
+    options: {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    },
+    noRetry: true,
+  });
+}
