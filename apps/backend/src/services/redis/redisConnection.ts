@@ -1,9 +1,12 @@
 import IORedis from "ioredis";
 
-if (!process.env.REDIS_STRING) {
-  throw new Error("REDIS_STRING environment variable is required");
+if (!process.env.REDIS_HOST || !process.env.REDIS_PORT) {
+  throw new Error("REDIS_HOST and REDIS_PORT environment variables are required");
 }
 
-export const redisConnection = new IORedis(process.env.REDIS_STRING, {
+const redisHost = process.env.REDIS_HOST;
+const redisPort = parseInt(process.env.REDIS_PORT);
+
+export const redisConnection = new IORedis(redisPort, redisHost, {
   maxRetriesPerRequest: null,
 });

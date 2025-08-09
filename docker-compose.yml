@@ -17,33 +17,26 @@ services:
     environment:
       - SUPABASE_URL=$SUPABASE_URL
       - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
-      - PORT=$PORT
       - OPENAI_API_KEY=$OPENAI_API_KEY
       - JWT_SECRET=$JWT_SECRET
-      - LEMMA_SERVICE_URL=$LEMMA_SERVICE_URL
-      - FRONTEND_URL=$FRONTEND_URL
-      - REDIS_URL=$REDIS_URL
-      - REDIS_PASSWORD=$REDIS_PASSWORD
-      - REDIS_STRING=$REDIS_STRING
       - DATABASE_URL=$DATABASE_URL
+      - REDIS_HOST=$REDIS_HOST
+      - REDIS_PORT=$REDIS_PORT
+      - APP_PORT=4000
+      - LEMMA_SERVICE_URL=http://lemma:8000
   worker:
     hostname: worker
     mem_limit: 768m
     image: "markmdev/compinput-worker"
     command: npm run worker
     environment:
-      - SUPABASE_URL=$SUPABASE_URL
-      - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
-      - PORT=$PORT
-      - OPENAI_API_KEY=$OPENAI_API_KEY
-      - JWT_SECRET=$JWT_SECRET
-      - LEMMA_SERVICE_URL=$LEMMA_SERVICE_URL
-      - FRONTEND_URL=$FRONTEND_URL
-      - REDIS_URL=$REDIS_URL
-      - REDIS_PASSWORD=$REDIS_PASSWORD
-      - REDIS_STRING=$REDIS_STRING
-      - DATABASE_URL=$DATABASE_URL
+      - REDIS_HOST=$REDIS_HOST
+      - REDIS_PORT=$REDIS_PORT
+    depends_on:
+      - backend
   frontend:
     hostname: frontend
     mem_limit: 1024m
     image: "markmdev/compinput-frontend"
+    depends_on:
+      - backend

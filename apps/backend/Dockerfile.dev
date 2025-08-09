@@ -4,5 +4,6 @@ COPY ./package*.json .
 RUN npm install
 RUN apk add --no-cache ffmpeg
 COPY . .
+RUN chmod +x ./start-dev.sh
 RUN npx prisma generate
-CMD ["npm", "run", "dev"]
+CMD ["sh", "./start-dev.sh"]

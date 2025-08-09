@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { EnvError } from "./types/EnvError";
 
 const AUTH_REFRESH_ENDPOINT = "/api/auth/refresh";
 const protectedPaths = ["/dashboard", "/vocab-assessment"];
@@ -21,13 +20,8 @@ export async function middleware(req: NextRequest) {
 }
 
 async function refreshTokenAndContinue(req: NextRequest, refreshToken: string) {
-  const backendApiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-  if (!backendApiUrl) {
-    throw new EnvError("NEXT_PUBLIC_BACKEND_URL env variable is not set.");
-  }
-
   try {
-    const res = await fetch(`${backendApiUrl}${AUTH_REFRESH_ENDPOINT}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/${AUTH_REFRESH_ENDPOINT}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
