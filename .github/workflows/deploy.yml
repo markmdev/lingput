@@ -12,20 +12,27 @@ jobs:
       - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{secrets.DOCKER_PASSWORD}}
       # Add tests later.
 
+      - name: Build frontend Docker image
+        run: |
+          docker build --build-arg NEXT_PUBLIC_BACKEND_URL=${{ secrets.NEXT_PUBLIC_BACKEND_URL }} \
+                      --build-arg NEXT_PUBLIC_AUDIO_BUCKET_URL=${{ secrets.NEXT_PUBLIC_AUDIO_BUCKET_URL }} \
+                      -t markmdev/compinput-frontend ./apps/frontend
+
       - name: Build production versions of images
         run: |
           docker build -t markmdev/compinput-backend ./apps/backend
-          docker build -t markmdev/compinput-frontend ./apps/frontend
+          docker build -t markmdev/compinput-worker ./apps/backend
           docker build -t markmdev/compinput-nginx ./nginx
 
       - name: Push images to Docker Hub
         run: |
+          docker push markmdev/compinput-frontend
           docker push markmdev/compinput-backend 
-          docker push markmdev/compinput-frontend 
+          docker push markmdev/compinput-worker
           docker push markmdev/compinput-nginx
 
       - name: Generate deployment package
-        run: zip -r deploy.zip . -x '*.git*'
+        run: zip -r deploy.zip Dockerrun.aws.json
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v18
