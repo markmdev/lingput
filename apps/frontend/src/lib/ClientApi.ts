@@ -1,4 +1,3 @@
-import { EnvError } from "@/types/EnvError";
 import { ApiError } from "../types/ApiError";
 import { ErrorResponse } from "../types/ErrorResponse";
 

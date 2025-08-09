@@ -79,6 +79,8 @@ services:
     volumes:
       - .:/usr/src/app
     command: npx prisma studio --port 5555 --browser none --schema ./apps/backend/prisma/schema.prisma
+    environment:
+      - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
     ports:
       - "5555:5555"
     depends_on:
