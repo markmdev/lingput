@@ -32,7 +32,7 @@ jobs:
           docker push markmdev/compinput-nginx
 
       - name: Generate deployment package
-        run: zip -r deploy.zip Dockerrun.aws.json
+        run: zip -r deploy.zip docker-compose.yml
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v18
