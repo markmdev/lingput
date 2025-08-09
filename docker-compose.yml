@@ -1,10 +1,4 @@
 services:
-  nginx:
-    mem_limit: 128m
-    hostname: nginx
-    image: "markmdev/compinput-nginx"
-    ports:
-      - "80:80"
   lemma:
     hostname: lemma
     mem_limit: 768m
@@ -30,8 +24,15 @@ services:
     image: "markmdev/compinput-worker"
     command: npm run worker
     environment:
+      - SUPABASE_URL=$SUPABASE_URL
+      - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
+      - OPENAI_API_KEY=$OPENAI_API_KEY
+      - JWT_SECRET=$JWT_SECRET
+      - DATABASE_URL=$DATABASE_URL
       - REDIS_HOST=$REDIS_HOST
       - REDIS_PORT=$REDIS_PORT
+      - APP_PORT=4000
+      - LEMMA_SERVICE_URL=http://lemma:8000
     depends_on:
       - backend
   frontend:
@@ -39,4 +40,13 @@ services:
     mem_limit: 1024m
     image: "markmdev/compinput-frontend"
     depends_on:
+      - backend
+  nginx:
+    mem_limit: 128m
+    hostname: nginx
+    image: "markmdev/compinput-nginx"
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
       - backend
