@@ -38,9 +38,9 @@ jobs:
         uses: einaregilsson/beanstalk-deploy@v18
         with:
           application_name: compinput
-          environment_name: compinput-env-micro
-          existing_bucket_name: elasticbeanstalk-us-east-2-399672341471
-          region: us-east-2
+          environment_name: compinput-env
+          existing_bucket_name: elasticbeanstalk-us-west-1-399672341471
+          region: us-west-1
           version_label: ${{ github.sha }}
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
