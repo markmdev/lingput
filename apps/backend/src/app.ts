@@ -48,6 +48,10 @@ app.use("/api/auth", authRouter);
 app.use("/api/vocab-assessment", vocabAssessmentModule.router);
 app.use("/api/jobs", jobsModule.router);
 
+app.get("/healthz", (req, res) => {
+  res.status(200).send("OK");
+});
+
 app.use(errorHandler);
 
 const startServer = async () => {
