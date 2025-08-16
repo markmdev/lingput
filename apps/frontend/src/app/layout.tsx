@@ -13,7 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.className} bg-gradient-to-br from-indigo-50 via-white to-slate-50 text-slate-900 antialiased`}
+        className={`${inter.className} min-h-screen bg-gradient-to-br from-indigo-50 via-white to-slate-50 bg-no-repeat bg-fixed text-slate-900 antialiased`}
       >
         {children}
         <ToastContainer />

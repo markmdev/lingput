@@ -146,7 +146,7 @@ export default function DashboardPage() {
           </RightPanel>
         )}
         {viewMode === "newStory" && (
-          <RightPanel styles="bg-radial from-white to-gray-100 from-30% justify-center">
+          <RightPanel styles="bg-radial from-white to-gray-100 from-30% bg-no-repeat justify-center">
             <StoryGeneration
               mutate={mutate}
               setToNewStory={handleClickOnStory}
