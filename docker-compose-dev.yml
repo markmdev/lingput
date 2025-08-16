@@ -48,6 +48,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
+      - LEMMA_SERVICE_URL=http://lemma:8000
     depends_on:
       - backend
   frontend:
