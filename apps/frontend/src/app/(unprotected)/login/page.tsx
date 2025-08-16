@@ -29,7 +29,7 @@ export default function LoginPage() {
       <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-3 justify-center bg-white/80 py-10 px-8 sm:px-16 rounded-2xl shadow-sm border border-slate-100 backdrop-blur-sm w-[90vw] max-w-md">
           <h1 className="text-2xl font-bold text-slate-900 text-center">
-            Log in to comp<span className="text-indigo-600">input</span>
+            Log in to Ling<span className="text-indigo-600">put</span>
           </h1>
           <label htmlFor="email" className="font-medium text-slate-800">
             Email

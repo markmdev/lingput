@@ -3,7 +3,7 @@ import { useState } from "react";
 export default function OnboardingOverlay({ onComplete }: { onComplete: () => void }) {
   const steps: { title: string; description: string }[] = [
     {
-      title: "Welcome to CompInput!",
+      title: "Welcome to Lingput!",
       description:
         "This short tour will help you get started. You can skip it anytime and revisit later.",
     },

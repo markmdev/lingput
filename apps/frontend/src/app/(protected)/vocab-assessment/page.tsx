@@ -10,6 +10,11 @@ import { AssessmentResponse } from "@/features/vocabAssessment/types";
 import ContinueButton from "@/features/vocabAssessment/components/ContinueButton";
 import StartButton from "@/features/vocabAssessment/components/StartButton";
 import { ApiError } from "@/types/ApiError";
+import useSWR from "swr";
+import { VocabApi } from "@/features/vocab/api";
+
+const clientApi = new ClientApi();
+const vocabApi = new VocabApi(clientApi);
 
 export default function VocabAssessmentPage() {
   const clientApi = new ClientApi();
@@ -19,9 +24,20 @@ export default function VocabAssessmentPage() {
   const [status, setStatus] = useState<"loading" | "ready" | "started" | "completed">(
     sessionUUID ? "loading" : "ready"
   );
+  const {
+    data: wordsCount,
+    error,
+    isLoading,
+  } = useSWR("/api/vocab/words-count", () => vocabApi.getWordsCount());
 
   const [apiResponse, setApiResponse] = useState<AssessmentResponse | null>(null);
   const [answer, setAnswer] = useState<Record<number, boolean>>({});
+
+  useEffect(() => {
+    if (typeof wordsCount === "number" && wordsCount !== 0) {
+      router.replace("/dashboard");
+    }
+  }, [wordsCount, router]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -88,18 +104,17 @@ export default function VocabAssessmentPage() {
   const handleWordAnswer = (wordId: number, result: boolean) => {
     setAnswer((oldAnswer) => ({ ...oldAnswer, [wordId]: result }));
   };
-
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center">
       <div className="px-6 py-20 bg-white/80 backdrop-blur-sm border border-slate-100 flex flex-col items-center rounded-2xl w-full md:w-2/3 lg:w-1/2 shadow-sm mx-auto">
         <h1 className="text-xl font-semibold text-slate-900">Vocabulary Assessment</h1>
-        {status === "loading" && (
+        {(status === "loading" || isLoading) && (
           <div className="py-6">
             <p className="text-slate-600">Loading...</p>
           </div>
         )}
 
-        {status === "ready" && (
+        {status === "ready" && !isLoading && wordsCount === 0 && (
           <div className="py-4 flex flex-col items-center">
             <p className="text-slate-700 text-center mt-2 mb-6 max-w-xl">
               To provide you with the most effective and personalized stories, we first need to
@@ -136,9 +151,6 @@ export default function VocabAssessmentPage() {
 
         {status === "completed" && (
           <div className="py-6 flex flex-col items-center justify-center">
-            <p className="font-semibold text-lg text-slate-900">
-              Vocabulary size: {apiResponse?.vocabularySize}
-            </p>
             <form action="/dashboard">
               <button
                 type="submit"
