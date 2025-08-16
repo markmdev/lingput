@@ -44,6 +44,9 @@ services:
     command: npm run worker:dev
     env_file:
       - ./apps/backend/.env
+    volumes:
+      - /app/node_modules
+      - ./apps/backend:/app
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
