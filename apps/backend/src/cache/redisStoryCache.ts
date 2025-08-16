@@ -52,6 +52,10 @@ export class RedisStoryCache extends BaseRedisCache {
     userId: number,
     stories: (Story & { unknownWords: UnknownWord[] })[]
   ): Promise<void> {
+    if (stories.length === 0) {
+      logger.info("Stories array is empty. Not saving to cache");
+      return;
+    }
     const cacheKey = this.getKey(userId);
     await this.setList(
       cacheKey,

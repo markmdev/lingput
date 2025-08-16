@@ -50,7 +50,7 @@ export class AuthService {
     }
 
     const record = await this.authRepository.getRefreshTokenRecord(token);
-    if (!record) {
+    if (!record || !record.token || !record.userId) {
       throw new AuthError("Invalid refresh token", { token, record });
     }
     return record;

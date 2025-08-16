@@ -75,7 +75,7 @@ export class AuthController {
     if (!refreshToken) {
       throw new AuthError("Refresh token not found", null);
     }
-    this.authService.revokeToken(refreshToken);
+    await this.authService.revokeToken(refreshToken);
     res.clearCookie("accessToken").clearCookie("refreshToken").json(formatResponse({}));
   };
 

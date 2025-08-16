@@ -9,7 +9,7 @@ import { Session } from "../session/sessionRepository";
 import { logger } from "@/utils/logger";
 
 const WORDS_PER_BATCH = 15;
-const KNOWLEDGE_THRESHOLD = 0.8;
+const KNOWLEDGE_THRESHOLD = 0.67;
 const MIN_RANGE_FOR_ESTIMATION = 100;
 
 interface SessionState {

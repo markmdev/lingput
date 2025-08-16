@@ -28,7 +28,11 @@ export class SessionRepository {
         sessionUUID,
         status: "active",
       };
-      await this.redis.hSet(cacheKey, session);
+      await this.redis
+        .multi()
+        .hSet(cacheKey, session)
+        .expire(cacheKey, 60 * 60 * 24)
+        .exec();
 
       return session;
     } catch (error) {

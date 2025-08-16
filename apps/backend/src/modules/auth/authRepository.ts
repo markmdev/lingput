@@ -3,11 +3,16 @@ import { AppRedisClient } from "@/services/redis/redisClient";
 export class AuthRepository {
   constructor(private redis: AppRedisClient) {}
 
+  private getKey(key: string) {
+    return `refreshToken:${key}`;
+  }
+
   async saveRefreshToken(refreshToken: string, expiresAt: Date, userId: number) {
+    const key = this.getKey(refreshToken);
     const timestampInSeconds = Math.floor(expiresAt.getTime() / 1000);
     await this.redis
       .multi()
-      .hSet(refreshToken, {
+      .hSet(key, {
         token: refreshToken,
         userId: userId.toString(),
       })
@@ -16,7 +21,9 @@ export class AuthRepository {
   }
 
   async getRefreshTokenRecord(refreshToken: string) {
-    const value = await this.redis.hGetAll(refreshToken);
+    const key = this.getKey(refreshToken);
+    const value = await this.redis.hGetAll(key);
+    if (!value || Object.keys(value).length === 0) return null;
     return {
       token: value.token,
       userId: Number(value.userId),

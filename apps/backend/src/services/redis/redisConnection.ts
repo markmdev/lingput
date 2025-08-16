@@ -10,3 +10,7 @@ const redisPort = parseInt(process.env.REDIS_PORT);
 export const redisConnection = new IORedis(redisPort, redisHost, {
   maxRetriesPerRequest: null,
 });
+
+export const closeIORedisConnection = async () => {
+  await redisConnection.quit();
+};

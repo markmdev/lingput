@@ -9,7 +9,7 @@ import { requestLogger } from "./middlewares/requestLogger";
 import { logger } from "./utils/logger";
 import { prisma } from "./services/prisma";
 import { ApiResponse } from "./types/response.types";
-import { connectRedis } from "./services/redis/redisClient";
+import { closeRedisConnection, connectRedis } from "./services/redis/redisClient";
 import {
   authRouter,
   jobsModule,
@@ -18,6 +18,7 @@ import {
   vocabAssessmentModule,
   vocabularyModule,
 } from "./container";
+import { closeIORedisConnection } from "./services/redis/redisConnection";
 
 dotenv.config();
 const app = express();
@@ -61,14 +62,16 @@ const startServer = async () => {
     logger.info(`Listening on ${port}`);
   });
 
-  const gracefulShutdown = (signal: string) => {
+  const gracefulShutdown = async (signal: string) => {
     logger.info(`Received ${signal}. Stopping server...`);
+    prisma.$disconnect();
+    await closeRedisConnection();
+    await closeIORedisConnection();
     server.close((err) => {
       if (err) {
         logger.error("Error closing server:", err);
         process.exit(1);
       }
-      prisma.$disconnect();
       logger.info("All connections closed. Exiting.");
       process.exit(0);
     });
@@ -89,7 +92,7 @@ const startServer = async () => {
   });
   process.on("unhandledRejection", (reason) => {
     logger.error("Unhandled rejection:", reason);
-    gracefulShutdown("unhandlerRejection");
+    gracefulShutdown("unhandledRejection");
   });
 };
 
