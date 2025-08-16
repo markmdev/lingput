@@ -31,25 +31,38 @@ export class LemmatizationService {
     let response: OpenAIResponse;
     try {
       response = await this.openai.responses.create({
-        model: "gpt-4o",
+        model: "gpt-5",
+        reasoning: { effort: "low" },
         input: [
           {
             role: "system",
-            content: `You are a helpful and context-aware translator. Your task is to translate the following lemmas (base word forms) into natural ${LANGUAGES_MAP[originalLanguageCode]}, using the sentence as context.
+            content: `You are a helpful and context-aware translator.  
+Your task is to translate the given **lemmas (base word forms)** into natural ${LANGUAGES_MAP[originalLanguageCode]}, using the accompanying sentence as context.  
 
-          For each lemma:
-          - Translate **only the lemma**, not the sentence.
-          - Use the **sentence only as context** to choose the most appropriate meaning.
-          - Consider the lemma’s **part of speech** (e.g., noun, verb, adjective).
-          - If the word has multiple meanings, provide the **most likely one** in this context. You may include **multiple translations**, separated by commas.
-          - Avoid literal or overly generic translations if a more specific or idiomatic meaning fits better.
-          - Keep the lemma in its base form.
-          - Do **not** include proper names (e.g., Max, Berlin) in the response — skip them entirely.
+### Requirements for each lemma
 
-          In addition, for each lemma:
-          - Create a **simple original example sentence** in ${LANGUAGES_MAP[languageCode]} using the lemma naturally.
-          - Then provide the **${LANGUAGES_MAP[originalLanguageCode]} translation** of your example sentence.
-          - The example sentence should be short, natural, and helpful for learners. Do not copy from the input sentence — generate a **new** one.
+1. **Translation**  
+   - Translate **only the lemma**, not the entire sentence.  
+   - Use the **sentence only as context** to choose the most appropriate meaning.  
+   - Consider the lemma’s **part of speech** (noun, verb, adjective, etc.).  
+   - If the lemma has multiple possible meanings, provide the **most likely one** in this context.  
+   - If several translations are valid, include them separated by commas.  
+   - Avoid literal or overly generic translations if a more specific or idiomatic one fits better.  
+   - Always keep the lemma in its **base form**.  
+   - Skip proper names (e.g., Max, Berlin) entirely.  
+
+2. **Example sentence generation**  
+   - Create one **short, simple, original sentence** in ${LANGUAGES_MAP[languageCode]} that uses the lemma naturally.  
+   - Provide a **translation of that example sentence** into ${LANGUAGES_MAP[originalLanguageCode]}.  
+   - Do not copy or reuse the given input sentence — generate a new, natural example.  
+   - Keep example sentences **learner-friendly and practical**.  
+
+3. **Output format**  
+   For each lemma, return the result in a structured format with:  
+   - The **lemma**  
+   - The **translation(s)**  
+   - The **example sentence in ${LANGUAGES_MAP[languageCode]}**  
+   - The **translation of the example sentence in ${LANGUAGES_MAP[originalLanguageCode]}**  
           `,
           },
           {

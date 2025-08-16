@@ -26,7 +26,7 @@ const port = process.env.APP_PORT || 4000;
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 100,
+  limit: 1000,
   legacyHeaders: false,
   message: {
     success: false,

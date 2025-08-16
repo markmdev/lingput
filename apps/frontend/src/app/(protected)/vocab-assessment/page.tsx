@@ -135,13 +135,18 @@ export default function VocabAssessmentPage() {
         )}
 
         {status === "completed" && (
-          <div className="py-6">
+          <div className="py-6 flex flex-col items-center justify-center">
             <p className="font-semibold text-lg text-slate-900">
               Vocabulary size: {apiResponse?.vocabularySize}
             </p>
-            <button className="py-2.5 px-6 text-lg font-semibold rounded-lg w-fit bg-emerald-500 cursor-pointer text-white hover:bg-emerald-600 transition-colors">
-              Continue
-            </button>
+            <form action="/dashboard">
+              <button
+                type="submit"
+                className="py-2.5 px-6 text-lg font-semibold rounded-lg w-fit bg-emerald-500 cursor-pointer text-white hover:bg-emerald-600 transition-colors"
+              >
+                Continue
+              </button>
+            </form>
           </div>
         )}
       </div>

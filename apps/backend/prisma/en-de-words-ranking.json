@@ -1,97 +1,7 @@
 [
     {
-        "word": "der",
-        "translation": "the",
-        "article": "das"
-    },
-    {
-        "word": "ein",
-        "translation": "a, an",
-        "article": null
-    },
-    {
-        "word": "werden",
-        "translation": "to become, to get, will",
-        "article": null
-    },
-    {
-        "word": "haben",
-        "translation": "to have",
-        "article": null
-    },
-    {
-        "word": "ihr",
-        "translation": "you (pl./informal), her, their, hers, theirs",
-        "article": null
-    },
-    {
-        "word": "ihr",
-        "translation": "your (formal)",
-        "article": null
-    },
-    {
         "word": "sich",
         "translation": "herself, himself, itself, yourself, themselves, oneself",
-        "article": null
-    },
-    {
-        "word": "auch",
-        "translation": "also, too, as well",
-        "article": null
-    },
-    {
-        "word": "nicht",
-        "translation": "not, no",
-        "article": null
-    },
-    {
-        "word": "sie",
-        "translation": "you (formal)",
-        "article": null
-    },
-    {
-        "word": "sie",
-        "translation": "she, her, they, them, it",
-        "article": null
-    },
-    {
-        "word": "ihnen",
-        "translation": "them",
-        "article": null
-    },
-    {
-        "word": "ihnen",
-        "translation": "you (formal)",
-        "article": null
-    },
-    {
-        "word": "ihn",
-        "translation": "him, it",
-        "article": null
-    },
-    {
-        "word": "als",
-        "translation": "as, when, than, as if",
-        "article": null
-    },
-    {
-        "word": "unser",
-        "translation": "our",
-        "article": null
-    },
-    {
-        "word": "können",
-        "translation": "to be able to, to can",
-        "article": null
-    },
-    {
-        "word": "dass",
-        "translation": "that",
-        "article": null
-    },
-    {
-        "word": "dieser",
-        "translation": "this, that, these",
         "article": null
     },
     {
@@ -100,64 +10,9 @@
         "article": "die"
     },
     {
-        "word": "uns",
-        "translation": "us, ourselves, each other",
-        "article": null
-    },
-    {
-        "word": "wir",
-        "translation": "we",
-        "article": null
-    },
-    {
-        "word": "wie",
-        "translation": "how, like, as, such as, what",
-        "article": null
-    },
-    {
         "word": "Jahr",
         "translation": "year",
         "article": "das"
-    },
-    {
-        "word": "bis",
-        "translation": "to, up to, until, till, by",
-        "article": null
-    },
-    {
-        "word": "ich",
-        "translation": "I",
-        "article": null
-    },
-    {
-        "word": "mir",
-        "translation": "me",
-        "article": null
-    },
-    {
-        "word": "mich",
-        "translation": "me, myself",
-        "article": null
-    },
-    {
-        "word": "aber",
-        "translation": "but",
-        "article": null
-    },
-    {
-        "word": "noch",
-        "translation": "still, even, even more, yet",
-        "article": null
-    },
-    {
-        "word": "vor",
-        "translation": "in front of, before, ago, from",
-        "article": null
-    },
-    {
-        "word": "all",
-        "translation": "all, every, everyone, everybody, everything",
-        "article": null
     },
     {
         "word": "sagen",
@@ -170,53 +25,8 @@
         "article": null
     },
     {
-        "word": "über",
-        "translation": "above, over, about, across, via",
-        "article": null
-    },
-    {
-        "word": "oder",
-        "translation": "or",
-        "article": null
-    },
-    {
-        "word": "was",
-        "translation": "what",
-        "article": null
-    },
-    {
-        "word": "müssen",
-        "translation": "to have to, to need to, to must",
-        "article": null
-    },
-    {
-        "word": "nur",
-        "translation": "only, just, simply",
-        "article": null
-    },
-    {
-        "word": "man",
-        "translation": "one, you, they",
-        "article": null
-    },
-    {
-        "word": "sollen",
-        "translation": "should, shall, to ought to, to be supposed to",
-        "article": null
-    },
-    {
         "word": "viel",
         "translation": "a lot, much, way",
-        "article": null
-    },
-    {
-        "word": "wenn",
-        "translation": "if, when",
-        "article": null
-    },
-    {
-        "word": "mehr",
-        "translation": "more, further",
         "article": null
     },
     {
@@ -235,16 +45,6 @@
         "article": null
     },
     {
-        "word": "erst",
-        "translation": "first, only, not until",
-        "article": null
-    },
-    {
-        "word": "der",
-        "translation": "first, 1st",
-        "article": "der"
-    },
-    {
         "word": "erster",
         "translation": "first",
         "article": null
@@ -252,11 +52,6 @@
     {
         "word": "untere",
         "translation": "lower, bottom",
-        "article": null
-    },
-    {
-        "word": "unter",
-        "translation": "under, among, below, beneath",
         "article": null
     },
     {
@@ -270,33 +65,8 @@
         "article": null
     },
     {
-        "word": "kein",
-        "translation": "no, not a",
-        "article": null
-    },
-    {
-        "word": "wollen",
-        "translation": "to want",
-        "article": null
-    },
-    {
         "word": "machen",
         "translation": "to do, to make",
-        "article": null
-    },
-    {
-        "word": "wieder",
-        "translation": "again",
-        "article": null
-    },
-    {
-        "word": "gegen",
-        "translation": "against, towards, to",
-        "article": null
-    },
-    {
-        "word": "dann",
-        "translation": "then, afterwards",
         "article": null
     },
     {
@@ -305,18 +75,8 @@
         "article": null
     },
     {
-        "word": "durch",
-        "translation": "by, through, due to, across",
-        "article": null
-    },
-    {
         "word": "stehen",
         "translation": "to stand, to be",
-        "article": null
-    },
-    {
-        "word": "schon",
-        "translation": "already, yet, even",
         "article": null
     },
     {
@@ -325,23 +85,8 @@
         "article": "der"
     },
     {
-        "word": "ihm",
-        "translation": "him",
-        "article": null
-    },
-    {
         "word": "anderer",
         "translation": "other, another",
-        "article": null
-    },
-    {
-        "word": "der",
-        "translation": "their, whose",
-        "article": null
-    },
-    {
-        "word": "der",
-        "translation": "whose, its, his",
         "article": null
     },
     {
@@ -350,29 +95,9 @@
         "article": null
     },
     {
-        "word": "immer",
-        "translation": "always, constantly, all the time",
-        "article": null
-    },
-    {
-        "word": "doch",
-        "translation": "however, still, nevertheless, after all",
-        "article": null
-    },
-    {
         "word": "Mensch",
         "translation": "human (being), person, man, people",
         "article": "der"
-    },
-    {
-        "word": "dabei",
-        "translation": "thereby, there, with it, in doing so, at the same time, while doing",
-        "article": null
-    },
-    {
-        "word": "sehr",
-        "translation": "very (much), really, a lot, highly, greatly, extremely",
-        "article": null
     },
     {
         "word": "weit",
@@ -390,18 +115,8 @@
         "article": "das"
     },
     {
-        "word": "nun",
-        "translation": "now, then",
-        "article": null
-    },
-    {
         "word": "lassen",
         "translation": "to let, to allow, to leave",
-        "article": null
-    },
-    {
-        "word": "jeder",
-        "translation": "every, each, any, everyone, everybody",
         "article": null
     },
     {
@@ -413,16 +128,6 @@
         "word": "Tag",
         "translation": "day",
         "article": "der"
-    },
-    {
-        "word": "damit",
-        "translation": "so that",
-        "article": null
-    },
-    {
-        "word": "jetzt",
-        "translation": "now, currently",
-        "article": null
     },
     {
         "word": "ganz",
@@ -470,11 +175,6 @@
         "article": null
     },
     {
-        "word": "denn",
-        "translation": "because, since",
-        "article": null
-    },
-    {
         "word": "alt",
         "translation": "old",
         "article": null
@@ -495,11 +195,6 @@
         "article": null
     },
     {
-        "word": "ohne",
-        "translation": "without",
-        "article": null
-    },
-    {
         "word": "Frau",
         "translation": "woman, wife, Mrs.",
         "article": "die"
@@ -510,38 +205,13 @@
         "article": null
     },
     {
-        "word": "sowie",
-        "translation": "as well as, as soon as",
-        "article": null
-    },
-    {
         "word": "Woche",
         "translation": "week",
         "article": "die"
     },
     {
-        "word": "weil",
-        "translation": "because, as",
-        "article": null
-    },
-    {
         "word": "klein",
         "translation": "small, little, short, tiny, minor",
-        "article": null
-    },
-    {
-        "word": "heute",
-        "translation": "today, nowadays",
-        "article": null
-    },
-    {
-        "word": "dürfen",
-        "translation": "to be allowed, may, can",
-        "article": null
-    },
-    {
-        "word": "zwischen",
-        "translation": "between, among",
         "article": null
     },
     {
@@ -557,11 +227,6 @@
     {
         "word": "hoch",
         "translation": "high, tall",
-        "article": null
-    },
-    {
-        "word": "dort",
-        "translation": "there, over there",
         "article": null
     },
     {
@@ -640,33 +305,13 @@
         "article": null
     },
     {
-        "word": "dazu",
-        "translation": "in addition, furthermore, to that, for this",
-        "article": null
-    },
-    {
-        "word": "wer",
-        "translation": "who",
-        "article": null
-    },
-    {
         "word": "wichtig",
         "translation": "important",
         "article": null
     },
     {
-        "word": "dafür",
-        "translation": "for it, for this, for that",
-        "article": null
-    },
-    {
         "word": "nächster",
         "translation": "next",
-        "article": null
-    },
-    {
-        "word": "wem",
-        "translation": "who ... to, to whom, who",
         "article": null
     },
     {
@@ -715,11 +360,6 @@
         "article": "das"
     },
     {
-        "word": "sondern",
-        "translation": "but",
-        "article": null
-    },
-    {
         "word": "führen",
         "translation": "to lead, to guide, to conduct, to manage, to wage",
         "article": null
@@ -732,11 +372,6 @@
     {
         "word": "einmal",
         "translation": "once, one day",
-        "article": null
-    },
-    {
-        "word": "während",
-        "translation": "while, whereas",
         "article": null
     },
     {
@@ -795,11 +430,6 @@
         "article": null
     },
     {
-        "word": "also",
-        "translation": "so, therefore",
-        "article": null
-    },
-    {
         "word": "einfach",
         "translation": "simple, easy",
         "article": null
@@ -850,11 +480,6 @@
         "article": null
     },
     {
-        "word": "mögen",
-        "translation": "to like, to want",
-        "article": null
-    },
-    {
         "word": "Frage",
         "translation": "question",
         "article": "die"
@@ -867,11 +492,6 @@
     {
         "word": "gerade",
         "translation": "straight, even",
-        "article": null
-    },
-    {
-        "word": "zwar",
-        "translation": "although, indeed, admittedly, to be precise, certainly",
         "article": null
     },
     {
@@ -893,11 +513,6 @@
         "word": "Minute",
         "translation": "minute",
         "article": "die"
-    },
-    {
-        "word": "mein",
-        "translation": "my, mine",
-        "article": null
     },
     {
         "word": "davon",
@@ -945,11 +560,6 @@
         "article": null
     },
     {
-        "word": "jedoch",
-        "translation": "however, but, though",
-        "article": null
-    },
-    {
         "word": "Unternehmen",
         "translation": "enterprise, company, business, firm",
         "article": "das"
@@ -965,18 +575,8 @@
         "article": "das"
     },
     {
-        "word": "welcher",
-        "translation": "which, what",
-        "article": null
-    },
-    {
         "word": "brauchen",
         "translation": "to need, to require",
-        "article": null
-    },
-    {
-        "word": "solch",
-        "translation": "such",
         "article": null
     },
     {
@@ -993,11 +593,6 @@
         "word": "Grund",
         "translation": "reason, cause, occasion, bottom, ground",
         "article": "der"
-    },
-    {
-        "word": "darauf",
-        "translation": "on it, to it, on that",
-        "article": null
     },
     {
         "word": "Problem",
@@ -1045,18 +640,8 @@
         "article": null
     },
     {
-        "word": "gar",
-        "translation": "at all, even",
-        "article": null
-    },
-    {
         "word": "schön",
         "translation": "beautiful, nice",
-        "article": null
-    },
-    {
-        "word": "dir",
-        "translation": "you (informal), yourself",
         "article": null
     },
     {
@@ -1085,11 +670,6 @@
         "article": null
     },
     {
-        "word": "dich",
-        "translation": "you (informal), yourself",
-        "article": null
-    },
-    {
         "word": "nie",
         "translation": "never",
         "article": null
@@ -1105,16 +685,6 @@
         "article": null
     },
     {
-        "word": "nein",
-        "translation": "no",
-        "article": null
-    },
-    {
-        "word": "der",
-        "translation": "whom, those, that",
-        "article": null
-    },
-    {
         "word": "bestehen",
         "translation": "to exist, to insist, to pass, to consist, to persist",
         "article": null
@@ -1123,11 +693,6 @@
         "word": "Wort",
         "translation": "word",
         "article": "das"
-    },
-    {
-        "word": "eben",
-        "translation": "even, flat, level, plane, planar",
-        "article": null
     },
     {
         "word": "denken",
@@ -1157,11 +722,6 @@
     {
         "word": "laufen",
         "translation": "to run, to go, to walk",
-        "article": null
-    },
-    {
-        "word": "warum",
-        "translation": "why",
         "article": null
     },
     {
@@ -1205,11 +765,6 @@
         "article": null
     },
     {
-        "word": "dein",
-        "translation": "your (informal)",
-        "article": null
-    },
-    {
         "word": "glauben",
         "translation": "to believe, to think",
         "article": null
@@ -1250,11 +805,6 @@
         "article": null
     },
     {
-        "word": "darüber",
-        "translation": "above it, about it",
-        "article": null
-    },
-    {
         "word": "ziehen",
         "translation": "to pull, to drag, to draw, to move",
         "article": null
@@ -1267,11 +817,6 @@
     {
         "word": "vielleicht",
         "translation": "perhaps, maybe",
-        "article": null
-    },
-    {
-        "word": "ein",
-        "translation": "a few",
         "article": null
     },
     {
@@ -1390,11 +935,6 @@
         "article": "die"
     },
     {
-        "word": "meinen",
-        "translation": "to think, to mean, to say",
-        "article": null
-    },
-    {
         "word": "suchen",
         "translation": "to search, to look for, to seek",
         "article": null
@@ -1470,11 +1010,6 @@
         "article": "die"
     },
     {
-        "word": "darin",
-        "translation": "in it, therein, in there",
-        "article": null
-    },
-    {
         "word": "schließlich",
         "translation": "in the end, finally, eventually, after all",
         "article": null
@@ -1528,11 +1063,6 @@
         "word": "Person",
         "translation": "person",
         "article": "die"
-    },
-    {
-        "word": "daher",
-        "translation": "from there, therefore, thus, as a result, that's why",
-        "article": null
     },
     {
         "word": "Ziel",
@@ -1710,11 +1240,6 @@
         "article": "der"
     },
     {
-        "word": "dadurch",
-        "translation": "through it, thus, as a result, thereby, in this way",
-        "article": null
-    },
-    {
         "word": "zunächst",
         "translation": "first, at first, initially, for now",
         "article": null
@@ -1762,11 +1287,6 @@
     {
         "word": "versuchen",
         "translation": "to try, to attempt",
-        "article": null
-    },
-    {
-        "word": "jener",
-        "translation": "that, those",
         "article": null
     },
     {
@@ -2040,11 +1560,6 @@
         "article": null
     },
     {
-        "word": "danach",
-        "translation": "after it, afterwards, then, accordingly",
-        "article": null
-    },
-    {
         "word": "anbieten",
         "translation": "to offer",
         "article": null
@@ -2175,11 +1690,6 @@
         "article": "die"
     },
     {
-        "word": "außerdem",
-        "translation": "besides, also, in addition, furthermore, moreover",
-        "article": null
-    },
-    {
         "word": "nutzen",
         "translation": "to use, to utilize, to utilise, to take advantage",
         "article": null
@@ -2258,11 +1768,6 @@
         "word": "Programm",
         "translation": "programme",
         "article": "das"
-    },
-    {
-        "word": "mancher",
-        "translation": "some, many a",
-        "article": null
     },
     {
         "word": "bald",
@@ -2738,11 +2243,6 @@
         "word": "Zeitung",
         "translation": "newspaper, paper",
         "article": "die"
-    },
-    {
-        "word": "wann",
-        "translation": "when",
-        "article": null
     },
     {
         "word": "kaufen",
@@ -3625,11 +3125,6 @@
         "article": "das"
     },
     {
-        "word": "dennoch",
-        "translation": "nevertheless, nonetheless, however, still, anyway",
-        "article": null
-    },
-    {
         "word": "historisch",
         "translation": "historical, historic",
         "article": null
@@ -4278,11 +3773,6 @@
         "word": "Wunsch",
         "translation": "wish, request, desire",
         "article": "der"
-    },
-    {
-        "word": "darunter",
-        "translation": "under it, below it, among them, underneath, beneath",
-        "article": null
     },
     {
         "word": "verdienen",
@@ -4937,11 +4427,6 @@
     {
         "word": "schützen",
         "translation": "to protect",
-        "article": null
-    },
-    {
-        "word": "vielmehr",
-        "translation": "rather, in fact, on the contrary",
         "article": null
     },
     {
@@ -5670,11 +5155,6 @@
         "article": "der"
     },
     {
-        "word": "dahin",
-        "translation": "there",
-        "article": null
-    },
-    {
         "word": "Gericht",
         "translation": "court, dish",
         "article": "das"
@@ -5882,11 +5362,6 @@
     {
         "word": "jährlich",
         "translation": "annual(ly), yearly, every year, each year",
-        "article": null
-    },
-    {
-        "word": "hingegen",
-        "translation": "on the other hand, on the contrary, in contrast",
         "article": null
     },
     {
@@ -7385,11 +6860,6 @@
         "article": "der"
     },
     {
-        "word": "davor",
-        "translation": "before it, before that, prior to that, in front of",
-        "article": null
-    },
-    {
         "word": "Hauptstadt",
         "translation": "capital city",
         "article": "die"
@@ -7762,11 +7232,6 @@
     {
         "word": "achten",
         "translation": "to respect, to pay attention",
-        "article": null
-    },
-    {
-        "word": "euer",
-        "translation": "your (pl./informal)",
         "article": null
     },
     {
@@ -9545,11 +9010,6 @@
         "article": "der"
     },
     {
-        "word": "nein",
-        "translation": "no",
-        "article": "das"
-    },
-    {
         "word": "Link",
         "translation": "link",
         "article": "der"
@@ -9928,11 +9388,6 @@
         "word": "Fach",
         "translation": "compartment, subject, shelf, pocket, field",
         "article": "das"
-    },
-    {
-        "word": "euch",
-        "translation": "you (pl./informal), yourselves",
-        "article": null
     },
     {
         "word": "inner",
@@ -10413,11 +9868,6 @@
         "word": "Mama",
         "translation": "mum, mummy, mamma",
         "article": "die"
-    },
-    {
-        "word": "wieso",
-        "translation": "why",
-        "article": null
     },
     {
         "word": "ausmachen",
@@ -11487,11 +10937,6 @@
     {
         "word": "weinen",
         "translation": "to cry, to weep",
-        "article": null
-    },
-    {
-        "word": "weshalb",
-        "translation": "why",
         "article": null
     },
     {
@@ -12578,11 +12023,6 @@
         "word": "Katastrophe",
         "translation": "disaster, catastrophe",
         "article": "die"
-    },
-    {
-        "word": "hierzu",
-        "translation": "to this, for this purpose, concerning this",
-        "article": null
     },
     {
         "word": "indes",
@@ -14003,11 +13443,6 @@
         "word": "Regal",
         "translation": "shelf",
         "article": "das"
-    },
-    {
-        "word": "quasi",
-        "translation": "almost, virtually, practically",
-        "article": null
     },
     {
         "word": "Notwendigkeit",

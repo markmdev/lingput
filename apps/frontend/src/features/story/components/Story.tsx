@@ -15,17 +15,21 @@ export default function StoryComponent({
     throw new EnvError("NEXT_PUBLIC_AUDIO_BUCKET_URL env variable is not set.");
   }
 
-  if (story) {
-    story.unknownWords = story.unknownWords.sort((a, b) => {
-      if (a.status === "learning" && b.status === "learned") return -1;
-      if (a.status === "learned" && b.status === "learning") return 1;
-
-      return b.timesSeen - a.timesSeen;
-    });
-  }
-
   const [showTranslation, setShowTranslation] = useState(false);
   const [wordTranslationsBlurred, setWordTranslationsBlurred] = useState(true);
+  const [showLearned, setShowLearned] = useState(false);
+
+  const learningWords = story
+    ? story.unknownWords
+        .filter((w) => w.status === "learning")
+        .sort((a, b) => b.timesSeen - a.timesSeen)
+    : [];
+
+  const learnedWords = story
+    ? story.unknownWords
+        .filter((w) => w.status === "learned")
+        .sort((a, b) => b.timesSeen - a.timesSeen)
+    : [];
   return (
     <>
       {/* TOP */}
@@ -96,9 +100,15 @@ export default function StoryComponent({
               </p>
             )}
           </div>
+
+          {/* Learning group */}
+          <div className="flex flex-row items-center justify-between">
+            <h4 className="font-semibold text-slate-900">Learning</h4>
+            {story && <span className="text-xs text-slate-500">({learningWords.length})</span>}
+          </div>
           <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
             {story
-              ? story.unknownWords.map((unknownWord) => (
+              ? learningWords.map((unknownWord) => (
                   <UnknownWordComponent
                     key={unknownWord.id}
                     unknownWord={unknownWord}
@@ -110,6 +120,41 @@ export default function StoryComponent({
                   <Skeleton key={index} height={180} baseColor="#eef2ff" highlightColor="#f8fafc" />
                 ))}
           </div>
+
+          {/* Learned group */}
+          <div className="flex flex-row gap-2 items-center">
+            <h4 className="font-semibold text-slate-900">Learned</h4>
+            <p
+              className={`cursor-pointer py-1 rounded-full font-semibold text-xs px-3 shadow-sm ${
+                showLearned ? "bg-rose-500 text-white" : "bg-emerald-500 text-white"
+              }`}
+              onClick={() => setShowLearned(!showLearned)}
+            >
+              {showLearned ? "Hide" : "Show"}
+            </p>
+            {story && <span className="text-xs text-slate-500">({learnedWords.length})</span>}
+          </div>
+          {showLearned && (
+            <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {story
+                ? learnedWords.map((unknownWord) => (
+                    <UnknownWordComponent
+                      key={unknownWord.id}
+                      unknownWord={unknownWord}
+                      onWordStatusChange={onWordStatusChange}
+                      globalBlurState={wordTranslationsBlurred}
+                    />
+                  ))
+                : Array.from({ length: 8 }, (_, index) => (
+                    <Skeleton
+                      key={index}
+                      height={180}
+                      baseColor="#eef2ff"
+                      highlightColor="#f8fafc"
+                    />
+                  ))}
+            </div>
+          )}
         </div>
       </div>
     </>

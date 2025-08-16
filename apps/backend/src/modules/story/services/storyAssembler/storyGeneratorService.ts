@@ -1,7 +1,7 @@
 import { OpenAIError } from "@/errors/OpenAIError";
 import { LanguageCode, LANGUAGES_MAP } from "@/utils/languages";
 import OpenAI from "openai";
-import { ChatCompletion } from "openai/resources/chat/completions";
+import { Response as OpenAIResponse } from "openai/resources/responses/responses";
 
 export class StoryGeneratorService {
   constructor(private openai: OpenAI) {}
@@ -10,35 +10,41 @@ export class StoryGeneratorService {
     subject: string,
     languageCode: LanguageCode
   ): Promise<string> {
-    let response: ChatCompletion;
+    let response: OpenAIResponse;
     try {
-      response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
+      response = await this.openai.responses.create({
+        model: "gpt-5",
+        reasoning: { effort: "low" },
+        input: [
           {
             role: "system",
             content: `
-                You are given a list of ${LANGUAGES_MAP[languageCode]} words that I've learned. I want to practice reading now. I want you to create a story in ${LANGUAGES_MAP[languageCode]}. But this story should meet some requirements:
-    
-                1. 98% of the words in the story should be the words from the list I provided. Other words should be new to me, but similar by level of difficulty. It means that from 20 words in the story, 19 should be from the list, and 1 should be new. This is very important.
-                2. All story should use only present tense
-                3. Use these guidelines to create an engagement story:
-                - Avoid using very generalized phrasing
-                - Add a personal voice/tone/touch to the text
-                - Don't overuse repetitive sentence structures
-                - Avoid using very polished and neutral tone
-                - Use specific examples
-                - Don't use artificially smooth transitions
-                - Avoid generic and overexplained points
-                - Avoid formulaic expressions
-                - Use natural flow and variations in sentence structure
-                - Always use specific personal details, to make the text look like it was written by a human. Add such details, that only a real human being could include in the text.
-                4. Use various grammar structures, to practice all grammar rules.
-    
-                Create a story that is engaging and interesting to read.
-                Here is a subject of the story:
-                ${subject}
-                Make it 2 sentences long.
+                You are given a list of ${LANGUAGES_MAP[languageCode]} words that the user has learned.  
+Your task: create a very short story (3–5 sentences) in ${LANGUAGES_MAP[languageCode]}.  
+
+Requirements:  
+
+1. **Vocabulary**  
+   - Use mostly words from the list.  
+   - Sometimes add new words (on average ~1 per sentence), but only if it sounds natural and the difficulty is similar to the given words.  
+   - Do not force a new word if it makes the sentence unnatural.  
+   - You are not required to use all the words provided by the user. You can only use some of them.
+
+2. **Grammar**  
+   - All sentences must be grammatically correct.  
+   - Adapt your grammar to the level of the words used. If the words are very simple, use simple grammar. If the user knows more complex words, use more complex grammar as well.
+   - Vary sentence structures (statements, questions, negations, conjunctions, or subclauses).  
+
+3. **Style**  
+   - Focus on natural, authentic sentences, that are used in everyday life  
+   - Avoid textbook-like or robotic phrasing.  
+   - Add small, concrete details (objects, feelings, places) to make the story vivid.  
+   - Keep a natural rhythm: vary sentence length and structure.  
+
+**Priority order:**  
+1. Grammar correctness  
+2. Naturalness of sentences  
+3. Vocabulary balance
                 `,
           },
           {
@@ -51,7 +57,7 @@ export class StoryGeneratorService {
       throw new OpenAIError("Unable to generate a story", error, { subject });
     }
 
-    const story = response.choices[0].message.content;
+    const story = response.output_text;
     if (!story) {
       throw new OpenAIError("Unable to generate a story", null, { targetLanguageWords, subject });
     }

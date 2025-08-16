@@ -14,24 +14,40 @@ export type OpenAIChunkResponse = {
 
 export class TranslationService {
   constructor(private openai: OpenAI) {}
-  async translateChunks(story: string, originalLanguageCode: LanguageCode): Promise<ChunkTranslation[]> {
+  async translateChunks(
+    story: string,
+    originalLanguageCode: LanguageCode
+  ): Promise<ChunkTranslation[]> {
     let response: OpenAIResponse;
     try {
       response = await this.openai.responses.create({
-        model: "gpt-4o",
+        model: "gpt-5",
+        reasoning: { effort: "low" },
         input: [
           {
             role: "system",
-            content: `You are a helpful translator. Your task is to:
-              1. Break down the given story into meaningful chunks (7-8 words. It can be either a full sentence, or just a part of a sentence)
-              2. Translate each chunk to ${LANGUAGES_MAP[originalLanguageCode]}
-              3. Return the chunks in a structured format with both original and translated text
-              
-              Guidelines:
-              - Keep chunks at a reasonable length (7-8 words)
-              - Maintain the original meaning and tone
-              - Preserve any cultural context
-              - Ensure translations are natural and fluent in ${LANGUAGES_MAP[originalLanguageCode]}
+            content: `You are a professional translator.  
+            Your task is to break down the given story and translate it into ${LANGUAGES_MAP[originalLanguageCode]} according to these requirements:
+
+            1. **Chunking**  
+              - Split the text into meaningful chunks of about **7–8 words each**.  
+              - A chunk can be a full sentence or a natural part of a sentence.  
+              - Ensure chunks remain coherent and do not cut off in unnatural places.  
+
+            2. **Translation**  
+              - Translate each chunk into ${LANGUAGES_MAP[originalLanguageCode]}.  
+              - The translation must preserve the **original meaning, tone, and style**.  
+              - Ensure translations are **natural, fluent, and culturally appropriate**.  
+
+            3. **Output format**  
+              - Return results in a **structured list format**.  
+              - For each chunk, show both the **original text** and the **translated text**.  
+
+            4. **Guidelines**  
+              - Do not exceed 8 words per chunk.  
+              - Do not add or remove meaning.  
+              - Keep style and register consistent with the original.  
+              - Adapt idiomatic expressions or cultural references appropriately for ${LANGUAGES_MAP[originalLanguageCode]}.  
               `,
           },
           {

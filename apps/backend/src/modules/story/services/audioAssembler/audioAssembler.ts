@@ -18,7 +18,12 @@ export class AudioAssembler {
     languageCode: LanguageCode,
     originalLanguageCode: LanguageCode
   ): Promise<string> {
-    const audio = await this.createAudioForStory(translationChunks, unknownWords, languageCode, originalLanguageCode);
+    const audio = await this.createAudioForStory(
+      translationChunks,
+      unknownWords,
+      languageCode,
+      originalLanguageCode
+    );
     const audioUrl = await this.storyAudioStorageService.saveToStorage(audio);
     return audioUrl;
   }
@@ -35,7 +40,12 @@ export class AudioAssembler {
 
     const germanAudioBase64 = await Promise.all(
       translationChunks.flatMap((chunk) => [
-        this.textToSpeechService.textToSpeech(chunk.chunk, true, languageCode, originalLanguageCode),
+        this.textToSpeechService.textToSpeech(
+          chunk.chunk,
+          true,
+          languageCode,
+          originalLanguageCode
+        ),
         veryShortSilenceBase64,
       ])
     );
@@ -47,37 +57,24 @@ export class AudioAssembler {
       originalLanguageCode
     );
 
-    const translationTransitionAudioBase64 = await this.textToSpeechService.textToSpeech(
-      "Now listen to the new vocabulary and try to remember it.",
-      false,
-      languageCode,
-      originalLanguageCode
-    );
+    // const translationTransitionAudioBase64 = await this.textToSpeechService.textToSpeech(
+    //   "Now listen to the new vocabulary and try to remember it.",
+    //   false,
+    //   languageCode,
+    //   originalLanguageCode
+    // );
 
     const translationAudioBase64 = await Promise.all(
       translationChunks.flatMap((chunk) => [
-        this.textToSpeechService.textToSpeech(chunk.chunk, true, languageCode, originalLanguageCode),
-        longSilenceBase64,
-        this.textToSpeechService.textToSpeech(chunk.translatedChunk, false, languageCode, originalLanguageCode),
-        shortSilenceBase64,
-      ])
-    );
-
-    const newWordsAudioBase64 = await Promise.all(
-      newWords.flatMap((word) => [
         this.textToSpeechService.textToSpeech(
-          `${word.article ?? ""} ${word.word}`,
+          chunk.chunk,
           true,
           languageCode,
           originalLanguageCode
         ),
-        longSilenceBase64,
-        this.textToSpeechService.textToSpeech(word.translation, false, languageCode, originalLanguageCode),
         shortSilenceBase64,
-        this.textToSpeechService.textToSpeech(word.exampleSentence, true, languageCode, originalLanguageCode),
-        longSilenceBase64,
         this.textToSpeechService.textToSpeech(
-          word.exampleSentenceTranslation,
+          chunk.translatedChunk,
           false,
           languageCode,
           originalLanguageCode
@@ -86,12 +83,35 @@ export class AudioAssembler {
       ])
     );
 
+    // const newWordsAudioBase64 = await Promise.all(
+    //   newWords.flatMap((word) => [
+    //     this.textToSpeechService.textToSpeech(
+    //       `${word.article ?? ""} ${word.word}`,
+    //       true,
+    //       languageCode,
+    //       originalLanguageCode
+    //     ),
+    //     longSilenceBase64,
+    //     this.textToSpeechService.textToSpeech(word.translation, false, languageCode, originalLanguageCode),
+    //     shortSilenceBase64,
+    //     this.textToSpeechService.textToSpeech(word.exampleSentence, true, languageCode, originalLanguageCode),
+    //     longSilenceBase64,
+    //     this.textToSpeechService.textToSpeech(
+    //       word.exampleSentenceTranslation,
+    //       false,
+    //       languageCode,
+    //       originalLanguageCode
+    //     ),
+    //     shortSilenceBase64,
+    //   ])
+    // );
+
     const combinedAudioBase64 = await combineAudioFromBase64([
       germanAudioBase64,
       [transitionAudioBase64],
       translationAudioBase64,
-      [translationTransitionAudioBase64],
-      newWordsAudioBase64,
+      // [translationTransitionAudioBase64],
+      // newWordsAudioBase64,
     ]);
 
     return combinedAudioBase64;
