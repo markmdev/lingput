@@ -19,13 +19,13 @@ export default function LeftPanel({
   handleChangeToNewStoryViewMode: () => void;
 }) {
   return (
-    <div className="justify-between w-1/4 py-8 px-6 bg-white rounded-lg hidden lg:flex lg:flex-col h-full">
+    <div className="justify-between w-1/4 py-6 px-5 bg-white/80 backdrop-blur-sm rounded-2xl hidden lg:flex lg:flex-col h-full border border-slate-100 shadow-sm">
       {/* TOP */}
       <div className="h-full overflow-auto">
-        <h2 className="font-semibold text-2xl">Stories</h2>
-        <hr className="my-4" />
+        <h2 className="font-semibold text-xl tracking-tight text-slate-900">Stories</h2>
+        <hr className="my-4 border-slate-200" />
         {isLoading ? (
-          <Skeleton count={6} height={50} />
+          <Skeleton count={6} height={50} baseColor="#eef2ff" highlightColor="#f8fafc" />
         ) : (
           <StoryList
             storyList={data}
@@ -36,7 +36,8 @@ export default function LeftPanel({
       </div>
       {/* BOTTOM */}
       <Button
-        styles={viewMode === "newStory" ? "bg-gray-500 cursor-not-allowed" : ""}
+        variant={viewMode === "newStory" ? "secondary" : "primary"}
+        styles={viewMode === "newStory" ? "cursor-not-allowed" : ""}
         disabled={viewMode === "newStory"}
         onClick={handleChangeToNewStoryViewMode}
       >

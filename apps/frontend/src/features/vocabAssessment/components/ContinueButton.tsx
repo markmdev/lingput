@@ -7,10 +7,10 @@ export default function ContinueButton({
 }) {
   return (
     <button
-      className={`py-2 px-6 text-xl font-semibold border rounded-sm flex-shrink w-fit ${
+      className={`py-2.5 px-6 text-lg font-semibold rounded-lg flex-shrink w-fit transition-colors shadow-sm ${
         isActive
-          ? "bg-green-400 cursor-pointer text-white"
-          : "bg-gray-300 cursor-not-allowed text-black"
+          ? "bg-emerald-500 text-white cursor-pointer hover:bg-emerald-600"
+          : "bg-slate-200 text-slate-700 cursor-not-allowed"
       }`}
       onClick={onClick}
       disabled={isActive}

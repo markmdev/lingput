@@ -10,19 +10,25 @@ export default function TopPanelMob({
   onChangeToAllStoriesViewMode: () => void;
 }) {
   return (
-    <div className="flex flex-row bg-white mb-2 p-2 lg:hidden justify-between items-center">
-      <div className="flex flex-row gap-4">
-        <Button onClick={onChangeToAllStoriesViewMode}>Stories</Button>
+    <div className="flex flex-row bg-white/80 backdrop-blur-sm mb-2 p-3 lg:hidden justify-between items-center rounded-xl border border-slate-100 shadow-sm">
+      <div className="flex flex-row gap-3">
+        <Button variant="secondary" size="sm" onClick={onChangeToAllStoriesViewMode}>
+          Stories
+        </Button>
         <Button
-          styles={viewMode === "newStory" ? "bg-gray-500 cursor-not-allowed" : ""}
+          variant={viewMode === "newStory" ? "secondary" : "primary"}
+          size="sm"
+          styles={viewMode === "newStory" ? "cursor-not-allowed" : ""}
           disabled={viewMode === "newStory"}
           onClick={onChangeToNewStoryViewMode}
         >
           Generate New Story
         </Button>
       </div>
-      <div className="mr-4">
-        <p className="font-bold text-3xl">LOGO</p>
+      <div className="mr-2">
+        <p className="font-extrabold text-2xl tracking-tight text-slate-900">
+          comp<span className="text-indigo-600">input</span>
+        </p>
       </div>
     </div>
   );

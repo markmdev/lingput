@@ -122,14 +122,14 @@ export default function DashboardPage() {
   if (error) throw new ApiError("Unexpected server error", 502);
 
   return (
-    <div className="flex flex-col bg-gray-100 h-screen">
+    <div className="flex flex-col bg-transparent h-screen">
       {/* TOP PANEL (MOB) */}
       <TopPanelMob
         viewMode={viewMode}
         onChangeToNewStoryViewMode={handleChangeToNewStoryViewMode}
         onChangeToAllStoriesViewMode={handleChangeToAllStoriesViewMode}
       />
-      <div className="flex flex-row gap-8 flex-1 min-h-0">
+      <div className="flex flex-row gap-6 flex-1 min-h-0">
         {/* LEFT PANEL */}
         <LeftPanel
           isLoading={isLoading}
@@ -155,13 +155,13 @@ export default function DashboardPage() {
           </RightPanel>
         )}
         {viewMode === "allStories" && (
-          <div className="justify-between w-full py-8 px-6 bg-white rounded-lg flex flex-col">
+          <div className="justify-between w-full py-8 px-6 bg-white/80 backdrop-blur-sm rounded-2xl flex flex-col border border-slate-100 shadow-sm">
             {/* TOP */}
             <div>
-              <h2 className="font-semibold text-2xl">Stories</h2>
-              <hr className="my-4" />
+              <h2 className="font-semibold text-2xl tracking-tight text-slate-900">Stories</h2>
+              <hr className="my-4 border-slate-200" />
               {isLoading ? (
-                <Skeleton count={6} height={50} />
+                <Skeleton count={6} height={50} baseColor="#eef2ff" highlightColor="#f8fafc" />
               ) : (
                 <StoryList
                   storyList={data}

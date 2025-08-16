@@ -11,7 +11,7 @@ export default function StoryList({
   storyList?: Story[];
 }) {
   return (
-    <div className="p-2">
+    <div className="p-2 space-y-1">
       {storyList.map((story) => (
         <div key={story.id} className="cursor-pointer" onClick={() => setChosenStory(story)}>
           <StoryPreview story={story} isSelected={story.id === chosenStoryId} />

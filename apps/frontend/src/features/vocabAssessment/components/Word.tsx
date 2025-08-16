@@ -11,26 +11,28 @@ export default function Word({
 }) {
   return (
     <div
-      className={`py-1 px-2 border rounded-lg flex flex-col ${
-        status === true ? "bg-green-100" : status === false ? "bg-red-100" : ""
+      className={`py-3 px-3 border rounded-xl flex flex-col shadow-sm transition-colors border-slate-200 bg-white ${
+        status === true ? "bg-emerald-50" : status === false ? "bg-rose-50" : ""
       }`}
     >
       <div className="mb-2">
-        <p className="font-bold">{word.word}</p>
-        <p className="italic">{word.translation}</p>
+        <p className="font-semibold text-slate-900">{word.word}</p>
+        <p className="italic text-slate-600">{word.translation}</p>
       </div>
       <div className={`flex flex-col justify-center mt-auto gap-2`}>
         <button
-          className={`py-1 px-2 border-gray-300 border-2 font-bold text-sm rounded-lg text-white cursor-pointer ${
-            status === true ? "bg-green-700" : "bg-green-500 shadow-lg"
+          className={`py-1.5 px-2.5 border-2 font-semibold text-sm rounded-lg text-white cursor-pointer shadow-sm ${
+            status === true
+              ? "bg-emerald-700 border-emerald-700"
+              : "bg-emerald-500 border-emerald-600"
           }`}
           onClick={() => answer(word.id, true)}
         >
           I know this word
         </button>
         <button
-          className={`py-1 px-2 border-gray-300 border-2 font-bold text-sm rounded-lg text-white cursor-pointer ${
-            status === false ? "bg-red-700" : "bg-red-500 shadow-lg"
+          className={`py-1.5 px-2.5 border-2 font-semibold text-sm rounded-lg text-white cursor-pointer shadow-sm ${
+            status === false ? "bg-rose-700 border-rose-700" : "bg-rose-500 border-rose-600"
           }`}
           onClick={() => answer(word.id, false)}
         >

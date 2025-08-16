@@ -7,15 +7,17 @@ export default function StoryPreview({
   story: Story;
   isSelected?: boolean;
 }) {
-  const selectedStyles = "border-l-blue-500 bg-linear-to-r from-blue-100 to-white";
+  const selectedStyles = "border-l-4 border-indigo-500 bg-gradient-to-r from-indigo-50 to-white";
   return (
     <div
-      className={`text-sm border-l-4 rounded-lg p-2 border-transparent ${
-        isSelected && selectedStyles
+      className={`text-sm rounded-xl p-3 border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm ${
+        isSelected ? selectedStyles : "border-transparent"
       }`}
     >
-      <p className={`${isSelected ? "text-blue-700" : "text-black"}`}>Story #{story.id}</p>
-      <p className="text-xs text-gray-500">{story.storyText.slice(0, 70)}...</p>
+      <p className={`${isSelected ? "text-indigo-700" : "text-slate-900"} font-medium`}>
+        Story #{story.id}
+      </p>
+      <p className="text-xs text-slate-500 truncate">{story.storyText.slice(0, 70)}...</p>
     </div>
   );
 }

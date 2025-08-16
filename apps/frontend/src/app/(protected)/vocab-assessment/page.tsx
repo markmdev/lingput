@@ -54,7 +54,7 @@ export default function VocabAssessmentPage() {
         typeof error === "object" &&
         error !== null &&
         "statusCode" in error &&
-        error.statusCode === 401
+        (error as { statusCode?: number }).statusCode === 401
       ) {
         router.replace("/login");
       }
@@ -90,27 +90,27 @@ export default function VocabAssessmentPage() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 border-2 border-gray-300 flex flex-col items-center rounded-lg w-1/2">
-      <h1 className="text-xl font-semibold">Vocabulary Assessment</h1>
+    <div className="p-6 bg-white/80 backdrop-blur-sm border border-slate-100 flex flex-col items-center rounded-2xl w-full md:w-2/3 lg:w-1/2 shadow-sm mx-auto">
+      <h1 className="text-xl font-semibold text-slate-900">Vocabulary Assessment</h1>
       {status === "loading" && (
-        <div>
-          <p>Loading...</p>
+        <div className="py-6">
+          <p className="text-slate-600">Loading...</p>
         </div>
       )}
 
       {status === "ready" && (
-        <div className="">
+        <div className="py-4">
           <StartButton onClick={handleStart} />
         </div>
       )}
 
       {status === "started" && (
-        <div className="flex flex-col gap-4 items-center">
-          <p>
+        <div className="flex flex-col gap-4 items-center w-full">
+          <p className="text-slate-700">
             Step {apiResponse?.step}{" "}
             {apiResponse?.lastStep ? <span className="italic">(Last)</span> : ""}
           </p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full">
             {apiResponse?.wordsToReview?.map((item) => (
               <Word key={item.id} word={item} answer={handleWordAnswer} status={answer[item.id]} />
             ))}
@@ -123,9 +123,11 @@ export default function VocabAssessmentPage() {
       )}
 
       {status === "completed" && (
-        <div className="">
-          <p className="text-semibold text-lg">Vocabulary size: {apiResponse?.vocabularySize}</p>
-          <button className="py-2 px-6 text-xl font-semibold border rounded-sm flex-shrink w-fit bg-green-400 cursor-pointer text-white">
+        <div className="py-6">
+          <p className="font-semibold text-lg text-slate-900">
+            Vocabulary size: {apiResponse?.vocabularySize}
+          </p>
+          <button className="py-2.5 px-6 text-lg font-semibold rounded-lg w-fit bg-emerald-500 cursor-pointer text-white hover:bg-emerald-600 transition-colors">
             Continue
           </button>
         </div>
