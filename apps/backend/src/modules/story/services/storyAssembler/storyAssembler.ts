@@ -6,6 +6,7 @@ import { UnknownWordService } from "@/modules/unknownWord/unknownWordService";
 import { LanguageCode } from "@/utils/languages";
 import { Job } from "bullmq";
 import { GENERATION_PHASES } from "../../generationPhases";
+import { CustomError } from "@/errors/CustomError";
 
 export class StoryAssembler {
   constructor(
@@ -32,6 +33,9 @@ export class StoryAssembler {
       totalSteps: Object.keys(GENERATION_PHASES).length,
     });
     const vocabularyResult = await this.vocabularyService.getWords(userId);
+    if (vocabularyResult.data.length === 0) {
+      throw new CustomError("User's vocabulary is empty. Vocab assessment is requred!", 500, null);
+    }
     const unknownwordsResult = await this.unknownWordService.getUnknownWords(userId);
     const knownWords = vocabularyResult.data;
     const knownWordsList = knownWords.map((word) => word.word);
