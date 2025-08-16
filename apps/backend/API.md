@@ -1,15 +1,18 @@
 ## Overview
 
 REST API for the Comprehensible Input language-learning app.
-Provides endpoints for authentication, story generation, vocabulary management, and unknown-word tracking.
+Provides endpoints for authentication, story generation, vocabulary management, unknown-word tracking, assessment, and job status.
 
-**Base URL:** `http://localhost:3000/api`
+- Base path: `/api`
+- Base URL varies by environment:
+  - Dev (via NGINX in docker-compose-dev): `http://localhost:3050/api`
+  - Direct backend (default port): `http://localhost:4000/api`
 
 ---
 
 ## Conventions
 
-- **Successful response format**:
+- Successful response format:
 
   ```json
   {
@@ -19,7 +22,7 @@ Provides endpoints for authentication, story generation, vocabulary management, 
   }
   ```
 
-- **Error response format**:
+- Error response format:
 
   ```json
   {
@@ -35,11 +38,11 @@ Provides endpoints for authentication, story generation, vocabulary management, 
 ### Security
 
 - Uses HTTP-only, Secure JWT cookies (`accessToken`, `refreshToken`).
-- CORS: restricted to your frontend origin.
+- CORS restricted to frontend origin.
 
 ### Rate Limiting
 
-- Default: 100 requests per 15 minutes per authenticated user.
+- Default: 1000 requests per 15 minutes per authenticated user.
 
 ---
 
@@ -86,11 +89,11 @@ Provides endpoints for authentication, story generation, vocabulary management, 
     "details": [
       {
         "code": "too_small",
-        "minimum": 4,
+        "minimum": 8,
         "type": "string",
         "inclusive": true,
         "exact": false,
-        "message": "String must contain at least 4 character(s)",
+        "message": "String must contain at least 8 character(s)",
         "path": ["password"]
       }
     ]
@@ -184,7 +187,7 @@ Provides endpoints for authentication, story generation, vocabulary management, 
 | `id`              | number        | Unique story identifier                |
 | `storyText`       | string        | The generated text in target language  |
 | `translationText` | string        | English translation of the story       |
-| `audioUrl`        | string        | Path or URL to the audio file          |
+| `audioUrl`        | string        | Path (key) in storage (e.g., Supabase) |
 | `unknownWords`    | UnknownWord[] | List of related unknown-word objects   |
 | `userId`          | number        | ID of the user who generated the story |
 
@@ -213,6 +216,30 @@ Provides endpoints for authentication, story generation, vocabulary management, 
 
 ---
 
+### `Job` schemas
+
+- `JobResponse`
+
+  ```json
+  { "jobId": "string" }
+  ```
+
+- `JobStatusResponse`
+
+  ```json
+  {
+    "status": "completed | failed | waiting | active | delayed | paused",
+    "value"?: <result when completed>,
+    "failedReason"?: "string",
+    "progress"?: {
+      "phase": { "name": "string", "index": number, "description": "string" },
+      "totalSteps": number
+    }
+  }
+  ```
+
+---
+
 ## Endpoints
 
 ### Auth
@@ -221,23 +248,23 @@ Provides endpoints for authentication, story generation, vocabulary management, 
 
 Create a new user and issue auth cookies.
 
-- **Authentication**: None
-- **Request Body** (`application/x-www-form-urlencoded`):
+- Authentication: None
+- Request Body (application/json):
 
   | Field      | Type   | Required | Description           |
   | ---------- | ------ | -------- | --------------------- |
   | `email`    | string | yes      | must be unique        |
-  | `password` | string | yes      | at least 8 characters |
+  | `password` | string | yes      | at least 8 characters |
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/auth/register" \
-    -d "email=test@example.com" \
-    -d "password=12345678"
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@example.com","password":"12345678"}'
   ```
 
-- **Responses**
+- Responses
 
   - `201 Created`
 
@@ -249,27 +276,6 @@ Create a new user and issue auth cookies.
     ```
 
   - `400 Bad Request` (invalid credentials format)
-    ```json
-    {
-      "success": false,
-      "error": {
-        "message": "Invalid data",
-        "code": 400,
-        "details": [
-          {
-            "code": "too_small",
-            "minimum": 8,
-            "type": "string",
-            "inclusive": true,
-            "exact": false,
-            "message": "String must contain at least 8 character(s)",
-            "path": ["password"]
-          }
-        ]
-      }
-    }
-    ```
-  - See also: [Common Error Responses](#common-error-responses)
 
 ---
 
@@ -277,58 +283,29 @@ Create a new user and issue auth cookies.
 
 Authenticate user and set auth cookies.
 
-- **Authentication**: None
-- **Request Body**: same as `/auth/register`
+- Authentication: None
+- Request Body: same as `/auth/register`
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/auth/login" \
-    -d "email=test@example.com" \
-    -d "password=12345678"
+    -H "Content-Type: application/json" \
+    -d '{"email":"test@example.com","password":"12345678"}'
   ```
 
-- **Responses**
+- Responses
 
   - `200 OK`
+
     ```json
     {
       "success": true,
       "data": { "id": 2 }
     }
     ```
-  - `400 Bad Request` (invalid credentials format)
-    ```json
-    {
-      "success": false,
-      "error": {
-        "message": "Invalid data",
-        "code": 400,
-        "details": [
-          {
-            "code": "too_small",
-            "minimum": 8,
-            "type": "string",
-            "inclusive": true,
-            "exact": false,
-            "message": "String must contain at least 8 character(s)",
-            "path": ["password"]
-          }
-        ]
-      }
-    }
-    ```
+
   - `401 Unauthorized` (wrong email/password)
-    ```json
-    {
-      "success": false,
-      "error": {
-        "message": "Invalid credentials",
-        "code": 401
-      }
-    }
-    ```
-  - See also: [Common Error Responses](#common-error-responses)
 
 ---
 
@@ -336,24 +313,22 @@ Authenticate user and set auth cookies.
 
 Invalidate auth cookies.
 
-- **Authentication**: Required
-- **Request Body**: _none_
+- Authentication: Required
+- Request Body: none
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/auth/logout"
   ```
 
-- **Responses**
+- Responses
+
   - `200 OK`
+
     ```json
-    {
-      "success": true,
-      "data": {}
-    }
+    { "success": true, "data": {} }
     ```
-  - See also: [Common Error Responses](#common-error-responses)
 
 ---
 
@@ -361,25 +336,43 @@ Invalidate auth cookies.
 
 Exchange a valid `refreshToken` cookie for new tokens.
 
-- **Authentication**: Required (`refreshToken`)
-- **Request Body**: _none_
+- Authentication: Required (`refreshToken`)
+- Request Body: none
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/auth/refresh"
   ```
 
-- **Responses**
+- Responses
 
   - `200 OK`
+
     ```json
-    {
-      "success": true,
-      "data": { "id": 1 }
-    }
+    { "success": true, "data": { "id": 1 } }
     ```
-  - See also: [Common Error Responses](#common-error-responses)
+
+---
+
+#### GET `/auth/me`
+
+Return current authenticated user info.
+
+- Authentication: Required
+- Request Example
+
+  ```bash
+  curl "{BASE_URL}/auth/me"
+  ```
+
+- Responses
+
+  - `200 OK`
+
+    ```json
+    { "success": true, "data": { "user": { "userId": 1 } } }
+    ```
 
 ---
 
@@ -387,10 +380,10 @@ Exchange a valid `refreshToken` cookie for new tokens.
 
 #### POST `/story/generate`
 
-Generate a story with translation, unknown-word list, and audio.
+Start asynchronous story generation.
 
-- **Authentication**: Required
-- **Request Body** (`application/x-www-form-urlencoded`):
+- Authentication: Required
+- Request Body (application/json):
 
   | Field                  | Type   | Required | Description        |
   | ---------------------- | ------ | -------- | ------------------ |
@@ -398,22 +391,32 @@ Generate a story with translation, unknown-word list, and audio.
   | `languageCode`         | string | yes      | one of ["DE","EN"] |
   | `originalLanguageCode` | string | yes      | one of ["DE","EN"] |
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/story/generate" \
-    -d "subject=test" \
-    -d "languageCode=DE" \
-    -d "originalLanguageCode=EN"
+    -H "Content-Type: application/json" \
+    -d '{"subject":"test","languageCode":"DE","originalLanguageCode":"EN"}'
   ```
 
-- **Responses**
+- Responses
 
-  - `200 OK`
+  - `200 OK` (job created)
+
     ```json
-    {
-      "success": true,
-      "data": {
+    { "success": true, "data": { "jobId": "123" } }
+    ```
+
+  - Then poll: `GET /jobs/status/{jobId}` or fetch `GET /story` after completion
+
+  Example completed job:
+
+  ```json
+  {
+    "success": true,
+    "data": {
+      "status": "completed",
+      "value": {
         "id": 15,
         "storyText": "Heute gibt es…",
         "translationText": "Today there is…",
@@ -424,49 +427,27 @@ Generate a story with translation, unknown-word list, and audio.
         "userId": 1
       }
     }
-    ```
-  - `400 Bad Request` (validation failed)
-    ```json
-    {
-      "success": false,
-      "error": {
-        "message": "Invalid data",
-        "code": 400,
-        "details": [
-          {
-            "code": "too_big",
-            "maximum": 50,
-            "type": "string",
-            "inclusive": true,
-            "exact": false,
-            "message": "Maximum subject length is 50 characters",
-            "path": ["subject"]
-          }
-        ]
-      }
-    }
-    ```
-  - See also: [Common Error Responses](#common-error-responses)
-
-  See the [UnknownWord schema](#unknownword-schema)
+  }
+  ```
 
 ---
 
-#### GET `/story/`
+#### GET `/story`
 
-List all stories for the authenticated user.
+List all stories for the authenticated user (latest first).
 
-- **Authentication**: Required
+- Authentication: Required
 
-- **Request Example**
+- Request Example
 
   ```bash
-  curl "{BASE_URL}/story/" --cookie "accessToken=…"
+  curl "{BASE_URL}/story" --cookie "accessToken=…"
   ```
 
-- **Responses**
+- Responses
 
   - `200 OK`
+
     ```json
     {
       "success": true,
@@ -475,71 +456,6 @@ List all stories for the authenticated user.
       ]
     }
     ```
-  - See also: [Common Error Responses](#common-error-responses)
-
-  See the [Story schema](#story-schema)
-
----
-
-#### GET `/story/{storyId}`
-
-Fetch a specific story with its unknown words.
-
-- **Authentication**: Required
-- **Path Parameter**: `storyId` (number > 0)
-
-- **Request Example**
-
-  ```bash
-  curl "{BASE_URL}/story/15"
-  ```
-
-- **Responses**
-
-  - `200 OK`
-    ```json
-    {
-      "success": true,
-      "data": {
-        /* Story object */
-      }
-    }
-    ```
-  - `400 Bad Request` if `storyId` invalid
-
-    ```json
-    {
-      "success": false,
-      "error": {
-        "message": "Invalid data",
-        "code": 400,
-        "details": [
-          {
-            "code": "invalid_type",
-            "expected": "number",
-            "received": "nan",
-            "path": ["storyId"],
-            "message": "Expected number, received nan"
-          }
-        ]
-      }
-    }
-    ```
-
-  - `404 Not Found` if `storyId` is not found or doesn't belong to a user
-
-    ```json
-    {
-      "success": false,
-      "error": {
-        "message": "Story not found"
-      }
-    }
-    ```
-
-  - See also: [Common Error Responses](#common-error-responses)
-
-  See the [Story schema](#story-schema)
 
 ---
 
@@ -547,55 +463,51 @@ Fetch a specific story with its unknown words.
 
 #### POST `/unknown-words/mark-as-learned/{wordId}`
 
-Mark an unknown word as learned.
+Mark an unknown word as learned (asynchronous).
 
-- **Authentication**: Required
-- **Path Parameter**: `wordId` (number > 0)
+- Authentication: Required
+- Path Parameter: `wordId` (number > 0)
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/unknown-words/mark-as-learned/5"
   ```
 
-- **Responses**
-  - `200 OK`
+- Responses
+
+  - `200 OK` (job created)
+
     ```json
-    {
-      "success": true,
-      "data": {
-        "message": "Word marked as learned"
-      }
-    }
+    { "success": true, "data": { "jobId": "abc" } }
     ```
-  - `502 Bad Gateway` _(word not found or doesn’t belong to the user)_
-  - See also: [Common Error Responses](#common-error-responses)
+
+- Poll job status at `GET /jobs/status/{jobId}`
+
+---
 
 #### POST `/unknown-words/mark-as-learning/{wordId}`
 
-Mark an unknown word as learning.
+Mark an unknown word as learning (asynchronous).
 
-- **Authentication**: Required
-- **Path Parameter**: `wordId` (number > 0)
+- Authentication: Required
+- Path Parameter: `wordId` (number > 0)
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/unknown-words/mark-as-learning/5"
   ```
 
-- **Responses**
-  - `200 OK`
+- Responses
+
+  - `200 OK` (job created)
+
     ```json
-    {
-      "success": true,
-      "data": {
-        "message": "Word marked as learning"
-      }
-    }
+    { "success": true, "data": { "jobId": "def" } }
     ```
-  - `502 Bad Gateway` _(word not found or doesn’t belong to the user)_
-  - See also: [Common Error Responses](#common-error-responses)
+
+- Poll job status at `GET /jobs/status/{jobId}`
 
 ---
 
@@ -603,87 +515,88 @@ Mark an unknown word as learning.
 
 Retrieve all unknown words with status and stats.
 
-- **Authentication**: Required
-- **Request Example**
+- Authentication: Required
+
+- Request Example
 
   ```bash
   curl "{BASE_URL}/unknown-words/words"
   ```
 
-- **Responses**
+- Responses
 
   - `200 OK`
+
     ```json
     {
       "success": true,
       "data": [
-        {
-          "id": 122,
-          "word": "Test",
-          "translation": "exam, test",
-          "article": "der",
-          "exampleSentence": "Ich bereite mich auf den Test vor.",
-          "exampleSentenceTranslation": "I'm preparing for the exam.",
-          "timesSeen": 1,
-          "status": "learning",
-          "userId": 1
-        },
-        {
-          "id": 125,
-          "word": "abschneiden",
-          "translation": "perform",
-          "article": null,
-          "exampleSentence": "Er hat im Wettbewerb gut abgeschnitten.",
-          "exampleSentenceTranslation": "He performed well in the competition.",
-          "timesSeen": 1,
-          "status": "learning",
-          "userId": 1
-        }
+        /* UnknownWord[] */
       ]
     }
     ```
-  - See also: [Common Error Responses](#common-error-responses)
-
-  See the [UnknownWord schema](#unknownword-schema)
 
 ---
 
 ### Vocabulary
 
+#### GET `/vocab/words-count`
+
+Return the total count of saved vocabulary items for the user.
+
+- Authentication: Required
+- Responses
+
+  - `200 OK`
+
+    ```json
+    { "success": true, "data": 123 }
+    ```
+
+---
+
+#### GET `/vocab/allwords`
+
+Return the full list of saved vocabulary items (no pagination).
+
+- Authentication: Required
+- Responses
+
+  - `200 OK`
+
+    ```json
+    {
+      "success": true,
+      "data": [
+        /* VocabularyItem[] */
+      ]
+    }
+    ```
+
+---
+
 #### GET `/vocab/words`
 
 Returns a paginated list of saved vocabulary items.
 
-- **Authentication**: Required
-- **Query Parameters**: `page` (number > 0), `pageSize` (> 0 ≤ 200)
+- Authentication: Required
+- Query Parameters: `page` (number > 0), `pageSize` (> 0 ≤ 200)
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl "{BASE_URL}/vocab/words?page=2&pageSize=2"
   ```
 
-- **Responses**
+- Responses
 
   - `200 OK`
+
     ```json
     {
       "success": true,
       "data": [
-        {
-          "id": 429,
-          "word": "Bitte",
-          "translation": "Please / You are welcome",
-          "article": null,
-          "userId": 1
-        },
-        {
-          "id": 430,
-          "word": "Danke",
-          "translation": "Thank you",
-          "article": null,
-          "userId": 1
-        }
+        /* VocabularyItem[] */
       ],
       "pagination": {
         "totalItems": 400,
@@ -693,10 +606,6 @@ Returns a paginated list of saved vocabulary items.
       }
     }
     ```
-  - See also: [Common Error Responses](#common-error-responses)
-
-  See the [VocabularyItem schema](#vocabularyitem-schema)
-  See the [Pagination schema](#pagination-schema)
 
 ---
 
@@ -704,37 +613,33 @@ Returns a paginated list of saved vocabulary items.
 
 Add a single vocabulary word.
 
-- **Authentication**: Required
-- **Request Body** (`application/x-www-form-urlencoded`): `word` (1–50 chars), `translation` (1–50), `article` (1–15 or null)
+- Authentication: Required
+- Request Body (application/json): `word` (1–50 chars), `translation` (1–50), `article` (1–15 or null)
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/vocab/words" \
-    -d "word=testworld" \
-    -d "translation=translation" \
-    -d "article=null"
+    -H "Content-Type: application/json" \
+    -d '{"word":"testword","translation":"translation","article":null}'
   ```
 
-- **Responses**
+- Responses
 
   - `201 Created`
+
     ```json
     {
       "success": true,
       "data": {
         "id": 3,
-        "word": "testworld",
+        "word": "testword",
         "translation": "translation",
         "article": null,
         "userId": 1
       }
     }
     ```
-  - `400 Bad Request` if validation failed
-  - See also: [Common Error Responses](#common-error-responses)
-
-  See the [VocabularyItem schema](#vocabularyitem-schema)
 
 ---
 
@@ -742,10 +647,10 @@ Add a single vocabulary word.
 
 Add multiple vocabulary entries in a single request.
 
-- **Authentication**: Required
-- **Request Body** (`application/json`): an array of objects, each with the following fields: `word` (1–50 chars), `translation` (1–50), `article` (1–15 or null)
+- Authentication: Required
+- Request Body (application/json): `{ "words": Array<{ word, translation, article|null }> }`
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X POST "{BASE_URL}/vocab/words/list" \
@@ -753,34 +658,18 @@ Add multiple vocabulary entries in a single request.
     -d '{ "words": [ { "word": "word1", "translation": "translation1", "article": null }, { "word": "word2", "translation": "translation2", "article": "the" } ] }'
   ```
 
-- **Responses**
+- Responses
 
   - `200 OK`
+
     ```json
     {
       "success": true,
       "data": [
-        {
-          "id": 5,
-          "word": "word1",
-          "translation": "translation1",
-          "article": null,
-          "userId": 1
-        },
-        {
-          "id": 6,
-          "word": "word2",
-          "translation": "translation2",
-          "article": "the",
-          "userId": 1
-        }
+        /* VocabularyItem[] */
       ]
     }
     ```
-  - `400 Bad Request` if validation failed
-  - See also: [Common Error Responses](#common-error-responses)
-
-  See the [VocabularyItem schema](#vocabularyitem-schema)
 
 ---
 
@@ -788,11 +677,11 @@ Add multiple vocabulary entries in a single request.
 
 Update specific fields of a vocabulary entry.
 
-- **Authentication**: Required
-- **Path Parameter**: `id` (number > 0)
-- **Request Body**: partial `word`, `translation`, `article`
+- Authentication: Required
+- Path Parameter: `id` (number > 0)
+- Request Body: partial `word`, `translation`, `article`
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X PATCH "{BASE_URL}/vocab/words/5" \
@@ -800,25 +689,18 @@ Update specific fields of a vocabulary entry.
     -d '{ "article": "the" }'
   ```
 
-- **Responses**
+- Responses
 
   - `200 OK`
+
     ```json
     {
       "success": true,
       "data": {
-        "id": 5,
-        "word": "word1",
-        "translation": "translation1",
-        "article": "the",
-        "userId": 1
+        /* VocabularyItem */
       }
     }
     ```
-  - `400 Bad Request` if validation failed
-  - See also: [Common Error Responses](#common-error-responses)
-
-  See the [VocabularyItem schema](#vocabularyitem-schema)
 
 ---
 
@@ -826,17 +708,132 @@ Update specific fields of a vocabulary entry.
 
 Delete a vocabulary entry.
 
-- **Authentication**: Required
-- **Path Parameter**: `id` (> 0)
+- Authentication: Required
+- Path Parameter: `id` (> 0)
 
-- **Request Example**
+- Request Example
 
   ```bash
   curl -X DELETE "{BASE_URL}/vocab/words/5"
   ```
 
-- **Responses**
-  - `204 No Content` _(no body)_
-  - See also: [Common Error Responses](#common-error-responses)
+- Responses
+  - `204 No Content` (no body)
+
+---
+
+### Vocabulary Assessment
+
+#### GET `/vocab-assessment/start`
+
+Start a new assessment session and get the first batch of words.
+
+- Authentication: Required
+- Responses
+
+  - `200 OK`
+
+    ```json
+    {
+      "success": true,
+      "data": {
+        "sessionId": "uuid",
+        "status": "active",
+        "wordsToReview": [
+          {
+            "id": 1,
+            "source_language": "en",
+            "target_language": "de",
+            "word": "house",
+            "translation": "Haus",
+            "frequencyRank": 123
+          }
+        ],
+        "lastStep": false,
+        "step": 1
+      }
+    }
+    ```
+
+---
+
+#### POST `/vocab-assessment/answer`
+
+Continue an assessment session with the user’s answers.
+
+- Authentication: Required
+- Request Body (application/json):
+
+  ```json
+  { "sessionUUID": "uuid", "wordsData": { "<wordId>": true | false, "<wordId2>": true } }
+  ```
+
+- Responses
+
+  - `200 OK` (active)
+
+    ```json
+    {
+      "success": true,
+      "data": {
+        "sessionId": "uuid",
+        "status": "active",
+        "wordsToReview": [
+          /* next batch */
+        ],
+        "lastStep": false,
+        "step": 2
+      }
+    }
+    ```
+
+  - `200 OK` (completed)
+
+    ```json
+    {
+      "success": true,
+      "data": {
+        "sessionId": "uuid",
+        "status": "completed",
+        "vocabularySize": 1500
+      }
+    }
+    ```
+
+---
+
+### Jobs
+
+#### GET `/jobs/status/{jobId}`
+
+Get status of a background job.
+
+- Authentication: Required
+- Path Parameter: `jobId` (string)
+
+- Responses
+
+  - `200 OK`
+
+    ```json
+    {
+      "success": true,
+      "data": {
+        "status": "active",
+        "value": null,
+        "failedReason": null,
+        "progress": {
+          "phase": {
+            "name": "translation",
+            "index": 4,
+            "description": "Translating the story for you"
+          },
+          "totalSteps": 8
+        }
+      }
+    }
+    ```
+
+  - `404 Not Found` if job is missing
 
 ---
