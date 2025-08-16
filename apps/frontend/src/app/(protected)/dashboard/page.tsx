@@ -18,15 +18,19 @@ import TopPanelMob from "@/components/TopPanelMob";
 import { UnknownWordApi } from "@/features/unknownWord/api";
 import LeftPanel from "@/features/dashboard/LeftPanel";
 import { handleJob, JobStarter } from "@/lib/jobHandler";
+import { VocabApi } from "@/features/vocab/api";
+import AssessmentRequiredOverlay from "@/components/AssessmentRequiredOverlay";
 
 const clientApi = new ClientApi();
 const storyApi = new StoryApi(clientApi);
 const unknownWordApi = new UnknownWordApi(clientApi);
+const vocabApi = new VocabApi(clientApi);
 
 export default function DashboardPage() {
   const searchParams = useSearchParams();
   const chosenStoryId = searchParams.get("story");
   const { data, error, isLoading, mutate } = useSWR("/api/story", () => storyApi.getAllStories());
+  const { data: wordsCount } = useSWR("/api/vocab/words-count", () => vocabApi.getWordsCount());
   const chosenStory = data?.find((s) => String(s.id) === chosenStoryId) ?? null;
   const viewMode: "chosenStory" | "newStory" | "allStories" =
     (searchParams.get("viewMode") as "chosenStory" | "newStory" | "allStories") || "newStory";
@@ -123,6 +127,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col bg-transparent h-screen">
+      <AssessmentRequiredOverlay wordsCount={typeof wordsCount === "number" ? wordsCount : -1} />
       {/* TOP PANEL (MOB) */}
       <TopPanelMob
         viewMode={viewMode}

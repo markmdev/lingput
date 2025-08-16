@@ -4,6 +4,16 @@ import { PrismaError } from "@/errors/PrismaError";
 
 export class VocabularyRepository {
   constructor(private prisma: PrismaClient) {}
+
+  async getWordsCount(userId: number): Promise<number> {
+    try {
+      const count = await this.prisma.userVocabulary.count();
+      return count;
+    } catch (error) {
+      throw new PrismaError("Unable to get words count", error, { userId });
+    }
+  }
+
   async saveWord(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
     try {
       const newWord = await this.prisma.userVocabulary.create({
@@ -40,7 +50,11 @@ export class VocabularyRepository {
     }
   }
 
-  async getAllWords(userId: number, skip: number, take: number): Promise<[UserVocabulary[], number]> {
+  async getAllWords(
+    userId: number,
+    skip: number,
+    take: number
+  ): Promise<[UserVocabulary[], number]> {
     try {
       const whereClause = { userId };
       const [words, totalItems] = await Promise.all([

@@ -9,10 +9,12 @@ export default function Word({
   answer: (wordId: number, result: boolean) => void;
   status: boolean;
 }) {
+  const yesSelected = status === true;
+  const noSelected = status === false;
   return (
     <div
       className={`py-3 px-3 border rounded-xl flex flex-col shadow-sm transition-colors border-slate-200 bg-white ${
-        status === true ? "bg-emerald-50" : status === false ? "bg-rose-50" : ""
+        yesSelected ? "ring-2 ring-emerald-400" : noSelected ? "ring-2 ring-rose-400" : ""
       }`}
     >
       <div className="mb-2">
@@ -21,18 +23,20 @@ export default function Word({
       </div>
       <div className={`flex flex-col justify-center mt-auto gap-2`}>
         <button
-          className={`py-1.5 px-2.5 border-2 font-semibold text-sm rounded-lg text-white cursor-pointer shadow-sm ${
-            status === true
+          className={`py-1.5 px-2.5 border-2 font-semibold text-sm rounded-lg text-white cursor-pointer shadow-sm transition-all ${
+            yesSelected
               ? "bg-emerald-700 border-emerald-700"
-              : "bg-emerald-500 border-emerald-600"
+              : "bg-emerald-500 border-emerald-600 hover:bg-emerald-600"
           }`}
           onClick={() => answer(word.id, true)}
         >
           I know this word
         </button>
         <button
-          className={`py-1.5 px-2.5 border-2 font-semibold text-sm rounded-lg text-white cursor-pointer shadow-sm ${
-            status === false ? "bg-rose-700 border-rose-700" : "bg-rose-500 border-rose-600"
+          className={`py-1.5 px-2.5 border-2 font-semibold text-sm rounded-lg text-white cursor-pointer shadow-sm transition-all ${
+            noSelected
+              ? "bg-rose-700 border-rose-700"
+              : "bg-rose-500 border-rose-600 hover:bg-rose-600"
           }`}
           onClick={() => answer(word.id, false)}
         >

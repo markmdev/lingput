@@ -9,6 +9,7 @@ export function buildVocabularyRouter(
 ) {
   const router = express.Router();
 
+  router.get("/words-count", authMiddleware, asyncHandler<AuthedRequest>(controller.getWordsCount));
   router.get("/words", authMiddleware, asyncHandler<AuthedRequest>(controller.getAllWords));
   router.get(
     "/allwords",

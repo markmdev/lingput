@@ -15,6 +15,10 @@ export class VocabularyService {
     return word as UserVocabulary;
   }
 
+  async getWordsCount(userId: number): Promise<number> {
+    return this.vocabularyRepository.getWordsCount(userId);
+  }
+
   async getWords(
     userId: number,
     page?: number,
@@ -72,7 +76,10 @@ export class VocabularyService {
     return this.vocabularyRepository.updateWord(wordId, wordData);
   }
 
-  private attachUserIdToWords(words: UserVocabularyDTO[], userId: number): UserVocabularyWithUserIdDTO[] {
+  private attachUserIdToWords(
+    words: UserVocabularyDTO[],
+    userId: number
+  ): UserVocabularyWithUserIdDTO[] {
     return words.map((word) => ({ ...word, userId }));
   }
 

@@ -8,6 +8,15 @@ import { AuthedRequest } from "@/types/types";
 
 export class VocabularyController {
   constructor(private vocabularyService: VocabularyService) {}
+
+  getWordsCount = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+    const { userId } = user;
+
+    const wordsCount = await this.vocabularyService.getWordsCount(userId);
+    res.status(200).json(formatResponse(wordsCount));
+  };
+
   getAllWords = async (req: AuthedRequest, res: Response) => {
     const user = req.user;
 
