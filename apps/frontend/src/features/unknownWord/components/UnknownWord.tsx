@@ -17,12 +17,22 @@ export default function UnknownWordComponent({
     setIsLearnedButtonLoading(true);
     await onWordStatusChange(unknownWord.id, "learned");
     setIsLearnedButtonLoading(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("onboarding:wordMarked", { detail: { status: "learned" } })
+      );
+    }
   };
 
   const handleMarkAsLearning = async () => {
     setIsLearningButtonLoading(true);
     await onWordStatusChange(unknownWord.id, "learning");
     setIsLearningButtonLoading(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("onboarding:wordMarked", { detail: { status: "learning" } })
+      );
+    }
   };
 
   useEffect(() => {
@@ -89,6 +99,7 @@ export default function UnknownWordComponent({
             onClick={handleMarkAsLearned}
             className="py-1.5 px-2.5 h-fit bg-emerald-500 text-white font-semibold rounded-lg cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed shadow-sm"
             disabled={isLearnedButtonLoading}
+            data-onboarding="word-learned-button"
           >
             Learned
           </button>
@@ -96,6 +107,7 @@ export default function UnknownWordComponent({
             onClick={handleMarkAsLearning}
             className="py-1.5 px-2.5 bg-slate-100 text-slate-900 font-semibold rounded-lg cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed border border-slate-200"
             disabled={isLearningButtonLoading}
+            data-onboarding="word-learning-button"
           >
             Learning
           </button>

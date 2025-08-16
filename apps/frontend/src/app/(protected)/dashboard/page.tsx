@@ -6,7 +6,7 @@ import StoryList from "@/features/story/components/StoryList";
 import { Story } from "@/features/story/types";
 import { ClientApi } from "@/lib/ClientApi";
 import { ApiError } from "@/types/ApiError";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import { toast } from "react-toastify";
 import StoryGeneration from "@/features/story/components/StoryGeneration";
@@ -20,6 +20,8 @@ import LeftPanel from "@/features/dashboard/LeftPanel";
 import { handleJob, JobStarter } from "@/lib/jobHandler";
 import { VocabApi } from "@/features/vocab/api";
 import AssessmentRequiredOverlay from "@/components/AssessmentRequiredOverlay";
+import OnboardingOverlay from "@/components/OnboardingOverlay";
+import OnboardingCoachmarks, { CoachmarkStep } from "@/components/OnboardingCoachmarks";
 
 const clientApi = new ClientApi();
 const storyApi = new StoryApi(clientApi);
@@ -35,6 +37,36 @@ export default function DashboardPage() {
   const viewMode: "chosenStory" | "newStory" | "allStories" =
     (searchParams.get("viewMode") as "chosenStory" | "newStory" | "allStories") || "newStory";
   const router = useRouter();
+
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [hasIntroShown, setHasIntroShown] = useState(false);
+  const [coachmarkIndex, setCoachmarkIndex] = useState<number | null>(null);
+  const [coachmarkDisableNext, setCoachmarkDisableNext] = useState(false);
+  const [isWaitingForStory, setIsWaitingForStory] = useState(false);
+
+  const assessmentRequired = useMemo(
+    () => (typeof wordsCount === "number" ? wordsCount === 0 : false),
+    [wordsCount]
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const key = "compinput_onboarding_completed";
+    const completed = window.localStorage.getItem(key);
+    setShowOnboarding(!assessmentRequired && completed !== "true");
+  }, [assessmentRequired]);
+
+  const completeOnboarding = useCallback(() => {
+    const key = "compinput_onboarding_completed";
+    window.localStorage.setItem(key, "true");
+    setShowOnboarding(false);
+    setCoachmarkIndex(null);
+    setIsWaitingForStory(false);
+  }, []);
+
+  const completeIntro = useCallback(() => {
+    setHasIntroShown(true);
+  }, []);
 
   useEffect(() => {
     if (error?.statusCode === 401) {
@@ -119,6 +151,146 @@ export default function DashboardPage() {
     setViewMode("allStories");
   }, [setViewMode]);
 
+  // Define coachmark steps
+  const coachmarkSteps: CoachmarkStep[] = useMemo(
+    () => [
+      {
+        title: "Welcome!",
+        description: "Let’s quickly create your first story.",
+        showNext: true,
+      },
+      {
+        selector: '[data-onboarding="topic-input"]',
+        title: "Pick a topic",
+        description: "Type a topic or choose one of the suggested topics below.",
+        showBack: true,
+        showNext: true,
+      },
+      {
+        selector: '[data-onboarding^="suggested-topic-"]',
+        title: "Suggested topics",
+        description: "Click any suggested topic to fill the topic field instantly.",
+        showBack: true,
+        showNext: true,
+      },
+      {
+        selector: '[data-onboarding="generate-button"]',
+        title: "Generate your story",
+        description: isWaitingForStory
+          ? "Generating... This usually takes ~30–40 seconds. We’ll continue once it’s ready."
+          : "Click Generate to start creating your story.",
+        showBack: true,
+        showNext: true,
+      },
+      {
+        title: "Open your new story",
+        description: "Your story is ready! We’ll open it automatically.",
+        showBack: true,
+        showNext: true,
+      },
+      {
+        selector: '[data-onboarding="word-learned-button"]',
+        title: "Mark as Learned",
+        description: "Mark a known word as Learned.",
+        showBack: true,
+        showNext: true,
+        nextLabel: "Finish",
+      },
+    ],
+    [isWaitingForStory]
+  );
+
+  // Advance logic based on events
+  useEffect(() => {
+    if (!showOnboarding || !hasIntroShown) return;
+
+    const handleTopicSelected = () => {
+      setCoachmarkDisableNext(false);
+    };
+    const handleTopicTyping = (e: Event) => {
+      try {
+        // @ts-expect-error custom event detail
+        const topic = e?.detail?.topic as string | undefined;
+        setCoachmarkDisableNext(!(topic && topic.trim().length > 0));
+      } catch {
+        setCoachmarkDisableNext(true);
+      }
+    };
+    const handleGenerateClicked = () => {
+      setCoachmarkDisableNext(true);
+      setIsWaitingForStory(true);
+    };
+    const handleStoryCreated = () => {
+      setCoachmarkDisableNext(false);
+      setIsWaitingForStory(false);
+      setCoachmarkIndex((i) => (i !== null ? Math.max(i, 4) : 4));
+    };
+    const handleWordMarked = (e: Event) => {
+      // @ts-expect-error custom event detail
+      const status = e?.detail?.status as "learned" | "learning" | undefined;
+      if (status === "learned") {
+        setCoachmarkDisableNext(false);
+      }
+    };
+
+    window.addEventListener("onboarding:topicSelected", handleTopicSelected as EventListener);
+    window.addEventListener("onboarding:topicTyping", handleTopicTyping as EventListener);
+    window.addEventListener("onboarding:generateClicked", handleGenerateClicked as EventListener);
+    window.addEventListener("onboarding:storyCreated", handleStoryCreated as EventListener);
+    window.addEventListener("onboarding:wordMarked", handleWordMarked as EventListener);
+    return () => {
+      window.removeEventListener("onboarding:topicSelected", handleTopicSelected as EventListener);
+      window.removeEventListener("onboarding:topicTyping", handleTopicTyping as EventListener);
+      window.removeEventListener(
+        "onboarding:generateClicked",
+        handleGenerateClicked as EventListener
+      );
+      window.removeEventListener("onboarding:storyCreated", handleStoryCreated as EventListener);
+      window.removeEventListener("onboarding:wordMarked", handleWordMarked as EventListener);
+    };
+  }, [showOnboarding, hasIntroShown]);
+
+  // Start coachmarks after intro overlay dismissed
+  useEffect(() => {
+    if (!showOnboarding || !hasIntroShown) return;
+    const t = setTimeout(() => setCoachmarkIndex(0), 200);
+    return () => clearTimeout(t);
+  }, [showOnboarding, hasIntroShown]);
+
+  // Initialize disableNext when entering specific steps
+  useEffect(() => {
+    if (coachmarkIndex === null) return;
+    // Step indexes: 0 welcome, 1 topic-input, 2 suggested, 3 generate, 4 open, 5 learned
+    if (coachmarkIndex === 1) {
+      // Require non-empty topic before proceeding
+      setCoachmarkDisableNext(true);
+    } else if (coachmarkIndex === 3) {
+      // Require generation and completion before proceeding
+      setCoachmarkDisableNext(true);
+    } else if (coachmarkIndex === 5) {
+      // Require marking a word as Learned before finishing
+      setCoachmarkDisableNext(true);
+    } else {
+      setCoachmarkDisableNext(false);
+    }
+  }, [coachmarkIndex]);
+
+  const goNextCoachmark = useCallback(() => {
+    setCoachmarkIndex((i) => {
+      if (i === null) return 0;
+      const next = i + 1;
+      if (next >= coachmarkSteps.length) {
+        completeOnboarding();
+        return null;
+      }
+      return next;
+    });
+  }, [coachmarkSteps.length, completeOnboarding]);
+
+  const goBackCoachmark = useCallback(() => {
+    setCoachmarkIndex((i) => (i && i > 0 ? i - 1 : 0));
+  }, []);
+
   if (error?.statusCode === 401) {
     return <div>Redirecting...</div>;
   }
@@ -128,6 +300,15 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col bg-transparent h-screen">
       <AssessmentRequiredOverlay wordsCount={typeof wordsCount === "number" ? wordsCount : -1} />
+      {showOnboarding && !hasIntroShown && <OnboardingOverlay onComplete={completeIntro} />}
+      {showOnboarding && hasIntroShown && coachmarkIndex !== null && (
+        <OnboardingCoachmarks
+          step={{ ...coachmarkSteps[coachmarkIndex], disableNext: coachmarkDisableNext }}
+          onNext={goNextCoachmark}
+          onBack={goBackCoachmark}
+          onSkip={completeOnboarding}
+        />
+      )}
       {/* TOP PANEL (MOB) */}
       <TopPanelMob
         viewMode={viewMode}

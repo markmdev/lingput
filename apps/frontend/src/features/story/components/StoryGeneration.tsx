@@ -40,7 +40,15 @@ export default function StoryGeneration({
     setIsLoading(true);
     const jobStarter = () => storyApi.generateNewStory(topic);
     const jobStatusChecker = (jobId: string) => storyApi.checkJobStatus(jobId);
-    const onSuccess = (story: Story) => setToNewStory(story);
+    const onSuccess = (story: Story) => {
+      // notify onboarding that first story is created
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("onboarding:storyCreated", { detail: { storyId: story.id } })
+        );
+      }
+      setToNewStory(story);
+    };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onError = ({ error, data }: { error?: Error; data?: any }) => {
       // Display form errors
@@ -66,7 +74,13 @@ export default function StoryGeneration({
 
   const handleSelectTopic = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    setTopic(e.currentTarget.textContent || "");
+    const selected = e.currentTarget.textContent || "";
+    setTopic(selected);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(
+        new CustomEvent("onboarding:topicSelected", { detail: { topic: selected } })
+      );
+    }
   };
   return (
     <div>
@@ -101,11 +115,21 @@ export default function StoryGeneration({
                 type="text"
                 name="topic"
                 value={topic}
-                onChange={(e) => setTopic(e.target.value)}
+                onChange={(e) => {
+                  setTopic(e.target.value);
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(
+                      new CustomEvent("onboarding:topicTyping", {
+                        detail: { topic: e.target.value },
+                      })
+                    );
+                  }
+                }}
                 className={`border rounded-lg py-4 px-4 outline-none text-2xl ${
                   formErrors.subject && "border-red-500"
                 }`}
                 placeholder="Input your desired topic..."
+                data-onboarding="topic-input"
               />
               {formErrors.subject && (
                 <div className="text-red-500 text-sm mr-auto">{formErrors.subject}</div>
@@ -126,8 +150,15 @@ export default function StoryGeneration({
               <Button
                 type="submit"
                 disabled={isLoading}
-                onClick={handleGenerateStory}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleGenerateStory();
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new CustomEvent("onboarding:generateClicked"));
+                  }
+                }}
                 styles="text-xl"
+                data-onboarding="generate-button"
               >
                 Generate
               </Button>
