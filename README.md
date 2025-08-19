@@ -5,9 +5,14 @@
 **Lingput** is a full-stack, production-grade application that helps learners acquire a new language through **short, AI-generated stories**.
 Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **natural comprehensible input**: stories, translations, audio, and smart word tracking
 
+**Main dashboard:**
+
 <p align="center">
   <img src="docs/demo-story.png" alt="Lingput demo" width="960"/>
 </p>
+
+**Video demo:**
+
 <p align="center">
   <img src="docs/lingput-demo.gif" width="960" height="540"/>
 </p>

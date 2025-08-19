@@ -1,7 +1,7 @@
 import Button from "@/components/Button";
 import Skeleton from "react-loading-skeleton";
-import StoryList from "../story/components/StoryList";
-import { Story } from "../story/types";
+import StoryList from "@/features/story/components/StoryList";
+import { Story } from "@/features/story/types";
 
 export default function LeftPanel({
   isLoading,
