@@ -20,7 +20,7 @@ export class StoryGeneratorService {
             role: "system",
             content: `
                 You are given a list of ${LANGUAGES_MAP[languageCode]} words that the user has learned.  
-Your task: create a very short story (3–5 sentences) in ${LANGUAGES_MAP[languageCode]}.  
+Your task: create a small story (8-12 sentences) in ${LANGUAGES_MAP[languageCode]}.  
 
 Requirements:  
 

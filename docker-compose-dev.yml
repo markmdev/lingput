@@ -17,7 +17,8 @@ services:
       timeout: 5s
       retries: 5
   lemma:
-    image: "markmdev/python_lemmas"
+    build:
+      context: ./apps/lemmas
   backend:
     build:
       context: ./apps/backend
@@ -32,14 +33,11 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
-      - LEMMA_SERVICE_URL=http://lemma:8000
       - APP_PORT=4000
     depends_on:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
-      lemma:
         condition: service_started
   worker:
     image: "markmdev/compinput-backend"
@@ -55,7 +53,12 @@ services:
       - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
       - LEMMA_SERVICE_URL=http://lemma:8000
     depends_on:
-      - backend
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      lemma:
+        condition: service_started
   frontend:
     build:
       context: ./apps/frontend
@@ -90,7 +93,8 @@ services:
     ports:
       - "5555:5555"
     depends_on:
-      - backend
+      postgres:
+        condition: service_healthy
 
 volumes:
   pgdata:

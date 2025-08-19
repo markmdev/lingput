@@ -2,38 +2,32 @@ services:
   lemma:
     hostname: lemma
     mem_limit: 768m
-    image: "markmdev/python_lemmas"
+    image: "markmdev/compinput-lemma"
   backend:
     hostname: backend
     mem_limit: 768m
     image: "markmdev/compinput-backend"
     environment:
-      - SUPABASE_URL=$SUPABASE_URL
-      - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
-      - OPENAI_API_KEY=$OPENAI_API_KEY
-      - JWT_SECRET=$JWT_SECRET
-      - DATABASE_URL=$DATABASE_URL
-      - REDIS_HOST=$REDIS_HOST
-      - REDIS_PORT=$REDIS_PORT
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
       - APP_PORT=4000
-      - LEMMA_SERVICE_URL=http://lemma:8000
   worker:
     hostname: worker
     mem_limit: 768m
     image: "markmdev/compinput-worker"
     command: npm run worker
     environment:
-      - SUPABASE_URL=$SUPABASE_URL
-      - SUPABASE_SERVICE_API_KEY=$SUPABASE_SERVICE_API_KEY
-      - OPENAI_API_KEY=$OPENAI_API_KEY
-      - JWT_SECRET=$JWT_SECRET
-      - DATABASE_URL=$DATABASE_URL
-      - REDIS_HOST=$REDIS_HOST
-      - REDIS_PORT=$REDIS_PORT
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_API_KEY=${SUPABASE_SERVICE_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
       - APP_PORT=4000
       - LEMMA_SERVICE_URL=http://lemma:8000
-    depends_on:
-      - backend
   frontend:
     hostname: frontend
     mem_limit: 1024m

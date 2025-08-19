@@ -1,0 +1,31 @@
+# Python bytecode/cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Test and tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# VCS/IDE
+.git/
+.gitignore
+.gitattributes
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log 
