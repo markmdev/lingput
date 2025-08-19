@@ -6,8 +6,8 @@ services:
   postgres:
     image: "postgres:latest"
     environment:
-      - POSTGRES_DB=compinput
-      - POSTGRES_USER=compinput
+      - POSTGRES_DB=lingput
+      - POSTGRES_USER=lingput
       - POSTGRES_PASSWORD=cmpinputpswd
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -23,7 +23,7 @@ services:
     build:
       context: ./apps/backend
       dockerfile: Dockerfile.dev
-    image: markmdev/compinput-backend
+    image: markmdev/lingput-backend
     env_file:
       - ./apps/backend/.env
     volumes:
@@ -32,7 +32,7 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
+      - DATABASE_URL=postgresql://lingput:cmpinputpswd@postgres:5432/lingput?schema=public
       - APP_PORT=4000
     depends_on:
       postgres:
@@ -40,7 +40,7 @@ services:
       redis:
         condition: service_started
   worker:
-    image: "markmdev/compinput-backend"
+    image: "markmdev/lingput-backend"
     command: npm run worker:dev
     env_file:
       - ./apps/backend/.env
@@ -50,7 +50,7 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
+      - DATABASE_URL=postgresql://lingput:cmpinputpswd@postgres:5432/lingput?schema=public
       - LEMMA_SERVICE_URL=http://lemma:8000
     depends_on:
       postgres:
@@ -89,7 +89,7 @@ services:
       - .:/usr/src/app
     command: npx prisma studio --port 5555 --browser none --schema ./apps/backend/prisma/schema.prisma
     environment:
-      - DATABASE_URL=postgresql://compinput:cmpinputpswd@postgres:5432/compinput?schema=public
+      - DATABASE_URL=postgresql://lingput:cmpinputpswd@postgres:5432/lingput?schema=public
     ports:
       - "5555:5555"
     depends_on:

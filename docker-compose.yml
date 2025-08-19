@@ -2,11 +2,11 @@ services:
   lemma:
     hostname: lemma
     mem_limit: 768m
-    image: "markmdev/compinput-lemma"
+    image: "markmdev/lingput-lemma"
   backend:
     hostname: backend
     mem_limit: 768m
-    image: "markmdev/compinput-backend"
+    image: "markmdev/lingput-backend"
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - DATABASE_URL=${DATABASE_URL}
@@ -16,7 +16,7 @@ services:
   worker:
     hostname: worker
     mem_limit: 768m
-    image: "markmdev/compinput-worker"
+    image: "markmdev/lingput-worker"
     command: npm run worker
     environment:
       - SUPABASE_URL=${SUPABASE_URL}
@@ -31,13 +31,13 @@ services:
   frontend:
     hostname: frontend
     mem_limit: 1024m
-    image: "markmdev/compinput-frontend"
+    image: "markmdev/lingput-frontend"
     depends_on:
       - backend
   nginx:
     mem_limit: 128m
     hostname: nginx
-    image: "markmdev/compinput-nginx"
+    image: "markmdev/lingput-nginx"
     ports:
       - "80:80"
     depends_on:

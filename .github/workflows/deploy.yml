@@ -1,4 +1,4 @@
-name: Deploy compinput
+name: Deploy lingput
 on:
   push:
     branches:
@@ -16,20 +16,20 @@ jobs:
         run: |
           docker build --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
                       --build-arg NEXT_PUBLIC_AUDIO_BUCKET_URL=${{ secrets.NEXT_PUBLIC_AUDIO_BUCKET_URL }} \
-                      -t markmdev/compinput-frontend ./apps/frontend
+                      -t markmdev/lingput-frontend ./apps/frontend
 
       - name: Build production versions of images
         run: |
-          docker build -t markmdev/compinput-backend ./apps/backend
-          docker build -t markmdev/compinput-worker ./apps/backend
-          docker build -t markmdev/compinput-nginx ./nginx
+          docker build -t markmdev/lingput-backend ./apps/backend
+          docker build -t markmdev/lingput-worker ./apps/backend
+          docker build -t markmdev/lingput-nginx ./nginx
 
       - name: Push images to Docker Hub
         run: |
-          docker push markmdev/compinput-frontend
-          docker push markmdev/compinput-backend 
-          docker push markmdev/compinput-worker
-          docker push markmdev/compinput-nginx
+          docker push markmdev/lingput-frontend
+          docker push markmdev/lingput-backend 
+          docker push markmdev/lingput-worker
+          docker push markmdev/lingput-nginx
 
       - name: Generate deployment package
         run: zip -r deploy.zip . -x '*.git*'
@@ -37,8 +37,8 @@ jobs:
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v18
         with:
-          application_name: compinput
-          environment_name: compinput-env
+          application_name: lingput
+          environment_name: lingput-env
           existing_bucket_name: elasticbeanstalk-us-west-1-399672341471
           region: us-west-1
           version_label: ${{ github.sha }}

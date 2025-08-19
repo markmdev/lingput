@@ -170,11 +170,11 @@ App: [http://localhost:3050](http://localhost:3050)
 
 Use `docker-compose.yml` with prebuilt images:
 
-- `markmdev/compinput-backend`
-- `markmdev/compinput-worker`
-- `markmdev/compinput-frontend`
-- `markmdev/compinput-lemma`
-- `markmdev/compinput-nginx`
+- `markmdev/lingput-backend`
+- `markmdev/lingput-worker`
+- `markmdev/lingput-frontend`
+- `markmdev/lingput-lemma`
+- `markmdev/lingput-nginx`
 
 Steps:
 
