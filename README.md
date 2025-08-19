@@ -1,15 +1,15 @@
 # Lingput - AI-Powered Comprehensible Input for Language Learning
 
-<img src="docs/logo_min.jpeg" alt="Lingput logo" />
+<img src="docs/logo_min.jpeg" alt="Lingput logo" width="320" />
 
 **Lingput** is a full-stack, production-grade application that helps learners acquire a new language through **short, AI-generated stories**.
 Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **natural comprehensible input**: stories, translations, audio, and smart word tracking
 
 <p align="center">
-  <img src="docs/demo-story.png" alt="Lingput demo" width="600"/>
+  <img src="docs/demo-story.png" alt="Lingput demo" width="960"/>
 </p>
 <p align="center">
-  <video src="docs/lingput-demo.mov" width="960" height="540" controls></video>
+  <img src="docs/lingput-demo.gif" width="960" height="540"/>
 </p>
 
 ## Table of Contents
