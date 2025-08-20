@@ -39,6 +39,6 @@ const shutdown = async () => {
   process.exit(0);
 };
 
-["SIGINT", "SIGTERM"].forEach((sig) => process.on(sig, shutdown));
+["SIGINT", "SIGTERM"].forEach((sig) => process.once(sig, shutdown));
 
 startWorker();

@@ -21,7 +21,7 @@ const connectRedis = async () => {
   try {
     await redisClient.connect();
   } catch (error) {
-    logger.error("Failed to connect to Redis", { error });
+    logger.error("Failed to connect to Redis", error);
     throw new RedisError("Failed to connect to Redis", error);
   }
 };
@@ -30,7 +30,7 @@ const closeRedisConnection = async () => {
   try {
     await redisClient.quit();
   } catch (error) {
-    logger.error("Failed to close redisClient", { error });
+    logger.error("Failed to close redisClient", error);
     throw new RedisError("Failed to close redisClient", error);
   }
 };

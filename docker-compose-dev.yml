@@ -20,6 +20,7 @@ services:
     build:
       context: ./apps/lemmas
   backend:
+    init: true
     build:
       context: ./apps/backend
       dockerfile: Dockerfile.dev

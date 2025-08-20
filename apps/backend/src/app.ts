@@ -41,6 +41,7 @@ app.use(requestLogger);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.set("trust proxy", 1);
 
 app.use("/api/vocab", vocabularyModule.router);
 app.use("/api/story", storyModule.router);
@@ -64,9 +65,12 @@ const startServer = async () => {
 
   const gracefulShutdown = async (signal: string) => {
     logger.info(`Received ${signal}. Stopping server...`);
-    prisma.$disconnect();
+    await prisma.$disconnect();
+    logger.info("Closed prisma connection");
     await closeRedisConnection();
+    logger.info("Closed Redis connection");
     await closeIORedisConnection();
+    logger.info("Closed IORedis connection");
     server.close((err) => {
       if (err) {
         logger.error("Error closing server:", err);
@@ -83,14 +87,14 @@ const startServer = async () => {
   };
 
   ["SIGINT", "SIGTERM"].forEach((sig) => {
-    process.on(sig, () => gracefulShutdown(sig));
+    process.once(sig, () => gracefulShutdown(sig));
   });
 
-  process.on("uncaughtException", (err) => {
+  process.once("uncaughtException", (err) => {
     logger.error("Uncaught exception:", err);
     gracefulShutdown("uncaughtException");
   });
-  process.on("unhandledRejection", (reason) => {
+  process.once("unhandledRejection", (reason) => {
     logger.error("Unhandled rejection:", reason);
     gracefulShutdown("unhandledRejection");
   });
