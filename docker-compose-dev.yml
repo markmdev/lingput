@@ -41,8 +41,9 @@ services:
       redis:
         condition: service_started
   worker:
+    init: true
     image: "markmdev/lingput-backend"
-    command: npm run worker:dev
+    command: sh "./worker-start-dev.sh"
     env_file:
       - ./apps/backend/.env
     volumes:
