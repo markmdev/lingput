@@ -13,6 +13,7 @@ import { closeRedisConnection, connectRedis } from "./services/redis/redisClient
 import {
   authRouter,
   jobsModule,
+  onboardingModule,
   storyModule,
   unknownWordModule,
   vocabAssessmentModule,
@@ -49,6 +50,7 @@ app.use("/api/unknown-words", unknownWordModule.router);
 app.use("/api/auth", authRouter);
 app.use("/api/vocab-assessment", vocabAssessmentModule.router);
 app.use("/api/jobs", jobsModule.router);
+app.use("/api/onboarding", onboardingModule.router);
 
 app.get("/healthz", (req, res) => {
   res.status(200).send("OK");

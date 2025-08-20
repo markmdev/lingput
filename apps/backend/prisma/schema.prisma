@@ -48,6 +48,15 @@ model User {
   userVocabulary UserVocabulary[]
   UnknownWord    UnknownWord[]
   RefreshToken   RefreshToken[]
+  onboarding Onboarding?
+}
+
+model Onboarding {
+  id Int @id @default(autoincrement())
+  status OnbStatus
+  completed_at DateTime @default(now())
+  user User @relation(fields: [userId], references: [id])
+  userId Int @unique
 }
 
 model RefreshToken {
@@ -79,4 +88,8 @@ enum SessionStatus {
   active
   completed
   expired
+}
+
+enum OnbStatus {
+  completed
 }

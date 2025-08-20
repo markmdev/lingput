@@ -2,6 +2,8 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer } from "react";
 import type { CoachmarkStep } from "@/components/OnboardingCoachmarks";
+import { ClientApi } from "@/lib/ClientApi";
+import { OnboardingApi } from "./api";
 
 type State = {
   showOnboarding: boolean;
@@ -9,20 +11,23 @@ type State = {
   coachmarkIndex: number | null;
   coachmarkDisableNext: boolean;
   isWaitingForStory: boolean;
+  error: string | null;
 };
 
 type Action =
   | { type: "INIT"; assessmentRequired: boolean }
+  | { type: "CHECK_SUCCESS"; completed: boolean; assessmentRequired: boolean }
+  | { type: "CHECK_FAILURE"; error: string }
   | { type: "COMPLETE_INTRO" }
   | { type: "COMPLETE_ONBOARDING" }
+  | { type: "COMPLETE_ONBOARDING_SUCCESS" }
+  | { type: "COMPLETE_ONBOARDING_FAILURE"; error: string }
   | { type: "SET_DISABLE_NEXT"; value: boolean }
   | { type: "SET_WAITING"; value: boolean }
-  | { type: "NEXT"; stepsLen: number; onFinish: () => void }
+  | { type: "NEXT"; stepsLen: number }
   | { type: "BACK" }
   | { type: "JUMP_TO"; index: number }
   | { type: "OPEN" }; // start coachmarks after intro
-
-const LS_KEY = "compinput_onboarding_completed";
 
 const initial: State = {
   showOnboarding: false,
@@ -30,23 +35,36 @@ const initial: State = {
   coachmarkIndex: null,
   coachmarkDisableNext: false,
   isWaitingForStory: false,
+  error: null,
 };
+
+const clientApi = new ClientApi();
+const onboardingApi = new OnboardingApi(clientApi);
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case "INIT": {
-      const completed =
-        typeof window !== "undefined" ? window.localStorage.getItem(LS_KEY) : "true";
-      const show = !action.assessmentRequired && completed !== "true";
-      return { ...state, showOnboarding: show };
-    }
+    case "CHECK_SUCCESS":
+      return {
+        ...state,
+        showOnboarding: !action.completed && !action.assessmentRequired,
+        error: null,
+      };
+    case "CHECK_FAILURE":
+      return { ...state, error: action.error };
     case "COMPLETE_INTRO":
       return { ...state, hasIntroShown: true };
     case "OPEN":
       return { ...state, coachmarkIndex: 0 };
-    case "COMPLETE_ONBOARDING":
-      if (typeof window !== "undefined") window.localStorage.setItem(LS_KEY, "true");
-      return { ...state, showOnboarding: false, coachmarkIndex: null, isWaitingForStory: false };
+    case "COMPLETE_ONBOARDING_SUCCESS":
+      return {
+        ...state,
+        showOnboarding: false,
+        coachmarkIndex: null,
+        isWaitingForStory: false,
+        error: null,
+      };
+    case "COMPLETE_ONBOARDING_FAILURE":
+      return { ...state, error: action.error };
     case "SET_DISABLE_NEXT":
       return { ...state, coachmarkDisableNext: action.value };
     case "SET_WAITING":
@@ -97,23 +115,60 @@ export default function OnboardingProvider({
     () => (typeof wordsCount === "number" ? wordsCount === 0 : false),
     [wordsCount]
   );
+
   useEffect(() => {
-    dispatch({ type: "INIT", assessmentRequired });
+    let cancelled = false;
+    const run = async () => {
+      try {
+        const res = await onboardingApi.check(); // { status: "completed" | "not_started" }
+        if (cancelled) return;
+        dispatch({
+          type: "CHECK_SUCCESS",
+          completed: res.status === "completed",
+          assessmentRequired,
+        });
+      } catch (e) {
+        if (cancelled) return;
+        const message = e instanceof Error ? e.message : "Failed to check onboarding";
+        dispatch({ type: "CHECK_FAILURE", error: message });
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
   }, [assessmentRequired]);
 
   const coachmarkSteps = useCoachmarkSteps(state.isWaitingForStory);
 
   const completeIntro = useCallback(() => dispatch({ type: "COMPLETE_INTRO" }), []);
-  const completeOnboarding = useCallback(() => dispatch({ type: "COMPLETE_ONBOARDING" }), []);
   const setDisableNext = useCallback(
     (v: boolean) => dispatch({ type: "SET_DISABLE_NEXT", value: v }),
     []
   );
   const setWaiting = useCallback((v: boolean) => dispatch({ type: "SET_WAITING", value: v }), []);
+
+  const completeOnboarding = useCallback(async () => {
+    try {
+      await onboardingApi.complete();
+      dispatch({ type: "COMPLETE_ONBOARDING_SUCCESS" });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to complete onboarding";
+      dispatch({ type: "COMPLETE_ONBOARDING_FAILURE", error: message });
+    }
+  }, []);
+
   const next = useCallback(
-    (len: number) => dispatch({ type: "NEXT", stepsLen: len, onFinish: completeOnboarding }),
-    [completeOnboarding]
+    (len: number) => {
+      if ((state.coachmarkIndex ?? 0) + 1 >= len) {
+        void completeOnboarding();
+      } else {
+        dispatch({ type: "NEXT", stepsLen: len });
+      }
+    },
+    [state.coachmarkIndex, completeOnboarding]
   );
+
   const back = useCallback(() => dispatch({ type: "BACK" }), []);
   const openCoachmarks = useCallback(() => dispatch({ type: "OPEN" }), []);
   const setOpenStep = useCallback((i: number) => dispatch({ type: "JUMP_TO", index: i }), []);

@@ -16,6 +16,7 @@ import { KeyedMutator } from "swr";
 import useOnboarding from "@/features/dashboard/onboarding/useOnboarding";
 import useOnboardingEvents from "@/features/dashboard/onboarding/useOnboardingEvents";
 import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 export default function Dashboard({
   wordsCount,
@@ -51,6 +52,7 @@ export default function Dashboard({
     openCoachmarks,
     goNextCoachmark,
     goBackCoachmark,
+    error,
   } = useOnboarding();
 
   useOnboardingEvents();
@@ -61,6 +63,10 @@ export default function Dashboard({
       return () => clearTimeout(t);
     }
   }, [showOnboarding, hasIntroShown, openCoachmarks]);
+
+  useEffect(() => {
+    toast.error(error);
+  }, [error]);
 
   return (
     <div className="flex flex-col bg-transparent h-screen">

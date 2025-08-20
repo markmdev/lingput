@@ -24,7 +24,7 @@ export class RedisStoryCache extends BaseRedisCache {
         unknownWords: storyJson.unknownWords || [],
       };
     } catch (error) {
-      logger.error("Failed to parse cached story", { error, storyString });
+      logger.error("Failed to parse cached story", error, storyString);
       throw new RedisError("Invalid cached story format", error, { storyString });
     }
   }

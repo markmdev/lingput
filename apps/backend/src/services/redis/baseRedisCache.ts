@@ -26,7 +26,7 @@ export abstract class BaseRedisCache {
       if (!value) return null;
       return JSON.parse(value) as T;
     } catch (error) {
-      logger.error("[cache] getKey error", { error, key });
+      logger.error("[cache] getKey error", error, key);
       return null;
     }
   }
@@ -46,7 +46,7 @@ export abstract class BaseRedisCache {
       const value = await this.redis.lRange(key, 0, -1);
       return value;
     } catch (error) {
-      logger.error("[cache] lRange error", { error, key });
+      logger.error("[cache] lRange error", error, key);
       return [];
     }
   }

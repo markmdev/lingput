@@ -2,6 +2,7 @@ import { createAuthMiddleware } from "./middlewares/authMiddleware";
 import { buildAuthRouter } from "./modules/auth/authRoutes";
 import { createAuthModule } from "./modules/auth/composition";
 import { createJobsModule } from "./modules/jobs/composition";
+import { createOnboardingModule } from "./modules/onboarding/composition";
 import { createSessionModule } from "./modules/session/composition";
 import { createStoryModule } from "./modules/story/composition";
 import { TextToSpeechService } from "./modules/story/services/audioAssembler/textToSpeechService";
@@ -65,4 +66,9 @@ export const vocabAssessmentModule = createVocabAssessmentModule({
   authMiddleware,
   sessionService: sessionModule.service,
   vocabularyService: vocabularyModule.service,
+});
+
+export const onboardingModule = createOnboardingModule({
+  prisma,
+  authMiddleware,
 });

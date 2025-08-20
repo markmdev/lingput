@@ -2,7 +2,7 @@
 
 import { Story } from "@/features/story/types";
 import { ApiError } from "@/types/ApiError";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import Dashboard from "@/components/Dashboard";
 import { useWordStatus } from "@/features/story/hooks/useWordStatus";
 import { useStories } from "@/features/story/hooks/useStories";
