@@ -97,6 +97,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+  landing:
+    build:
+      context: ./apps/landing
+      dockerfile: Dockerfile.dev
+    volumes:
+      - /app/node_modules
+      - ./apps/landing:/app
 
 volumes:
   pgdata:
