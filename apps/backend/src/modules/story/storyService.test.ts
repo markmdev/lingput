@@ -1,10 +1,12 @@
-import { UserVocabulary } from "@prisma/client";
 import { CreateUnknownWordDTO } from "../unknownWord/unknownWord.types";
 import { AudioAssembler } from "./services/audioAssembler/audioAssembler";
 import { LemmaAssembler } from "./services/lemmaAssembler/lemmaAssembler";
 import { StoryAssembler } from "./services/storyAssembler/storyAssembler";
 import { StoryRepository } from "./storyRepository";
 import { StoriesService } from "./storyService";
+import { RedisStoryCache } from "@/cache/redisStoryCache";
+import { Queue, Job } from "bullmq";
+import { UnknownWordService } from "../unknownWord/unknownWordService";
 
 const assembledStoryMock = {
   story: "Der Hund jagt die Katze.",
@@ -45,47 +47,120 @@ const unknownWordsMock: CreateUnknownWordDTO[] = [
   },
 ];
 
-const knownWordsMock: UserVocabulary[] = [
-  {
-    id: 1,
-    userId: 1,
-    word: "Hund",
-    translation: "Dog",
-    article: "der",
-  },
-];
-
-describe("StoryService", () => {
-  it("should generate a story", async () => {
+describe("StoriesService", () => {
+  it("generateFullStoryExperience enqueues a job and returns jobId", async () => {
     const storyRepositoryMock = {} as unknown as StoryRepository;
+    const storyAssemblerMock = {} as unknown as StoryAssembler;
+    const lemmaAssemblerMock = {} as unknown as LemmaAssembler;
+    const audioAssemblerMock = {} as unknown as AudioAssembler;
+    const redisStoryCacheMock = {} as unknown as RedisStoryCache;
+
+    const jobStub = { id: "job-123", updateProgress: jest.fn() } as unknown as Job;
+    const jobQueueMock = { add: jest.fn().mockResolvedValue(jobStub) } as unknown as Queue;
+    const unknownWordServiceMock = {} as unknown as UnknownWordService;
+
+    const service = new StoriesService(
+      storyRepositoryMock,
+      storyAssemblerMock,
+      lemmaAssemblerMock,
+      audioAssemblerMock,
+      redisStoryCacheMock,
+      jobQueueMock,
+      unknownWordServiceMock
+    );
+
+    const res = await service.generateFullStoryExperience(1, "DE", "EN", "Pets");
+
+    expect(res).toEqual({ jobId: "job-123" });
+    expect((jobQueueMock as any).add).toHaveBeenCalledWith("generateStory", {
+      userId: 1,
+      languageCode: "DE",
+      originalLanguageCode: "EN",
+      subject: "Pets",
+    });
+    expect(jobStub.updateProgress).toHaveBeenCalled();
+  });
+
+  it("processStoryGenerationJob runs full pipeline, saves data in transaction, invalidates cache", async () => {
+    const storyRepositoryMock: any = {
+      saveStoryToDB: jest
+        .fn()
+        .mockImplementation(async (story: any, tx: any) => ({ id: 42, ...story })),
+      connectUnknownWords: jest
+        .fn()
+        .mockImplementation(async (storyId: number, wordIds: { id: number }[], tx: any) => ({
+          id: storyId,
+          storyText: "Der Hund jagt die Katze.",
+          translationText: "The dog chases the cat.",
+          audioUrl: "audioUrl",
+          unknownWords: wordIds,
+        })),
+      getAllStories: jest.fn(),
+    } as unknown as StoryRepository;
+
     const storyAssemblerMock = {
       assemble: jest.fn().mockResolvedValue(assembledStoryMock),
     } as unknown as StoryAssembler;
+
     const lemmaAssemblerMock = {
       assemble: jest.fn().mockResolvedValue(unknownWordsMock),
     } as unknown as LemmaAssembler;
+
     const audioAssemblerMock = {
       assemble: jest.fn().mockResolvedValue("audioUrl"),
     } as unknown as AudioAssembler;
 
-    const expectedResult = {
-      story: {
-        storyText: "Der Hund jagt die Katze.",
-        translationText: "The dog chases the cat.",
-        audioUrl: "audioUrl",
-        userId: 1,
-      },
-      unknownWords: unknownWordsMock,
-      knownWords: knownWordsMock,
-    };
+    const redisStoryCacheMock = {
+      invalidateStoryCache: jest.fn().mockResolvedValue(undefined),
+      getAllStoriesFromCache: jest.fn().mockResolvedValue([]),
+      saveStoriesToCache: jest.fn(),
+    } as unknown as RedisStoryCache;
 
-    const storyService = new StoriesService(
+    const unknownWordServiceMock = {
+      saveUnknownWords: jest.fn().mockResolvedValue([{ id: 100 }, { id: 101 }]),
+    } as unknown as UnknownWordService;
+
+    const job = {
+      data: { userId: 1, languageCode: "DE", originalLanguageCode: "EN", subject: "Pets" },
+      updateProgress: jest.fn(),
+    } as unknown as Job;
+
+    const tx = {} as any;
+    const prisma = { $transaction: jest.fn(async (fn: any) => fn(tx)) } as any;
+
+    const service = new StoriesService(
       storyRepositoryMock,
       storyAssemblerMock,
       lemmaAssemblerMock,
-      audioAssemblerMock
+      audioAssemblerMock,
+      redisStoryCacheMock,
+      { add: jest.fn() } as unknown as Queue,
+      unknownWordServiceMock
     );
-    const result = await storyService.generateFullStoryExperience(1, "DE", "EN", "Pets");
-    expect(result).toEqual(expectedResult);
+
+    const res = await service.processStoryGenerationJob(job, prisma);
+
+    expect(storyAssemblerMock.assemble).toHaveBeenCalled();
+    expect(lemmaAssemblerMock.assemble).toHaveBeenCalled();
+    expect(audioAssemblerMock.assemble).toHaveBeenCalled();
+
+    expect(prisma.$transaction).toHaveBeenCalled();
+    expect(storyRepositoryMock.saveStoryToDB).toHaveBeenCalled();
+    expect(unknownWordServiceMock.saveUnknownWords).toHaveBeenCalledWith(
+      unknownWordsMock,
+      42,
+      1,
+      tx
+    );
+    expect(storyRepositoryMock.connectUnknownWords).toHaveBeenCalled();
+    expect(redisStoryCacheMock.invalidateStoryCache).toHaveBeenCalledWith(1);
+
+    expect(res).toEqual({
+      id: 42,
+      storyText: "Der Hund jagt die Katze.",
+      translationText: "The dog chases the cat.",
+      audioUrl: "audioUrl",
+      unknownWords: [{ id: 100 }, { id: 101 }].map((w) => ({ id: w.id })),
+    });
   });
 });

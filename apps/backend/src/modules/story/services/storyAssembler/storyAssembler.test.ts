@@ -4,6 +4,9 @@ import { StoryGeneratorService } from "./storyGeneratorService";
 import { TranslationService, ChunkTranslation } from "./translationService";
 import { UnknownWord, UserVocabulary } from "@prisma/client";
 import { UnknownWordService } from "@/modules/unknownWord/unknownWordService";
+import { Job } from "bullmq";
+import { CustomError } from "@/errors/CustomError";
+import { GENERATION_PHASES } from "../../generationPhases";
 
 const wordsMock: UserVocabulary[] = [
   {
@@ -51,7 +54,6 @@ describe("StoryAssembler", () => {
   });
 
   it("assembles story correctly", async () => {
-    // Mocks
     const vocabularyServiceMock = {
       getWords: jest.fn().mockResolvedValue({ data: wordsMock }),
     } as unknown as VocabularyService;
@@ -82,10 +84,87 @@ describe("StoryAssembler", () => {
       translationChunks: translatedChunksMock,
     };
 
-    const result = await assembler.assemble("Pets", 1, "DE", "EN");
+    const jobStub = { updateProgress: jest.fn() } as unknown as Job;
+    const result = await assembler.assemble("Pets", 1, "DE", "EN", jobStub);
     expect(result).toEqual(expected);
     expect(vocabularyServiceMock.getWords).toHaveBeenCalledWith(1);
-    expect(storyGeneratorServiceMock.generateStory).toHaveBeenCalledWith(["Hund", "Katze", "jagen"], "Pets", "DE");
-    expect(translationServiceMock.translateChunks).toHaveBeenCalledWith("Der Hund jagt schnell die Katze.", "EN");
+    expect(storyGeneratorServiceMock.generateStory).toHaveBeenCalledWith(
+      ["Hund", "Katze", "jagen"],
+      "Pets",
+      "DE"
+    );
+    expect(translationServiceMock.translateChunks).toHaveBeenCalledWith(
+      "Der Hund jagt schnell die Katze.",
+      "EN"
+    );
+  });
+
+  it("throws when vocabulary is empty", async () => {
+    const vocabularyServiceMock = {
+      getWords: jest.fn().mockResolvedValue({ data: [] }),
+    } as unknown as VocabularyService;
+
+    const storyGeneratorServiceMock = {
+      generateStory: jest.fn(),
+    } as unknown as StoryGeneratorService;
+
+    const translationServiceMock = {
+      translateChunks: jest.fn(),
+    } as unknown as TranslationService;
+
+    const unknownWordServiceMock = {
+      getUnknownWords: jest.fn().mockResolvedValue([]),
+    } as unknown as UnknownWordService;
+
+    const assembler = new StoryAssembler(
+      vocabularyServiceMock,
+      storyGeneratorServiceMock,
+      translationServiceMock,
+      unknownWordServiceMock
+    );
+    const jobStub = { updateProgress: jest.fn() } as unknown as Job;
+
+    await expect(assembler.assemble("Pets", 1, "DE", "EN", jobStub)).rejects.toBeInstanceOf(
+      CustomError
+    );
+  });
+
+  it("updates job progress across fetchingWords, generation, translation phases", async () => {
+    const vocabularyServiceMock = {
+      getWords: jest.fn().mockResolvedValue({ data: wordsMock }),
+    } as unknown as VocabularyService;
+
+    const storyGeneratorServiceMock = {
+      generateStory: jest.fn().mockResolvedValue(generatedStoryMock),
+    } as unknown as StoryGeneratorService;
+
+    const translationServiceMock = {
+      translateChunks: jest.fn().mockResolvedValue(translatedChunksMock),
+    } as unknown as TranslationService;
+
+    const unknownWordServiceMock = {
+      getUnknownWords: jest.fn().mockResolvedValue(unknownWordsMock),
+    } as unknown as UnknownWordService;
+
+    const assembler = new StoryAssembler(
+      vocabularyServiceMock,
+      storyGeneratorServiceMock,
+      translationServiceMock,
+      unknownWordServiceMock
+    );
+
+    const jobStub = { updateProgress: jest.fn() } as unknown as Job;
+    await assembler.assemble("Pets", 1, "DE", "EN", jobStub);
+
+    const totalSteps = Object.keys(GENERATION_PHASES).length;
+    expect((jobStub as any).updateProgress).toHaveBeenCalledWith(
+      expect.objectContaining({ phase: GENERATION_PHASES.fetchingWords, totalSteps })
+    );
+    expect((jobStub as any).updateProgress).toHaveBeenCalledWith(
+      expect.objectContaining({ phase: GENERATION_PHASES.generation, totalSteps })
+    );
+    expect((jobStub as any).updateProgress).toHaveBeenCalledWith(
+      expect.objectContaining({ phase: GENERATION_PHASES.translation, totalSteps })
+    );
   });
 });

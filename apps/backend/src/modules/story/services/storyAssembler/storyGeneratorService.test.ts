@@ -7,18 +7,10 @@ const storyMock = "Der Hund jagt die Katze.";
 describe("StoryGeneratorService", () => {
   it("should return story when response is valid", async () => {
     const openaiMock = {
-      chat: {
-        completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [
-              {
-                message: {
-                  content: storyMock,
-                },
-              },
-            ],
-          }),
-        },
+      responses: {
+        create: jest.fn().mockResolvedValue({
+          output_text: storyMock,
+        }),
       },
     } as unknown as OpenAI;
 
@@ -30,10 +22,8 @@ describe("StoryGeneratorService", () => {
 
   it("should throw if get an error from openai", async () => {
     const openaiMock = {
-      chat: {
-        completions: {
-          create: jest.fn().mockRejectedValue(new Error("Unknown API Error")),
-        },
+      responses: {
+        create: jest.fn().mockRejectedValue(new Error("Unknown API Error")),
       },
     } as unknown as OpenAI;
 
@@ -45,27 +35,17 @@ describe("StoryGeneratorService", () => {
       message: "Unable to generate a story",
       statusCode: 502,
       details: {
-        targetLanguageWords: ["Hund", "Katze"],
         subject: "Pets",
       },
-      originalError: new Error("Unknown API Error"),
     });
   });
 
   it("should throw if openai returns empty response", async () => {
     const openaiMock = {
-      chat: {
-        completions: {
-          create: jest.fn().mockResolvedValue({
-            choices: [
-              {
-                message: {
-                  content: null,
-                },
-              },
-            ],
-          }),
-        },
+      responses: {
+        create: jest.fn().mockResolvedValue({
+          output_text: null,
+        }),
       },
     } as unknown as OpenAI;
 

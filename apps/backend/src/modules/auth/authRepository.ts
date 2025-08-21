@@ -16,7 +16,7 @@ export class AuthRepository {
         token: refreshToken,
         userId: userId.toString(),
       })
-      .expireAt(refreshToken, timestampInSeconds)
+      .expireAt(key, timestampInSeconds)
       .exec();
   }
 
@@ -31,6 +31,7 @@ export class AuthRepository {
   }
 
   async revokeToken(oldToken: string) {
-    await this.redis.del(oldToken);
+    const key = this.getKey(oldToken);
+    await this.redis.del(key);
   }
 }

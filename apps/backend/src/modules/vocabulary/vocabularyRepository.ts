@@ -7,7 +7,7 @@ export class VocabularyRepository {
 
   async getWordsCount(userId: number): Promise<number> {
     try {
-      const count = await this.prisma.userVocabulary.count();
+      const count = await this.prisma.userVocabulary.count({ where: { userId } });
       return count;
     } catch (error) {
       throw new PrismaError("Unable to get words count", error, { userId });
@@ -40,11 +40,12 @@ export class VocabularyRepository {
 
   async getWordByID(wordId: number): Promise<UserVocabulary | null> {
     try {
-      return this.prisma.userVocabulary.findUnique({
+      const word = await this.prisma.userVocabulary.findUnique({
         where: {
           id: wordId,
         },
       });
+      return word;
     } catch (error) {
       throw new PrismaError("Unable to retrieve word by ID from DB", error, { wordId });
     }
@@ -83,12 +84,13 @@ export class VocabularyRepository {
 
   async deleteWord(wordId: number, userId: number): Promise<UserVocabulary> {
     try {
-      return this.prisma.userVocabulary.delete({
+      const deleted = await this.prisma.userVocabulary.delete({
         where: {
           id: wordId,
           userId,
         },
       });
+      return deleted;
     } catch (error) {
       throw new PrismaError("Unable to delete word from DB", error, { wordId, userId });
     }
@@ -96,12 +98,13 @@ export class VocabularyRepository {
 
   async updateWord(wordId: number, wordData: Partial<UserVocabulary>): Promise<UserVocabulary> {
     try {
-      return this.prisma.userVocabulary.update({
+      const updated = await this.prisma.userVocabulary.update({
         where: {
           id: wordId,
         },
         data: wordData,
       });
+      return updated;
     } catch (error) {
       throw new PrismaError("Unable to update the word from DB", error, { wordId, wordData });
     }

@@ -19,21 +19,17 @@ Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **
 
 ## Table of Contents
 
-- [👩‍🎓 Use Cases](#-use-cases)
-- [🛣 Roadmap](#-roadmap)
-- [✨ Features](#-features)
-- [🏗 Architecture](#-architecture)
-- [🗂 Data Model](#-data-model)
-- [🔌 API Overview](#-api-overview)
-- [🚀 Getting Started (Dev)](#-getting-started-dev)
-  - [1. Environment Variables](#1-environment-variables)
-  - [2. Run with Docker Compose](#2-run-with-docker-compose)
-- [🌐 Production](#-production)
-- [🧑‍💻 Development Notes](#-development-notes)
-- [🤝 Contributing](#-contributing)
-- [📜 License](#-license)
+- [Use Cases](#use-cases)
+- [Roadmap](#roadmap)
+- [Features](#features)
+- [Tech Stack](#architecture)
+- [API Overview](#api-overview)
+- [Quickstart](#quickstart)
+- [Production Deploy](#production-deploy)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 👩‍🎓 Use Cases
+## Use Cases
 
 **Who is this app for?**
 
@@ -41,23 +37,9 @@ Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **
 - Users who want stories tailored to their **current vocabulary level**, so they can read and listen with confidence.
 - Learners who need a simple way to **track, review, and master new words** over time.
 
-## 🛣 Roadmap
-
-✅ = Done · 🟦 = Planned
-
-- ✅ Interactive onboarding
-- 🟦 Import from Anki
-- 🟦 Audio downloading (export generated audio as MP3)
-- 🟦 Word info on click (definitions, examples, grammar)
-- 🟦 Detailed statistics (track number of learned words over time)
-- 🟦 Gamification (XP, streaks, achievements)
-- 🟦 Audio voice settings (choose between different TTS voices)
-- 🟦 Leaderboard (compare progress with other learners)
-- 🟦 Multi-language support (beyond current target language)
-
 ---
 
-## ✨ Features
+## Features
 
 - 🔐 **Auth with secure cookies** - register/login with HTTP-only tokens, refresh flow included.
 - 📊 **Vocabulary assessment** - quick test estimates your vocab size using a frequency list.
@@ -70,14 +52,17 @@ Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **
 
 ---
 
-## 🏗 Architecture
+## Tech Stack
 
-- Modern frontend: Next.js 15 (App Router), React, TailwindCSS
-- Robust backend: Node.js + Express + Prisma + PostgreSQL
-- Scalability: Redis + BullMQ for queues and background jobs
-- DevOps: Docker Compose with NGINX reverse proxy
-- AI/ML: OpenAI API for story generation and translation
-- Cloud storage: Supabase for audio assets
+- **Frontend**: [Next.js](https://nextjs.org/) (App Router)
+- **Backend**: [Express.js](https://expressjs.com/)
+- **Database**: PostgreSQL with [Prisma ORM](https://www.prisma.io/)
+- **UI**: [Tailwind CSS](https://tailwindcss.com/)
+- **Background Jobs**: [BullMQ](https://docs.bullmq.io/)
+- **Caching**: [Redis](https://redis.io/)
+- **DevOps**: [Docker](https://www.docker.com/), [NGINX](https://nginx.org/)
+- **Cloud Storage**: [Supabase](https://supabase.com/)
+- **AI**: [OpenAI](https://openai.com/api/)
 
 <p align="center">
   <img src="docs/architecture.png" alt="Architecture diagram" width="650"/>
@@ -99,20 +84,23 @@ Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **
 
 ---
 
-## 🗂 Data Model
+## Roadmap
 
-Prisma schema (`apps/backend/prisma/schema.prisma`) defines:
+✅ = Done · 🟦 = Planned
 
-- **User**: email, password, relations
-- **Story**: storyText, translationText, audioUrl, user
-- **UnknownWord**: word, translation, article?, examples, timesSeen, status
-- **UserVocabulary**: known words (`word`, `translation`, `article?`)
-- **RefreshToken**: for JWT refresh rotation
-- **WordRanking**: frequency list for vocab assessment
+- ✅ Interactive onboarding
+- 🟦 Import from Anki
+- 🟦 Audio downloading (export generated audio as MP3)
+- 🟦 Word info on click (definitions, examples, grammar)
+- 🟦 Detailed statistics (track number of learned words over time)
+- 🟦 Gamification (XP, streaks, achievements)
+- 🟦 Audio voice settings (choose between different TTS voices)
+- 🟦 Leaderboard (compare progress with other learners)
+- 🟦 Multi-language support (beyond current target language)
 
 ---
 
-## 🔌 API Overview
+## API Overview
 
 Backend base: `/api`
 Full API docs with request/response examples: [`apps/backend/API.md`](apps/backend/API.md)
@@ -130,13 +118,16 @@ Auth uses HTTP-only cookies. Rate limiting + Helmet enabled.
 
 ---
 
-## 🚀 Getting Started (Dev)
+## Quickstart
 
-### 1. Environment Variables
+```bash
+# Clone the repository
+git clone https://github.com/mark-mdev/lingput
+```
 
-You only need to create `.env` files for backend and frontend:
+Create `.env` files for backend and frontend:
 
-- `apps/backend/.env` (connection to Postgres and Redis is already configured in Docker Compose)
+- `apps/backend/.env`
 
 ```env
 OPENAI_API_KEY=sk-...
@@ -151,28 +142,21 @@ SUPABASE_SERVICE_API_KEY=eyJ......
 NEXT_PUBLIC_AUDIO_BUCKET_URL=https://YOUR_PROJECT_ID.supabase.co/storage/v1/object/public/YOUR_BUCKET/
 ```
 
----
-
-### 2. Run with Docker Compose
-
 ```bash
-docker compose -f docker-compose-dev.yml up --build
+# Navigate to the project directory
+cd lingput
+
+# Start Lingput
+docker compose -f docker-compose-dev.yml up -d
 ```
+
+[How to create supabase audio bucket](docs/supabase-guide.md)
 
 App: [http://localhost:3050](http://localhost:3050)
 
-**Services launched:** Redis, Postgres, Lemma service, Backend, Worker, Frontend, NGINX.
-
-| Service  | Port (host) |
-| -------- | ----------- |
-| NGINX    | 3050        |
-| Backend  | 4000        |
-| Postgres | 5432        |
-| Redis    | 6379        |
-
 ---
 
-## 🌐 Production
+## Production Deploy
 
 Use `docker-compose.yml` with prebuilt images:
 
@@ -189,22 +173,9 @@ Steps:
 3. Provide production env vars (`OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_API_KEY`, `DATABASE_URL`, `REDIS_HOST`, `REDIS_PORT`, `JWT_SECRET`, etc).
 4. Expose NGINX (`80` by default).
 
-Cookies marked `Secure` automatically with `NODE_ENV=production`.
-
 ---
 
-## 🧑‍💻 Development Notes
-
-- Backend runs with `nodemon` in dev.
-- Long tasks handled via BullMQ + worker (`apps/backend/src/worker.ts`).
-- Job progress via `GET /api/jobs/status/:jobId`.
-- Vocabulary assessment uses adaptive frequency-based loop.
-- Redis caches stories (30m) & frequency lists (1d).
-- Unknown words update queues invalidate story cache.
-
----
-
-## 🤝 Contributing
+## Contributing
 
 Contributions welcome!
 
@@ -213,6 +184,6 @@ Contributions welcome!
 
 ---
 
-## 📜 License
+## License
 
 Licensed under the [ISC License](./LICENSE).
