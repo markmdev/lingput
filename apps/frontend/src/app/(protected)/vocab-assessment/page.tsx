@@ -152,6 +152,7 @@ export default function VocabAssessmentPage() {
         {status === "completed" && (
           <div className="py-6 flex flex-col items-center justify-center">
             <form action="/dashboard">
+              <p>Vocabulary Assessment completed!</p>
               <button
                 type="submit"
                 className="py-2.5 px-6 text-lg font-semibold rounded-lg w-fit bg-emerald-500 cursor-pointer text-white hover:bg-emerald-600 transition-colors"

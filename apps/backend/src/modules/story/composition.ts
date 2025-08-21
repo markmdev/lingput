@@ -18,6 +18,7 @@ import { TextToSpeechService } from "./services/audioAssembler/textToSpeechServi
 import { buildStoryRouter } from "./storyRoutes";
 import { NextFunction, Request, Response } from "express";
 import { Queue } from "bullmq";
+import { RedisStoryLimits } from "@/cache/redisStoryLimits";
 
 export function createStoryModule(deps: {
   prisma: PrismaClient;
@@ -34,6 +35,7 @@ export function createStoryModule(deps: {
 }) {
   const repository = new StoryRepository(deps.prisma, deps.storage);
   const cache = new RedisStoryCache(deps.redis);
+  const redisStoryLimits = new RedisStoryLimits(deps.redis, 1);
   const storyAssembler = new StoryAssembler(
     deps.vocabularyService,
     deps.storyGeneratorService,
@@ -50,7 +52,8 @@ export function createStoryModule(deps: {
     audioAssembler,
     cache,
     deps.queue,
-    deps.unknownWordService
+    deps.unknownWordService,
+    redisStoryLimits
   );
   const controller = new StoryController(service, deps.unknownWordService);
   return { service, controller, router: buildStoryRouter(controller, deps.authMiddleware) };

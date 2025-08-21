@@ -11,6 +11,7 @@ import { Job, Queue } from "bullmq";
 import { CustomError } from "@/errors/CustomError";
 import { UnknownWordService } from "../unknownWord/unknownWordService";
 import { GENERATION_PHASES } from "./generationPhases";
+import { RedisStoryLimits } from "@/cache/redisStoryLimits";
 
 export class StoriesService {
   constructor(
@@ -20,7 +21,8 @@ export class StoriesService {
     private audioAssembler: AudioAssembler,
     private redisStoryCache: RedisStoryCache,
     private jobQueue: Queue,
-    private unknownWordService: UnknownWordService
+    private unknownWordService: UnknownWordService,
+    private redisStoryLimits: RedisStoryLimits
   ) {}
 
   async generateFullStoryExperience(
@@ -29,6 +31,10 @@ export class StoriesService {
     originalLanguageCode: LanguageCode,
     subject: string = ""
   ) {
+    const isLimitReached = await this.redisStoryLimits.isLimitReached(userId);
+    if (isLimitReached) {
+      throw new CustomError("Daily limit reached", 500, null);
+    }
     const job = await this.jobQueue.add("generateStory", {
       userId,
       languageCode,
@@ -87,6 +93,7 @@ export class StoriesService {
         return storyWithUnknownWords;
       });
       logger.info("Prisma transaction completed!");
+      await this.redisStoryLimits.incrementCount(userId);
       return storyWithUnknownWords;
     } catch (error) {
       logger.error("Prisma transaction failed", error);

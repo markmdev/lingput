@@ -7,10 +7,7 @@ import { motion } from "framer-motion";
 export default function CTA() {
   return (
     <Section className="relative overflow-hidden bg-gradient-to-br from-primary to-purple-600 py-24 sm:py-32">
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-[url('/path-to-your-pattern.svg')] opacity-10"
-      ></div>
+      <div aria-hidden="true" className="absolute inset-0 opacity-10"></div>
       <div className="relative text-center text-white">
         <motion.h2
           className="text-3xl md:text-4xl font-bold mb-4"
