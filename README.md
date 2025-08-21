@@ -46,6 +46,7 @@ Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **
 ✅ = Done · 🟦 = Planned
 
 - ✅ Interactive onboarding
+- 🟦 Import from Anki
 - 🟦 Audio downloading (export generated audio as MP3)
 - 🟦 Word info on click (definitions, examples, grammar)
 - 🟦 Detailed statistics (track number of learned words over time)
