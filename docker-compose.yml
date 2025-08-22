@@ -3,6 +3,7 @@ services:
     hostname: lemma
     mem_limit: 768m
     image: "markmdev/lingput-lemma"
+    restart: unless-stopped
   backend:
     hostname: backend
     mem_limit: 768m
@@ -13,6 +14,13 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - APP_PORT=4000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
   worker:
     hostname: worker
     mem_limit: 768m
@@ -28,12 +36,24 @@ services:
       - REDIS_PORT=${REDIS_PORT}
       - APP_PORT=4000
       - LEMMA_SERVICE_URL=http://lemma:8000
+    depends_on:
+      lemma:
+        condition: service_started
+    restart: unless-stopped
   frontend:
     hostname: frontend
     mem_limit: 1024m
     image: "markmdev/lingput-frontend"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
   nginx:
     mem_limit: 128m
     hostname: nginx
@@ -41,5 +61,8 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - frontend
-      - backend
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    restart: unless-stopped

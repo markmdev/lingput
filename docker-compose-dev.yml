@@ -3,6 +3,11 @@ services:
     image: "redis:latest"
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
   postgres:
     image: "postgres:latest"
     environment:
@@ -39,7 +44,13 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 20s
   worker:
     init: true
     image: "markmdev/lingput-backend"
@@ -58,7 +69,7 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
       lemma:
         condition: service_started
   frontend:
@@ -71,9 +82,16 @@ services:
       - /app/node_modules
       - ./apps/frontend:/app
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:4000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
   nginx:
     restart: unless-stopped
     build:
@@ -82,8 +100,10 @@ services:
     ports:
       - "3050:80"
     depends_on:
-      - frontend
-      - backend
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
   prisma-studio:
     image: node:lts-alpine3.17
     working_dir: /usr/src/app

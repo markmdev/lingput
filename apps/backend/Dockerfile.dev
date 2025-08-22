@@ -2,7 +2,7 @@ FROM node:alpine
 WORKDIR "/app"
 COPY ./package*.json .
 RUN npm install
-RUN apk add --no-cache ffmpeg
+RUN apk add --no-cache ffmpeg curl
 COPY . .
 RUN chmod +x ./start-dev.sh
 RUN npx prisma generate

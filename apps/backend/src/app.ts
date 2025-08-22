@@ -20,6 +20,7 @@ import {
   vocabularyModule,
 } from "./container";
 import { closeIORedisConnection } from "./services/redis/redisConnection";
+import { liveness, readiness } from "./health";
 
 dotenv.config();
 const app = express();
@@ -52,9 +53,8 @@ app.use("/api/vocab-assessment", vocabAssessmentModule.router);
 app.use("/api/jobs", jobsModule.router);
 app.use("/api/onboarding", onboardingModule.router);
 
-app.get("/healthz", (req, res) => {
-  res.status(200).send("OK");
-});
+app.get("/healthz", liveness);
+app.get("/readyz", readiness);
 
 app.use(errorHandler);
 

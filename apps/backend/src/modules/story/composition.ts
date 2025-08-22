@@ -35,7 +35,7 @@ export function createStoryModule(deps: {
 }) {
   const repository = new StoryRepository(deps.prisma, deps.storage);
   const cache = new RedisStoryCache(deps.redis);
-  const redisStoryLimits = new RedisStoryLimits(deps.redis, 1);
+  const redisStoryLimits = new RedisStoryLimits(deps.redis, 5);
   const storyAssembler = new StoryAssembler(
     deps.vocabularyService,
     deps.storyGeneratorService,
