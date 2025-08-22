@@ -5,6 +5,6 @@ import useSWR from "swr";
 export default function useWordsCount() {
   const clientApi = new ClientApi();
   const vocabApi = new VocabApi(clientApi);
-  const { data } = useSWR("/api/vocab/words-count", () => vocabApi.getWordsCount());
-  return { wordsCount: data };
+  const { data, isLoading } = useSWR("/api/vocab/words-count", () => vocabApi.getWordsCount());
+  return { wordsCount: data, isLoading };
 }
