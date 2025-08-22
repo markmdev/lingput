@@ -9,6 +9,13 @@ export class RedisStoryLimits extends BaseRedisCache {
     super(redis);
   }
 
+  async decrementCount(userId: number) {
+    const key = this.getKey(userId);
+    const exists = await this.redis.exists(key);
+    if (!exists) return;
+    await this.redis.decr(key);
+  }
+
   async incrementCount(userId: number) {
     const key = this.getKey(userId);
     const exists = await this.redis.exists(key);

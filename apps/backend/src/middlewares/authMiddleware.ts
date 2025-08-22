@@ -13,7 +13,7 @@ export const createAuthMiddleware =
 
     try {
       const user = await authService.verifyAccessToken(accessToken);
-      if (user.userId === null) {
+      if (!user.userId) {
         next(new AuthError("Unauthorized", null, { message: "Unable to verify access token" }));
       }
       req.user = { userId: user.userId };

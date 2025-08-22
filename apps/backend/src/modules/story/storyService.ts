@@ -33,8 +33,9 @@ export class StoriesService {
   ) {
     const isLimitReached = await this.redisStoryLimits.isLimitReached(userId);
     if (isLimitReached) {
-      throw new CustomError("Daily limit reached", 500, null);
+      throw new CustomError("Daily limit reached", 429, null);
     }
+    await this.redisStoryLimits.incrementCount(userId);
     const job = await this.jobQueue.add("generateStory", {
       userId,
       languageCode,
@@ -59,8 +60,6 @@ export class StoriesService {
       });
     }
 
-    console.log("Creating a story");
-
     const { story, unknownWords, knownWords } = await this.createStory(
       subject,
       userId,
@@ -68,8 +67,6 @@ export class StoriesService {
       originalLanguageCode,
       job
     );
-
-    console.log("Created a story");
 
     job.updateProgress({
       phase: GENERATION_PHASES["saving"],
@@ -93,12 +90,15 @@ export class StoriesService {
         return storyWithUnknownWords;
       });
       logger.info("Prisma transaction completed!");
-      await this.redisStoryLimits.incrementCount(userId);
       return storyWithUnknownWords;
     } catch (error) {
       logger.error("Prisma transaction failed", error);
       throw error;
     }
+  }
+
+  async decrementLimitCount(userId: number) {
+    return this.redisStoryLimits.decrementCount(userId);
   }
 
   private async createStory(
@@ -111,7 +111,6 @@ export class StoriesService {
     const { story, fullTranslation, translationChunks, knownWords } =
       await this.storyAssembler.assemble(subject, userId, languageCode, originalLanguageCode, job);
 
-    console.log("Story generated");
     const unknownWords = await this.lemmaAssembler.assemble(
       story,
       knownWords,

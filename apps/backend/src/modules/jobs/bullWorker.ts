@@ -1,3 +1,4 @@
+import { storyModule } from "@/container";
 import { CustomError } from "@/errors/CustomError";
 import { logger } from "@/utils/logger";
 import { Job, Worker } from "bullmq";
@@ -19,8 +20,19 @@ export class BullWorker {
       logger.info(`Job ${job.id} has completed! ${job.returnvalue}`);
     });
 
-    this.worker.on("failed", (job, err) => {
+    this.worker.on("failed", async (job, err) => {
       logger.error(`Job ${job?.id} has failed with ${err.message}`);
+      if (!job) return;
+
+      const attemptsAllowed = job.opts.attempts ?? 1;
+      const isLastFail = job.attemptsMade >= attemptsAllowed;
+      if (isLastFail && job.name === "generateStory") {
+        try {
+          await storyModule.service.decrementLimitCount(job.data.userId);
+        } catch (error) {
+          logger.error("Failed to decrement limit count", error);
+        }
+      }
     });
 
     process.on("SIGINT", async () => {

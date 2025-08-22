@@ -40,7 +40,6 @@ export class StoryController {
 
   getAllStories = async (req: AuthedRequest, res: Response) => {
     const user = req.user;
-
     const stories = await this.storiesService.getAllStories(user.userId);
     res.status(200).json(formatResponse(stories));
   };

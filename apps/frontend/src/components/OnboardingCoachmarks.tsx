@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 export type CoachmarkStep = {
   selector?: string;
@@ -37,61 +37,61 @@ export default function OnboardingCoachmarks({
     setTargetExists(step.selector ? !!targetEl : true);
   }, [step.selector, targetEl]);
 
-  useLayoutEffect(() => {
-    const compute = () => {
-      if (!step.selector || !targetEl || !popoverRef.current) {
-        setPosition(null);
-        return;
-      }
-      const rect = targetEl.getBoundingClientRect();
-      const pop = popoverRef.current.getBoundingClientRect();
-      const margin = 12;
-      let top = rect.top + window.scrollY;
-      let left = rect.left + window.scrollX;
-      const arrowPos: { top?: number; left?: number } = {};
+  const compute = useCallback(() => {
+    if (!step.selector || !targetEl || !popoverRef.current) {
+      setPosition(null);
+      return;
+    }
+    const rect = targetEl.getBoundingClientRect();
+    const pop = popoverRef.current.getBoundingClientRect();
+    const margin = 12;
+    let top = rect.top + window.scrollY;
+    let left = rect.left + window.scrollX;
+    const arrowPos: { top?: number; left?: number } = {};
 
-      const placement = step.placement || "auto";
-      const available = {
-        top: rect.top,
-        bottom: window.innerHeight - rect.bottom,
-        left: rect.left,
-        right: window.innerWidth - rect.right,
-      };
-
-      const chosen =
-        placement !== "auto"
-          ? placement
-          : available.bottom >= pop.height + margin
-          ? "bottom"
-          : available.top >= pop.height + margin
-          ? "top"
-          : available.right >= pop.width + margin
-          ? "right"
-          : "left";
-
-      if (chosen === "bottom") {
-        top = rect.bottom + window.scrollY + margin;
-        left = rect.left + window.scrollX + Math.max(0, rect.width / 2 - pop.width / 2);
-        arrowPos.top = -8;
-      } else if (chosen === "top") {
-        top = rect.top + window.scrollY - pop.height - margin;
-        left = rect.left + window.scrollX + Math.max(0, rect.width / 2 - pop.width / 2);
-        arrowPos.top = pop.height - 4;
-      } else if (chosen === "right") {
-        top = rect.top + window.scrollY + Math.max(0, rect.height / 2 - pop.height / 2);
-        left = rect.right + window.scrollX + margin;
-        arrowPos.left = -8;
-      } else {
-        top = rect.top + window.scrollY + Math.max(0, rect.height / 2 - pop.height / 2);
-        left = rect.left + window.scrollX - pop.width - margin;
-        arrowPos.left = pop.width - 4;
-      }
-
-      left = Math.max(12, Math.min(left, window.scrollX + window.innerWidth - pop.width - 12));
-
-      setPosition({ top, left });
+    const placement = step.placement || "auto";
+    const available = {
+      top: rect.top,
+      bottom: window.innerHeight - rect.bottom,
+      left: rect.left,
+      right: window.innerWidth - rect.right,
     };
 
+    const chosen =
+      placement !== "auto"
+        ? placement
+        : available.bottom >= pop.height + margin
+        ? "bottom"
+        : available.top >= pop.height + margin
+        ? "top"
+        : available.right >= pop.width + margin
+        ? "right"
+        : "left";
+
+    if (chosen === "bottom") {
+      top = rect.bottom + window.scrollY + margin;
+      left = rect.left + window.scrollX + Math.max(0, rect.width / 2 - pop.width / 2);
+      arrowPos.top = -8;
+    } else if (chosen === "top") {
+      top = rect.top + window.scrollY - pop.height - margin;
+      left = rect.left + window.scrollX + Math.max(0, rect.width / 2 - pop.width / 2);
+      arrowPos.top = pop.height - 4;
+    } else if (chosen === "right") {
+      top = rect.top + window.scrollY + Math.max(0, rect.height / 2 - pop.height / 2);
+      left = rect.right + window.scrollX + margin;
+      arrowPos.left = -8;
+    } else {
+      top = rect.top + window.scrollY + Math.max(0, rect.height / 2 - pop.height / 2);
+      left = rect.left + window.scrollX - pop.width - margin;
+      arrowPos.left = pop.width - 4;
+    }
+
+    left = Math.max(12, Math.min(left, window.scrollX + window.innerWidth - pop.width - 12));
+
+    setPosition({ top, left });
+  }, [step.selector, step.placement, targetEl]);
+
+  useLayoutEffect(() => {
     compute();
     window.addEventListener("resize", compute);
     window.addEventListener("scroll", compute, { passive: true });
@@ -99,7 +99,7 @@ export default function OnboardingCoachmarks({
       window.removeEventListener("resize", compute);
       window.removeEventListener("scroll", compute);
     };
-  }, [step.selector, step.placement, targetEl]);
+  }, [step.selector, step.placement, compute]);
 
   useEffect(() => {
     if (!targetEl) return;
