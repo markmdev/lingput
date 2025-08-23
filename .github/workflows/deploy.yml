@@ -32,7 +32,6 @@ jobs:
           docker build -t markmdev/lingput-backend:${{ github.sha }} -t markmdev/lingput-backend ./apps/backend
           docker build -t markmdev/lingput-worker:${{ github.sha }} -t markmdev/lingput-worker -f ./apps/backend/Dockerfile.worker ./apps/backend
           docker build -t markmdev/lingput-lemmas:${{ github.sha }} -t markmdev/lingput-lemmas ./apps/lemmas
-          docker build -t markmdev/lingput-landing:${{ github.sha }} -t markmdev/lingput-landing ./apps/landing
           docker build -t markmdev/lingput-docs:${{ github.sha }} -t markmdev/lingput-docs ./docs
 
       - name: Push images to Docker Hub
