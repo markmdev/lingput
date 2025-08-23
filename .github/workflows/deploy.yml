@@ -1,0 +1,92 @@
+name: "Deploy Lingput"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{secrets.DOCKER_PASSWORD}}
+
+      - name: Build frontend Docker image
+        run: |
+          docker build --build-arg NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }} \
+                      --build-arg NEXT_PUBLIC_AUDIO_BUCKET_URL=${{ secrets.NEXT_PUBLIC_AUDIO_BUCKET_URL }} \
+                      -t markmdev/lingput-frontend:${{ github.sha }} \
+                      -t markmdev/lingput-frontend \
+                      ./apps/frontend
+
+      - name: Build production versions of images
+        run: |
+          docker build -t markmdev/lingput-backend:${{ github.sha }} -t markmdev/lingput-backend ./apps/backend
+          docker build -t markmdev/lingput-worker:${{ github.sha }} -t markmdev/lingput-worker ./apps/backend
+          docker build -t markmdev/lingput-lemmas:${{ github.sha }} -t markmdev/lingput-lemmas ./apps/lemmas
+          docker build -t markmdev/lingput-landing:${{ github.sha }} -t markmdev/lingput-landing ./apps/landing
+          docker build -t markmdev/lingput-docs:${{ github.sha }} -t markmdev/lingput-docs ./docs
+
+      - name: Push images to Docker Hub
+        run: |
+          docker push markmdev/lingput-frontend:${{ github.sha }}
+          docker push markmdev/lingput-frontend
+          docker push markmdev/lingput-backend:${{ github.sha }}
+          docker push markmdev/lingput-backend 
+          docker push markmdev/lingput-lemmas:${{ github.sha }}
+          docker push markmdev/lingput-lemmas
+          docker push markmdev/lingput-worker:${{ github.sha }}
+          docker push markmdev/lingput-worker
+          docker push markmdev/lingput-landing:${{ github.sha }}
+          docker push markmdev/lingput-landing
+          docker push markmdev/lingput-docs:${{ github.sha }}
+          docker push markmdev/lingput-docs
+
+      - name: Deploy lingput-lemmas to CapRrover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME_LEMMAS }}"
+          token: "${{ secrets.APP_TOKEN_LEMMAS }}"
+          image: markmdev/lingput-lemmas:${{ github.sha }}
+
+      - name: Deploy lingput-backend to CapRover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME_BACKEND }}"
+          token: "${{ secrets.APP_TOKEN_BACKEND }}"
+          image: markmdev/lingput-backend:${{ github.sha }}
+
+      - name: Deploy lingput-worker to CapRover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME_WORKER }}"
+          token: "${{ secrets.APP_TOKEN_WORKER }}"
+          image: markmdev/lingput-worker:${{ github.sha }}
+
+      - name: Deploy lingput-frontend to CapRover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME_FRONTEND }}"
+          token: "${{ secrets.APP_TOKEN_FRONTEND }}"
+          image: markmdev/lingput-frontend:${{ github.sha }}
+
+      - name: Deploy lingput-landing to CapRover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME_LANDING }}"
+          token: "${{ secrets.APP_TOKEN_LANDING }}"
+          image: markmdev/lingput-landing:${{ github.sha }}
+
+      - name: Deploy lingput-docs to CapRover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME_DOCS }}"
+          token: "${{ secrets.APP_TOKEN_DOCS }}"
+          image: markmdev/lingput-docs:${{ github.sha }}
