@@ -3,4 +3,4 @@ echo 'Waiting for DB to be ready...' &&
 npx prisma migrate deploy &&
 echo 'Migration complete, seeding data...' &&
 node ./prisma/seed-word-ranking.js
-npm run start
+exec npm run start
