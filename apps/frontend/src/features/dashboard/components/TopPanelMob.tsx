@@ -26,8 +26,12 @@ export default function TopPanelMob({
         </Button>
       </div>
       <div className="mr-2">
-        <p className="font-extrabold text-2xl tracking-tight text-slate-900">
-          comp<span className="text-indigo-600">input</span>
+        <p className="text-2xl font-bold text-slate-900">
+          <img
+            src="/logo_min.png"
+            alt="Lingput Logo"
+            className="h-12 w-auto inline-block align-middle"
+          />
         </p>
       </div>
     </div>
