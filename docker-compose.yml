@@ -66,3 +66,7 @@ services:
       backend:
         condition: service_healthy
     restart: unless-stopped
+  docs:
+    mem_limit: 128m
+    hostname: docs
+    image: "markmdev/lingput-docs"

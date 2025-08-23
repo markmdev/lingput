@@ -1,31 +1,40 @@
 # Lingput - AI-Powered Comprehensible Input for Language Learning
 
+[**Live Demo**](https://your-demo-link.com) · [**Video Demo**](#video-demo)
+
 <img src="docs/logo_min.jpeg" alt="Lingput logo" width="320" />
 
 **Lingput** is a full-stack, production-grade application that helps learners acquire a new language through **short, AI-generated stories**.
-Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **natural comprehensible input**: stories, translations, audio, and smart word tracking
+Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **natural comprehensible input**: stories, translations, audio, and smart word tracking.
 
-**Main dashboard:**
+---
 
-<p align="center">
-  <img src="docs/demo-story.png" alt="Lingput demo" width="960"/>
-</p>
+## 🚀 Architectural & Technical Highlights
 
-**Video demo:**
+This project was built to production-grade standards, demonstrating expertise in full-stack development, system design, and scalability. Here are the key technical features:
 
-<p align="center">
+- **Scalable Background Processing:** Utilizes a robust **Job Queue System (BullMQ & Redis)** to handle complex, long-running AI tasks (story and audio generation) asynchronously. This ensures the API remains fast and responsive, providing a seamless user experience with real-time progress updates on the frontend.
+- **Clean Backend Architecture:** The Express.js backend is built on a **testable, multi-layered architecture** (Controller, Service, Repository) with **Dependency Injection** for loose coupling and maintainability.
+- **Robust Caching Strategy:** Leverages **Redis** for caching frequently accessed data (like stories and word lists), significantly reducing database load and improving API response times.
+- **Secure Authentication:** Implements a secure, modern authentication system using **HTTP-only cookies** with access and refresh tokens to protect against XSS attacks.
+- **Advanced Frontend State Management:** The Next.js frontend features a **custom React hook (`handleJob`)** to intelligently manage the lifecycle of background jobs, abstracting away the complexity of polling and providing optimistic UI updates.
+- **Containerized for Production:** The entire application is containerized using **Docker and Docker Compose**, ensuring consistent, reproducible deployments for all services (backend, frontend, workers, NGINX).
+
+---
+
+<p align="center" id="video-demo">
   <img src="docs/lingput-demo.gif" width="960" height="540"/>
 </p>
 
 ## Table of Contents
 
 - [Use Cases](#use-cases)
-- [Roadmap](#roadmap)
 - [Features](#features)
-- [Tech Stack](#architecture)
+- [Tech Stack](#tech-stack)
 - [API Overview](#api-overview)
 - [Quickstart](#quickstart)
 - [Production Deploy](#production-deploy)
+- [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
 

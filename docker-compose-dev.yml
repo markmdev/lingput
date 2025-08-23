@@ -124,6 +124,10 @@ services:
     volumes:
       - /app/node_modules
       - ./apps/landing:/app
+  docs:
+    image: "nginx:alpine"
+    volumes:
+      - ./docs/api.html:/usr/share/nginx/html/index.html:ro
 
 volumes:
   pgdata:

@@ -1,0 +1,1000 @@
+openapi: 3.0.3
+info:
+  title: Lingput Backend API
+  version: 1.0.0
+  description: |
+    REST API for the Lingput (Comprehensible Input) language-learning app.
+    Uses HTTP-only cookie-based JWT auth, returns consistent envelopes for success/error, and supports async jobs for story generation.
+
+servers:
+  - url: http://localhost:4000/api
+    description: Local backend
+  - url: http://localhost:3050/api
+    description: Dev via docker-compose + NGINX
+
+tags:
+  - name: Auth
+  - name: Story
+  - name: Unknown Words
+  - name: Vocabulary
+  - name: Vocabulary Assessment
+  - name: Jobs
+  - name: Onboarding
+  - name: Health
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+      description: HTTP-only JWT access token cookie
+    refreshCookie:
+      type: apiKey
+      in: cookie
+      name: refreshToken
+      description: HTTP-only JWT refresh token cookie
+
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: object
+          properties:
+            message:
+              type: string
+            code:
+              type: integer
+              format: int32
+            details:
+              description: Optional validation issues
+              type: array
+              items:
+                type: object
+      required: [success, error]
+
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          format: int32
+        totalPages:
+          type: integer
+          format: int32
+        currentPage:
+          type: integer
+          format: int32
+        pageSize:
+          type: integer
+          format: int32
+
+    UnknownWord:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        word:
+          type: string
+        translation:
+          type: string
+        article:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [learning, learned]
+        timesSeen:
+          type: integer
+          format: int32
+        exampleSentence:
+          type: string
+        exampleSentenceTranslation:
+          type: string
+        userId:
+          type: integer
+          format: int32
+
+    Story:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        storyText:
+          type: string
+        translationText:
+          type: string
+        audioUrl:
+          type: string
+        unknownWords:
+          type: array
+          items:
+            $ref: "#/components/schemas/UnknownWord"
+        userId:
+          type: integer
+          format: int32
+
+    VocabularyItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        word:
+          type: string
+        translation:
+          type: string
+        article:
+          type: string
+          nullable: true
+        userId:
+          type: integer
+          format: int32
+
+    WordRanking:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        source_language:
+          type: string
+        target_language:
+          type: string
+        word:
+          type: string
+        translation:
+          type: string
+        frequencyRank:
+          type: integer
+          format: int32
+
+    GenerationPhase:
+      type: object
+      properties:
+        name:
+          type: string
+          enum:
+            [
+              starting,
+              fetchingWords,
+              generation,
+              translation,
+              lemmatization,
+              creatingExamples,
+              creatingAudio,
+              saving,
+            ]
+        index:
+          type: integer
+          format: int32
+        description:
+          type: string
+
+    JobResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            jobId:
+              type: string
+      required: [success, data]
+
+    JobStatusResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            status:
+              type: string
+              enum: [completed, failed, waiting, active, delayed, paused]
+            value:
+              nullable: true
+            failedReason:
+              type: string
+              nullable: true
+            progress:
+              type: object
+              nullable: true
+              properties:
+                phase:
+                  $ref: "#/components/schemas/GenerationPhase"
+                totalSteps:
+                  type: integer
+                  format: int32
+
+    SuccessEnvelope_Empty:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          additionalProperties: false
+
+    SuccessEnvelope_UserId:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+
+    SuccessEnvelope_User:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            user:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  format: int32
+
+    SuccessEnvelope_Stories:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Story"
+
+    SuccessEnvelope_UnknownWords:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/UnknownWord"
+
+    SuccessEnvelope_VocabCount:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: integer
+          format: int32
+
+    SuccessEnvelope_VocabList:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/VocabularyItem"
+
+    SuccessEnvelope_VocabPage:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/VocabularyItem"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+
+    SuccessEnvelope_VocabItem:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          $ref: "#/components/schemas/VocabularyItem"
+
+    SuccessEnvelope_AssessmentActive:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            sessionId:
+              type: string
+            status:
+              type: string
+              enum: [active]
+            wordsToReview:
+              type: array
+              items:
+                $ref: "#/components/schemas/WordRanking"
+            lastStep:
+              type: boolean
+            step:
+              type: integer
+              format: int32
+
+    SuccessEnvelope_AssessmentCompleted:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            sessionId:
+              type: string
+            status:
+              type: string
+              enum: [completed]
+            vocabularySize:
+              type: integer
+              format: int32
+
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    TooManyRequests:
+      description: Too Many Requests
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    NotFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    ValidationError:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    DatabaseError:
+      description: Database/Storage error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    InternalError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    ServiceUnavailable:
+      description: Service Unavailable
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                example: unhealthy
+              dbOk:
+                type: boolean
+              redisOk:
+                type: boolean
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      description: Creates a user and sets auth cookies. Returns user id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 8
+              required: [email, password]
+      responses:
+        "200":
+          description: OK
+          headers:
+            Set-Cookie:
+              description: accessToken and refreshToken cookies
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_UserId"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      description: Verifies credentials and sets auth cookies. Returns user id.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required: [email, password]
+      responses:
+        "200":
+          description: OK
+          headers:
+            Set-Cookie:
+              description: accessToken and refreshToken cookies
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_UserId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_Empty"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh tokens
+      description: Exchanges a valid refresh token cookie for new tokens.
+      security:
+        - refreshCookie: []
+      responses:
+        "200":
+          description: OK
+          headers:
+            Set-Cookie:
+              description: New accessToken and refreshToken cookies
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_UserId"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /story/generate:
+    post:
+      tags: [Story]
+      summary: Start asynchronous story generation
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                subject:
+                  type: string
+                  maxLength: 50
+                languageCode:
+                  type: string
+                  enum: [DE, EN]
+                originalLanguageCode:
+                  type: string
+                  enum: [DE, EN]
+              required: [languageCode, originalLanguageCode]
+      responses:
+        "200":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobResponse"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
+
+  /story:
+    get:
+      tags: [Story]
+      summary: List stories for current user (latest first)
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_Stories"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /unknown-words/mark-as-learned/{wordId}:
+    post:
+      tags: [Unknown Words]
+      summary: Mark unknown word as learned (async)
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "502":
+          $ref: "#/components/responses/DatabaseError"
+
+  /unknown-words/mark-as-learning/{wordId}:
+    post:
+      tags: [Unknown Words]
+      summary: Mark unknown word as learning (async)
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: wordId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: Job created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "502":
+          $ref: "#/components/responses/DatabaseError"
+
+  /unknown-words/words:
+    get:
+      tags: [Unknown Words]
+      summary: Retrieve all unknown words
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_UnknownWords"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /vocab/words-count:
+    get:
+      tags: [Vocabulary]
+      summary: Get saved vocabulary count
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_VocabCount"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /vocab/allwords:
+    get:
+      tags: [Vocabulary]
+      summary: Get all vocabulary (no pagination)
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_VocabList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /vocab/words:
+    get:
+      tags: [Vocabulary]
+      summary: Get paginated vocabulary
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          required: false
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 200
+          required: false
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_VocabPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    post:
+      tags: [Vocabulary]
+      summary: Add a vocabulary word
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                word:
+                  type: string
+                translation:
+                  type: string
+                article:
+                  type: string
+                  nullable: true
+              required: [word, translation]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_VocabItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /vocab/words/list:
+    post:
+      tags: [Vocabulary]
+      summary: Add multiple vocabulary entries
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                words:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      word:
+                        type: string
+                      translation:
+                        type: string
+                      article:
+                        type: string
+                        nullable: true
+                  minItems: 1
+              required: [words]
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_VocabList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /vocab/words/{id}:
+    patch:
+      tags: [Vocabulary]
+      summary: Update a vocabulary entry
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                word:
+                  type: string
+                translation:
+                  type: string
+                article:
+                  type: string
+                  nullable: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_VocabItem"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    delete:
+      tags: [Vocabulary]
+      summary: Delete a vocabulary entry
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "204":
+          description: No Content
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /vocab-assessment/start:
+    get:
+      tags: [Vocabulary Assessment]
+      summary: Start a new assessment session
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessEnvelope_AssessmentActive"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /vocab-assessment/answer:
+    post:
+      tags: [Vocabulary Assessment]
+      summary: Continue an assessment session
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionUUID:
+                  type: string
+                wordsData:
+                  type: object
+                  additionalProperties:
+                    type: boolean
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/SuccessEnvelope_AssessmentActive"
+                  - $ref: "#/components/schemas/SuccessEnvelope_AssessmentCompleted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /jobs/status/{jobId}:
+    get:
+      tags: [Jobs]
+      summary: Get status of a background job
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobStatusResponse"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /onboarding/complete:
+    post:
+      tags: [Onboarding]
+      summary: Complete onboarding
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /onboarding/check:
+    get:
+      tags: [Onboarding]
+      summary: Check onboarding status
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        enum: [completed, not_started]
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Readiness probe (DB and Redis)
+      responses:
+        "200":
+          description: Ready
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  dbOk:
+                    type: boolean
+                  redisOk:
+                    type: boolean
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
