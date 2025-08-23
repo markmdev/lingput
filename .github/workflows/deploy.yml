@@ -20,6 +20,13 @@ jobs:
                       -t markmdev/lingput-frontend \
                       ./apps/frontend
 
+      - name: Build landing Docker image
+        run: |
+          docker build --build-arg NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }} \
+                      -t markmdev/lingput-landing:${{ github.sha }} \
+                      -t markmdev/lingput-landing \
+                      ./apps/landing
+
       - name: Build production versions of images
         run: |
           docker build -t markmdev/lingput-backend:${{ github.sha }} -t markmdev/lingput-backend ./apps/backend
