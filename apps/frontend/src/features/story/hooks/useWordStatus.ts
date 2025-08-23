@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Story } from "@/features/story/types";
 import { UnknownWordApi } from "@/features/unknownWord/api";
 import { ClientApi } from "@/lib/ClientApi";
@@ -7,8 +7,8 @@ import { toast } from "react-toastify";
 import { KeyedMutator } from "swr";
 
 export function useWordStatus(chosenStory: Story | null, mutate: KeyedMutator<Story[]>) {
-  const clientApi = new ClientApi();
-  const unknownWordApi = new UnknownWordApi(clientApi);
+  const clientApi = useMemo(() => new ClientApi(), []);
+  const unknownWordApi = useMemo(() => new UnknownWordApi(clientApi), [clientApi]);
 
   const updateCurrentDataWithNewWordStatus = useCallback(
     (currentData: Story[] | undefined, wordId: number, newStatus: "learned" | "learning") => {

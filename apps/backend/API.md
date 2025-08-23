@@ -37,12 +37,16 @@ Provides endpoints for authentication, story generation, vocabulary management, 
 
 ### Security
 
-- Uses HTTP-only, Secure JWT cookies (`accessToken`, `refreshToken`).
-- CORS restricted to frontend origin.
+- Uses HTTP-only JWT cookies (`accessToken`, `refreshToken`).
+  - `accessToken` TTL: 15 minutes
+  - `refreshToken` TTL: 7 days
+  - Cookies are `httpOnly`, `sameSite: lax`; `secure` is enabled in production
+- CORS: open by default in development; in production, configure allowed origins at the reverse proxy or app level.
 
 ### Rate Limiting
 
-- Default: 1000 requests per 15 minutes per authenticated user.
+- Global: 1000 requests per 15 minutes per client.
+- Story generation daily limit: 5 stories per user per calendar day (America/Los_Angeles); exceeding returns `429`.
 
 ---
 
@@ -58,6 +62,7 @@ Provides endpoints for authentication, story generation, vocabulary management, 
 | 403  | Forbidden                      |
 | 404  | Not Found                      |
 | 429  | Too Many Requests              |
+| 503  | Service Unavailable            |
 | 502  | Database / Storage error       |
 | 500  | Internal Server Error          |
 
@@ -134,6 +139,16 @@ Provides endpoints for authentication, story generation, vocabulary management, 
     "message": "Too many requests. Please try again later.",
     "code": 429
   }
+}
+```
+
+### 503 Service Unavailable (readiness)
+
+```json
+{
+  "status": "unhealthy",
+  "dbOk": false,
+  "redisOk": true
 }
 ```
 
@@ -266,7 +281,7 @@ Create a new user and issue auth cookies.
 
 - Responses
 
-  - `201 Created`
+  - `200 OK`
 
     ```json
     {
@@ -408,6 +423,9 @@ Start asynchronous story generation.
     ```
 
   - Then poll: `GET /jobs/status/{jobId}` or fetch `GET /story` after completion
+
+  - Errors
+    - `429 Too Many Requests` when daily story limit is reached
 
   Example completed job:
 
@@ -660,7 +678,7 @@ Add multiple vocabulary entries in a single request.
 
 - Responses
 
-  - `200 OK`
+  - `201 Created`
 
     ```json
     {
@@ -835,5 +853,82 @@ Get status of a background job.
     ```
 
   - `404 Not Found` if job is missing
+
+---
+
+### Onboarding
+
+#### POST `/onboarding/complete`
+
+Mark onboarding as completed for the current user.
+
+- Authentication: Required
+- Request Body: none
+- Responses
+
+  - `200 OK`
+
+    ```json
+    { "success": true }
+    ```
+
+---
+
+#### GET `/onboarding/check`
+
+Get onboarding status for the current user.
+
+- Authentication: Required
+- Responses
+
+  - `200 OK`
+
+    ```json
+    { "success": true, "data": { "status": "completed" } }
+    ```
+
+    or
+
+    ```json
+    { "success": true, "data": { "status": "not_started" } }
+    ```
+
+---
+
+### Health
+
+#### GET `/healthz`
+
+Liveness probe.
+
+- Authentication: None
+- Responses
+
+  - `200 OK`
+
+    ```json
+    { "status": "ok" }
+    ```
+
+---
+
+#### GET `/readyz`
+
+Readiness probe (checks DB and Redis).
+
+- Authentication: None
+- Responses
+
+  - `200 OK` when healthy
+
+    ```json
+    { "status": "ok", "dbOk": true, "redisOk": true }
+    ```
+
+  - `503 Service Unavailable` when not ready
+
+    ```json
+    { "status": "unhealthy", "dbOk": false, "redisOk": false }
+    ```
 
 ---
