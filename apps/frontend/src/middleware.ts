@@ -51,7 +51,10 @@ async function refreshTokenAndContinue(req: NextRequest, refreshToken: string) {
     }
   } catch (error) {
     console.error("Error refreshing token in middleware: ", error);
-    return NextResponse.redirect(new URL("/login", req.url));
+    const response = NextResponse.redirect(new URL("/login", req.url));
+    response.cookies.delete("refreshToken");
+    response.cookies.delete("accessToken");
+    return response;
   }
 }
 
