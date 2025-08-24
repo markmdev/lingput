@@ -1,6 +1,10 @@
 # Lingput - AI-Powered Comprehensible Input for Language Learning
 
-[**Live Demo**](https://your-demo-link.com) · [**Video Demo**](#video-demo)
+**Demo:**  
+https://lingput.dev/  
+https://app.lingput.dev/  
+API:  
+https://docs.lingput.dev/
 
 <img src="docs/logo_min.jpeg" alt="Lingput logo" width="320" />
 
@@ -31,7 +35,6 @@ This project was built to production-grade standards, demonstrating expertise in
 - [Use Cases](#use-cases)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [API Overview](#api-overview)
 - [Quickstart](#quickstart)
 - [Production Deploy](#production-deploy)
 - [Roadmap](#roadmap)
@@ -106,24 +109,6 @@ This project was built to production-grade standards, demonstrating expertise in
 - 🟦 Audio voice settings (choose between different TTS voices)
 - 🟦 Leaderboard (compare progress with other learners)
 - 🟦 Multi-language support (beyond current target language)
-
----
-
-## API Overview
-
-Backend base: `/api`
-Full API docs with request/response examples: [`apps/backend/API.md`](apps/backend/API.md)
-
-**Main route groups:**
-
-- `POST /auth/register` · `POST /auth/login` · `POST /auth/logout` · `POST /auth/refresh` · `GET /auth/me`
-- `POST /story/generate` · `GET /story`
-- `GET /vocab/words` · `POST /vocab/words` · `PATCH /vocab/words/:id` · `DELETE /vocab/words/:id`
-- `GET /unknown-words/words` · `POST /unknown-words/mark-as-learned/:wordId`
-- `GET /vocab-assessment/start` · `POST /vocab-assessment/answer`
-- `GET /jobs/status/:jobId`
-
-Auth uses HTTP-only cookies. Rate limiting + Helmet enabled.
 
 ---
 

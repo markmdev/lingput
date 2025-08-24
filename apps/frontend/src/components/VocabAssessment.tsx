@@ -1,3 +1,6 @@
+"use client";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 import Word from "@/features/vocabAssessment/components/Word";
 import ContinueButton from "@/features/vocabAssessment/components/ContinueButton";
 import StartButton from "@/features/vocabAssessment/components/StartButton";
@@ -27,9 +30,12 @@ export default function VocabAssessment({
   handleWordAnswer,
 }: VocabAssessmentProps) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center">
-      <div className="px-6 py-20 bg-white/80 backdrop-blur-sm border border-slate-100 flex flex-col items-center rounded-2xl w-full md:w-2/3 lg:w-1/2 shadow-sm mx-auto">
-        <h1 className="text-xl font-semibold text-slate-900">Vocabulary Assessment</h1>
+    <div className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto p-4">
+      <SimpleBar
+        autoHide={false}
+        className="px-6 py-10 md:py-20 bg-white/80 backdrop-blur-sm border border-slate-100 flex flex-col items-center rounded-2xl w-full md:w-2/3 lg:w-1/2 shadow-sm mx-auto my-4 max-h-[90vh]"
+      >
+        <h1 className="text-xl font-semibold text-slate-900 text-center">Vocabulary Assessment</h1>
         {(status === "loading" || isLoading) && (
           <div className="py-6">
             <p className="text-slate-600">Loading...</p>
@@ -84,7 +90,24 @@ export default function VocabAssessment({
             </form>
           </div>
         )}
-      </div>
+      </SimpleBar>
+      <style jsx>{`
+        :global(.simplebar-track.simplebar-vertical) {
+          width: 10px;
+          background: #f1f5f9; /* slate-100 */
+          border-radius: 9999px;
+        }
+        :global(.simplebar-scrollbar) {
+          border-radius: 9999px;
+        }
+        :global(.simplebar-scrollbar:before) {
+          background: #93c5fd; /* blue-300 */
+          opacity: 1; /* ensure always visible */
+        }
+        :global(.simplebar-scrollbar:hover:before) {
+          background: #60a5fa; /* blue-400 */
+        }
+      `}</style>
     </div>
   );
 }
