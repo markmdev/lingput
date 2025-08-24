@@ -1,3 +1,6 @@
+"use client";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 import { useState } from "react";
 import { Story } from "@/features/story/types";
 import UnknownWordComponent from "@/features/unknownWord/components/UnknownWord";
@@ -37,17 +40,16 @@ export default function StoryComponent({
         <h2 className="font-semibold text-2xl tracking-tight text-slate-900">
           Story #
           {story ? story?.id : <Skeleton circle={true} width={20} height={20} inline={true} />}{" "}
-          details
         </h2>
         <hr className="my-4 border-slate-200" />
       </div>
       {/* BOTTOM PART */}
-      <div className="flex flex-col gap-6 flex-1 overflow-hidden">
+      <SimpleBar autoHide={false} className="flex flex-col gap-6 flex-1 min-h-0">
         {/* TOP PANEL (STORY) */}
-        <div className="px-4 flex flex-col gap-4 w-full">
+        <div className="px-0 lg:px-4 flex flex-col gap-4 w-full">
           <h3 className="font-semibold text-slate-900">Story text</h3>
           <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-            <p className="leading-relaxed text-slate-800">
+            <p className="leading-relaxed text-slate-800 text-sm lg:text-base">
               {story ? story.storyText : <Skeleton count={3} />}
             </p>
           </div>
@@ -71,7 +73,7 @@ export default function StoryComponent({
           </button>
           {showTranslation && (
             <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-              <p className="text-slate-800">
+              <p className="text-slate-800 text-sm lg:text-base">
                 {story && showTranslation ? story.translationText : <Skeleton count={2} />}
               </p>
             </div>
@@ -80,7 +82,7 @@ export default function StoryComponent({
         {/* <div className="bg-black w-[1px]"></div> */}
         <hr className="border-slate-200" />
         {/* BOTTOM PANEL (VOCABULARY) */}
-        <div className="flex flex-col gap-3 px-4 w-full overflow-y-auto">
+        <div className="flex flex-col gap-3 px-4 w-full">
           <div className="flex flex-row gap-2 items-center">
             <h3 className="font-semibold text-xl text-slate-900">Vocabulary</h3>
             {wordTranslationsBlurred && (
@@ -156,7 +158,24 @@ export default function StoryComponent({
             </div>
           )}
         </div>
-      </div>
+      </SimpleBar>
+      <style jsx>{`
+        :global(.simplebar-track.simplebar-vertical) {
+          width: 10px;
+          background: #f1f5f9; /* slate-100 */
+          border-radius: 9999px;
+        }
+        :global(.simplebar-scrollbar) {
+          border-radius: 9999px;
+        }
+        :global(.simplebar-scrollbar:before) {
+          background: #93c5fd; /* blue-300 */
+          opacity: 1; /* always visible */
+        }
+        :global(.simplebar-scrollbar:hover:before) {
+          background: #60a5fa; /* blue-400 */
+        }
+      `}</style>
     </>
   );
 }

@@ -69,7 +69,7 @@ export default function Dashboard({
   }, [error]);
 
   return (
-    <div className="flex flex-col bg-transparent h-screen">
+    <div className="flex flex-col bg-transparent h-screen overflow-y-scroll">
       <AssessmentRequiredOverlay wordsCount={typeof wordsCount === "number" ? wordsCount : -1} />
       {showOnboarding && !hasIntroShown && <OnboardingOverlay onComplete={completeIntro} />}
       {showOnboarding && hasIntroShown && coachmarkIndex !== null && (
@@ -86,7 +86,7 @@ export default function Dashboard({
         onChangeToNewStoryViewMode={handleChangeToNewStoryViewMode}
         onChangeToAllStoriesViewMode={handleChangeToAllStoriesViewMode}
       />
-      <div className="flex flex-row gap-6 flex-1 min-h-0">
+      <div className="flex flex-row gap-6 flex-1 min-h-0 overflow-y-scroll">
         {/* LEFT PANEL */}
         <LeftPanel
           isLoading={isLoading}
