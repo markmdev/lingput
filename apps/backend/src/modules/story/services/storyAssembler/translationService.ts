@@ -21,7 +21,7 @@ export class TranslationService {
     let response: OpenAIResponse;
     try {
       response = await this.openai.responses.create({
-        model: "gpt-5",
+        model: "gpt-5-mini",
         reasoning: { effort: "low" },
         input: [
           {
