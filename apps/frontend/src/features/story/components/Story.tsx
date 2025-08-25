@@ -44,102 +44,74 @@ export default function StoryComponent({
         <hr className="my-4 border-slate-200" />
       </div>
       {/* BOTTOM PART */}
-      <SimpleBar autoHide={false} className="flex flex-col gap-6 flex-1 min-h-0">
-        {/* TOP PANEL (STORY) */}
-        <div className="px-0 lg:px-4 flex flex-col gap-4 w-full">
-          <h3 className="font-semibold text-slate-900">Story text</h3>
-          <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-            <p className="leading-relaxed text-slate-800 text-sm lg:text-base">
-              {story ? story.storyText : <Skeleton count={3} />}
-            </p>
-          </div>
-          <h3 className="font-semibold text-slate-900">Listen</h3>
-          {story ? (
-            <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm w-full lg:w-1/2">
-              <audio controls className="w-full" key={story.id}>
-                <source src={`${audioBucketUrl}${story.audioUrl}`} type="audio/mpeg" />
-                Your browser does not support the audio element.
-              </audio>
-            </div>
-          ) : (
-            <Skeleton height={40} />
-          )}
-
-          <button
-            onClick={() => setShowTranslation(!showTranslation)}
-            className="px-4 py-2 rounded-full font-semibold cursor-pointer w-fit text-white bg-gradient-to-r from-purple-700 to-purple-500 hover:from-purple-800 hover:to-purple-600 shadow-sm"
-          >
-            {showTranslation ? "Hide Translation" : "Show Translation"}
-          </button>
-          {showTranslation && (
+      <SimpleBar autoHide={false} className="flex-1 min-h-0">
+        <div className="flex flex-col gap-6">
+          {/* TOP PANEL (STORY) */}
+          <div className="px-0 lg:px-4 flex flex-col gap-4 w-full">
+            <h3 className="font-semibold text-slate-900">Story text</h3>
             <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
-              <p className="text-slate-800 text-sm lg:text-base">
-                {story && showTranslation ? story.translationText : <Skeleton count={2} />}
+              <p className="leading-relaxed text-slate-800 text-sm lg:text-base">
+                {story ? story.storyText : <Skeleton count={3} />}
               </p>
             </div>
-          )}
-        </div>
-        {/* <div className="bg-black w-[1px]"></div> */}
-        <hr className="border-slate-200" />
-        {/* BOTTOM PANEL (VOCABULARY) */}
-        <div className="flex flex-col gap-3 px-4 w-full">
-          <div className="flex flex-row gap-2 items-center">
-            <h3 className="font-semibold text-xl text-slate-900">Vocabulary</h3>
-            {wordTranslationsBlurred && (
-              <p
-                className="cursor-pointer bg-emerald-500 text-white py-1 rounded-full font-semibold text-xs px-3 shadow-sm"
-                onClick={() => setWordTranslationsBlurred(false)}
-              >
-                Show All Translations
-              </p>
+            <h3 className="font-semibold text-slate-900">Listen</h3>
+            {story ? (
+              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm w-full lg:w-1/2">
+                <audio controls className="w-full" key={story.id}>
+                  <source src={`${audioBucketUrl}${story.audioUrl}`} type="audio/mpeg" />
+                  Your browser does not support the audio element.
+                </audio>
+              </div>
+            ) : (
+              <Skeleton height={40} />
             )}
-            {!wordTranslationsBlurred && (
-              <p
-                className="cursor-pointer bg-rose-500 text-white py-1 rounded-full font-semibold text-xs px-3 shadow-sm"
-                onClick={() => setWordTranslationsBlurred(true)}
-              >
-                Hide All Translations
-              </p>
-            )}
-          </div>
 
-          {/* Learning group */}
-          <div className="flex flex-row items-center justify-between">
-            <h4 className="font-semibold text-slate-900">Learning</h4>
-            {story && <span className="text-xs text-slate-500">({learningWords.length})</span>}
-          </div>
-          <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {story
-              ? learningWords.map((unknownWord) => (
-                  <UnknownWordComponent
-                    key={unknownWord.id}
-                    unknownWord={unknownWord}
-                    onWordStatusChange={onWordStatusChange}
-                    globalBlurState={wordTranslationsBlurred}
-                  />
-                ))
-              : Array.from({ length: 8 }, (_, index) => (
-                  <Skeleton key={index} height={180} baseColor="#eef2ff" highlightColor="#f8fafc" />
-                ))}
-          </div>
-
-          {/* Learned group */}
-          <div className="flex flex-row gap-2 items-center">
-            <h4 className="font-semibold text-slate-900">Learned</h4>
-            <p
-              className={`cursor-pointer py-1 rounded-full font-semibold text-xs px-3 shadow-sm ${
-                showLearned ? "bg-rose-500 text-white" : "bg-emerald-500 text-white"
-              }`}
-              onClick={() => setShowLearned(!showLearned)}
+            <button
+              onClick={() => setShowTranslation(!showTranslation)}
+              className="px-4 py-2 rounded-full font-semibold cursor-pointer w-fit text-white bg-gradient-to-r from-purple-700 to-purple-500 hover:from-purple-800 hover:to-purple-600 shadow-sm"
             >
-              {showLearned ? "Hide" : "Show"}
-            </p>
-            {story && <span className="text-xs text-slate-500">({learnedWords.length})</span>}
+              {showTranslation ? "Hide Translation" : "Show Translation"}
+            </button>
+            {showTranslation && (
+              <div className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                <p className="text-slate-800 text-sm lg:text-base">
+                  {story && showTranslation ? story.translationText : <Skeleton count={2} />}
+                </p>
+              </div>
+            )}
           </div>
-          {showLearned && (
+          {/* <div className="bg-black w-[1px]"></div> */}
+          <hr className="border-slate-200" />
+          {/* BOTTOM PANEL (VOCABULARY) */}
+          <div className="flex flex-col gap-3 px-4 w-full">
+            <div className="flex flex-row gap-2 items-center">
+              <h3 className="font-semibold text-xl text-slate-900">Vocabulary</h3>
+              {wordTranslationsBlurred && (
+                <p
+                  className="cursor-pointer bg-emerald-500 text-white py-1 rounded-full font-semibold text-xs px-3 shadow-sm"
+                  onClick={() => setWordTranslationsBlurred(false)}
+                >
+                  Show All Translations
+                </p>
+              )}
+              {!wordTranslationsBlurred && (
+                <p
+                  className="cursor-pointer bg-rose-500 text-white py-1 rounded-full font-semibold text-xs px-3 shadow-sm"
+                  onClick={() => setWordTranslationsBlurred(true)}
+                >
+                  Hide All Translations
+                </p>
+              )}
+            </div>
+
+            {/* Learning group */}
+            <div className="flex flex-row items-center justify-between">
+              <h4 className="font-semibold text-slate-900">Learning</h4>
+              {story && <span className="text-xs text-slate-500">({learningWords.length})</span>}
+            </div>
             <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
               {story
-                ? learnedWords.map((unknownWord) => (
+                ? learningWords.map((unknownWord) => (
                     <UnknownWordComponent
                       key={unknownWord.id}
                       unknownWord={unknownWord}
@@ -156,7 +128,42 @@ export default function StoryComponent({
                     />
                   ))}
             </div>
-          )}
+
+            {/* Learned group */}
+            <div className="flex flex-row gap-2 items-center">
+              <h4 className="font-semibold text-slate-900">Learned</h4>
+              <p
+                className={`cursor-pointer py-1 rounded-full font-semibold text-xs px-3 shadow-sm ${
+                  showLearned ? "bg-rose-500 text-white" : "bg-emerald-500 text-white"
+                }`}
+                onClick={() => setShowLearned(!showLearned)}
+              >
+                {showLearned ? "Hide" : "Show"}
+              </p>
+              {story && <span className="text-xs text-slate-500">({learnedWords.length})</span>}
+            </div>
+            {showLearned && (
+              <div className="grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                {story
+                  ? learnedWords.map((unknownWord) => (
+                      <UnknownWordComponent
+                        key={unknownWord.id}
+                        unknownWord={unknownWord}
+                        onWordStatusChange={onWordStatusChange}
+                        globalBlurState={wordTranslationsBlurred}
+                      />
+                    ))
+                  : Array.from({ length: 8 }, (_, index) => (
+                      <Skeleton
+                        key={index}
+                        height={180}
+                        baseColor="#eef2ff"
+                        highlightColor="#f8fafc"
+                      />
+                    ))}
+              </div>
+            )}
+          </div>
         </div>
       </SimpleBar>
       <style jsx>{`
