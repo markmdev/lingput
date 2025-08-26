@@ -7,11 +7,7 @@
     "dev": "nodemon --config nodemon.json",
     "worker": "ts-node -r tsconfig-paths/register src/worker.ts",
     "worker:dev": "nodemon --exec ts-node -r tsconfig-paths/register src/worker.ts",
-    "test": "jest",
-    "seed:word-ranking": "ts-node prisma/seed-word-ranking.ts"
-  },
-  "prisma": {
-    "seed": "node prisma/seed.js"
+    "test": "jest"
   },
   "author": "",
   "license": "ISC",
@@ -28,6 +24,7 @@
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
+    "dotenv-flow": "^4.1.0",
     "express": "^4.21.2",
     "express-rate-limit": "^7.5.0",
     "fluent-ffmpeg": "^2.1.3",
