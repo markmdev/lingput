@@ -32,14 +32,10 @@ services:
     image: markmdev/lingput-backend
     env_file:
       - ./apps/backend/.env
+      - ./apps/backend/.env.defaults
     volumes:
       - /app/node_modules
       - ./apps/backend:/app
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - DATABASE_URL=postgresql://lingput:cmpinputpswd@postgres:5432/lingput?schema=public
-      - APP_PORT=4000
     depends_on:
       postgres:
         condition: service_healthy
@@ -57,14 +53,10 @@ services:
     command: sh "./worker-start-dev.sh"
     env_file:
       - ./apps/backend/.env
+      - ./apps/backend/.env.defaults
     volumes:
       - /app/node_modules
       - ./apps/backend:/app
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - DATABASE_URL=postgresql://lingput:cmpinputpswd@postgres:5432/lingput?schema=public
-      - LEMMA_SERVICE_URL=http://lemma:8000
     depends_on:
       postgres:
         condition: service_healthy

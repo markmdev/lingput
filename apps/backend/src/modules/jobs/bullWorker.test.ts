@@ -13,6 +13,20 @@ jest.mock("bullmq", () => {
   };
 });
 
+// Mock container to avoid importing real container that instantiates Queue/Redis
+jest.mock("@/container", () => ({
+  storyModule: { service: { decrementLimitCount: jest.fn() } },
+}));
+
+// Silence logger in this test file
+jest.mock("@/utils/logger", () => ({
+  logger: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+  },
+}));
+
 describe("BullWorker", () => {
   const connection: any = { host: "localhost", port: 6379 };
 
