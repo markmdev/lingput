@@ -95,7 +95,7 @@ export default function VocabAssessment({
           )}
         </div>
       </SimpleBar>
-      <style jsx>{`
+      <style>{`
         :global(.simplebar-track.simplebar-vertical) {
           width: 10px;
           background: #f1f5f9; /* slate-100 */
