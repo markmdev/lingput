@@ -5,7 +5,7 @@ import { AuthedRequest } from "@/types/types";
 
 export function buildAuthRouter(
   controller: AuthController,
-  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void,
 ) {
   const router = Router();
   router.post("/register", asyncHandler(controller.register));

@@ -60,7 +60,12 @@ describe("UnknownWordService", () => {
     const result = await svc.saveUnknownWords(input as any, 999, 1, tx);
 
     // Updated first, then saved
-    expect(repo.updateTimesSeenAndConnectStory).toHaveBeenCalledWith(10, 3, 999, tx);
+    expect(repo.updateTimesSeenAndConnectStory).toHaveBeenCalledWith(
+      10,
+      3,
+      999,
+      tx,
+    );
     expect(repo.saveUnknownWords).toHaveBeenCalledWith([input[1]], tx);
     expect(result).toEqual([{ id: 10 }, { id: 11 }]);
   });
@@ -95,7 +100,9 @@ describe("UnknownWordService", () => {
   it("processUpdateWordStatus throws CustomError when fields missing", async () => {
     const svc = new UnknownWordService({} as any, {} as any, {} as any);
     const badJob = { data: {} } as unknown as Job;
-    await expect(svc.processUpdateWordStatus(badJob)).rejects.toBeInstanceOf(CustomError);
+    await expect(svc.processUpdateWordStatus(badJob)).rejects.toBeInstanceOf(
+      CustomError,
+    );
   });
 
   it("processUpdateWordStatus updates learned and invalidates cache", async () => {
@@ -108,7 +115,9 @@ describe("UnknownWordService", () => {
     } as unknown as RedisStoryCache;
     const svc = new UnknownWordService(repo, cache, {} as any);
 
-    const job = { data: { wordId: 1, userId: 2, wordStatus: "learned" } } as unknown as Job;
+    const job = {
+      data: { wordId: 1, userId: 2, wordStatus: "learned" },
+    } as unknown as Job;
     const res = await svc.processUpdateWordStatus(job);
 
     expect(repo.markAsLearned).toHaveBeenCalledWith(1, 2);
@@ -126,7 +135,9 @@ describe("UnknownWordService", () => {
     } as unknown as RedisStoryCache;
     const svc = new UnknownWordService(repo, cache, {} as any);
 
-    const job = { data: { wordId: 3, userId: 4, wordStatus: "learning" } } as unknown as Job;
+    const job = {
+      data: { wordId: 3, userId: 4, wordStatus: "learning" },
+    } as unknown as Job;
     const res = await svc.processUpdateWordStatus(job);
 
     expect(repo.markAsLearning).toHaveBeenCalledWith(3, 4);

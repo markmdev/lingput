@@ -13,7 +13,7 @@ export class StoryAssembler {
     private vocabularyService: VocabularyService,
     private storyGeneratorService: StoryGeneratorService,
     private translationService: TranslationService,
-    private unknownWordService: UnknownWordService
+    private unknownWordService: UnknownWordService,
   ) {}
 
   async assemble(
@@ -21,7 +21,7 @@ export class StoryAssembler {
     userId: number,
     languageCode: LanguageCode,
     originalLanguageCode: LanguageCode,
-    job: Job
+    job: Job,
   ): Promise<{
     story: string;
     knownWords: UserVocabulary[];
@@ -34,9 +34,14 @@ export class StoryAssembler {
     });
     const vocabularyResult = await this.vocabularyService.getWords(userId);
     if (vocabularyResult.data.length === 0) {
-      throw new CustomError("User's vocabulary is empty. Vocab assessment is requred!", 500, null);
+      throw new CustomError(
+        "User's vocabulary is empty. Vocab assessment is requred!",
+        500,
+        null,
+      );
     }
-    const unknownwordsResult = await this.unknownWordService.getUnknownWords(userId);
+    const unknownwordsResult =
+      await this.unknownWordService.getUnknownWords(userId);
     const knownWords = vocabularyResult.data;
     const knownWordsList = knownWords.map((word) => word.word);
     const unknownWordsList = unknownwordsResult.map((word) => word.word);
@@ -49,7 +54,7 @@ export class StoryAssembler {
     const story = await this.storyGeneratorService.generateStory(
       combinedWordsList,
       subject,
-      languageCode
+      languageCode,
     );
     const cleanedStoryText = story.replace(/\n/g, " ").trim();
 
@@ -59,10 +64,17 @@ export class StoryAssembler {
     });
     const translationChunks = await this.translationService.translateChunks(
       cleanedStoryText,
-      originalLanguageCode
+      originalLanguageCode,
     );
-    const fullTranslation = translationChunks.map((chunk) => chunk.translatedChunk).join(" ");
+    const fullTranslation = translationChunks
+      .map((chunk) => chunk.translatedChunk)
+      .join(" ");
 
-    return { story: cleanedStoryText, knownWords, fullTranslation, translationChunks };
+    return {
+      story: cleanedStoryText,
+      knownWords,
+      fullTranslation,
+      translationChunks,
+    };
   }
 }

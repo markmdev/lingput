@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "src/app.js",
+  "main": "src/app.ts",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/app.ts",
     "dev": "nodemon --config nodemon.json",
@@ -40,6 +40,7 @@
     "@babel/core": "^7.26.10",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
+    "@eslint/js": "^9.34.0",
     "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
@@ -49,12 +50,17 @@
     "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.14.0",
     "babel-jest": "^29.7.0",
+    "eslint": "^9.34.0",
+    "globals": "^16.3.0",
     "jest": "^29.7.0",
+    "jiti": "^2.5.1",
     "nodemon": "^3.1.9",
+    "prettier": "3.6.2",
     "prisma": "^6.5.0",
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.41.0"
   }
 }

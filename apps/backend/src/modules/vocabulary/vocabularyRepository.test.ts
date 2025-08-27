@@ -17,7 +17,9 @@ describe("VocabularyRepository.getWordsCount", () => {
     const result = await repo.getWordsCount(123);
 
     expect(result).toBe(5);
-    expect(prisma.userVocabulary.count).toHaveBeenCalledWith({ where: { userId: 123 } });
+    expect(prisma.userVocabulary.count).toHaveBeenCalledWith({
+      where: { userId: 123 },
+    });
   });
 });
 
@@ -30,7 +32,12 @@ describe("VocabularyRepository other methods", () => {
     };
     const repo = new VocabularyRepository(prisma);
 
-    const input = { word: "Hund", translation: "Dog", article: "der", userId: 1 };
+    const input = {
+      word: "Hund",
+      translation: "Dog",
+      article: "der",
+      userId: 1,
+    };
     const res = await repo.saveWord(input as any);
     expect(res).toEqual({ id: 1, word: "Hund" });
     expect(prisma.userVocabulary.create).toHaveBeenCalledWith({ data: input });
@@ -43,7 +50,12 @@ describe("VocabularyRepository other methods", () => {
       },
     };
     const repo = new VocabularyRepository(prisma);
-    const input = { word: "Hund", translation: "Dog", article: "der", userId: 1 } as any;
+    const input = {
+      word: "Hund",
+      translation: "Dog",
+      article: "der",
+      userId: 1,
+    } as any;
 
     await expect(repo.saveWord(input)).rejects.toBeInstanceOf(PrismaError);
   });
@@ -66,7 +78,9 @@ describe("VocabularyRepository other methods", () => {
     ] as any;
     const res = await repo.saveManyWords(input);
     expect(res).toBe(created);
-    expect(prisma.userVocabulary.createManyAndReturn).toHaveBeenCalledWith({ data: input });
+    expect(prisma.userVocabulary.createManyAndReturn).toHaveBeenCalledWith({
+      data: input,
+    });
   });
 
   it("saveManyWords throws PrismaError on failure", async () => {
@@ -76,7 +90,9 @@ describe("VocabularyRepository other methods", () => {
       },
     };
     const repo = new VocabularyRepository(prisma);
-    await expect(repo.saveManyWords([] as any)).rejects.toBeInstanceOf(PrismaError);
+    await expect(repo.saveManyWords([] as any)).rejects.toBeInstanceOf(
+      PrismaError,
+    );
   });
 
   it("getWordByID calls findUnique with id and returns result", async () => {
@@ -89,7 +105,9 @@ describe("VocabularyRepository other methods", () => {
 
     const res = await repo.getWordByID(7);
     expect(res).toEqual({ id: 7, word: "Hund" });
-    expect(prisma.userVocabulary.findUnique).toHaveBeenCalledWith({ where: { id: 7 } });
+    expect(prisma.userVocabulary.findUnique).toHaveBeenCalledWith({
+      where: { id: 7 },
+    });
   });
 
   it("getWordByID throws PrismaError on failure", async () => {
@@ -119,7 +137,9 @@ describe("VocabularyRepository other methods", () => {
       skip: 10,
       take: 20,
     });
-    expect(prisma.userVocabulary.count).toHaveBeenCalledWith({ where: { userId: 5 } });
+    expect(prisma.userVocabulary.count).toHaveBeenCalledWith({
+      where: { userId: 5 },
+    });
   });
 
   it("getAllWords throws PrismaError on failure", async () => {
@@ -130,7 +150,9 @@ describe("VocabularyRepository other methods", () => {
       },
     };
     const repo = new VocabularyRepository(prisma);
-    await expect(repo.getAllWords(1, 0, 10)).rejects.toBeInstanceOf(PrismaError);
+    await expect(repo.getAllWords(1, 0, 10)).rejects.toBeInstanceOf(
+      PrismaError,
+    );
   });
 
   it("getAllWordsWithoutPagination filters by userId", async () => {
@@ -143,7 +165,9 @@ describe("VocabularyRepository other methods", () => {
 
     const res = await repo.getAllWordsWithoutPagination(77);
     expect(res).toEqual([{ id: 1 }]);
-    expect(prisma.userVocabulary.findMany).toHaveBeenCalledWith({ where: { userId: 77 } });
+    expect(prisma.userVocabulary.findMany).toHaveBeenCalledWith({
+      where: { userId: 77 },
+    });
   });
 
   it("deleteWord deletes by composite where id+userId", async () => {
@@ -156,7 +180,9 @@ describe("VocabularyRepository other methods", () => {
 
     const res = await repo.deleteWord(9, 3);
     expect(res).toEqual({ id: 9 });
-    expect(prisma.userVocabulary.delete).toHaveBeenCalledWith({ where: { id: 9, userId: 3 } });
+    expect(prisma.userVocabulary.delete).toHaveBeenCalledWith({
+      where: { id: 9, userId: 3 },
+    });
   });
 
   it("deleteWord throws PrismaError on failure", async () => {

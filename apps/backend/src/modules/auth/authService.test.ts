@@ -71,14 +71,18 @@ describe("AuthService", () => {
     // approx 7 days in ms
     const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
     expect(expiresAt).toBeInstanceOf(Date);
-    expect(Math.abs((expiresAt as Date).getTime() - (now + sevenDaysMs))).toBeLessThan(2000);
+    expect(
+      Math.abs((expiresAt as Date).getTime() - (now + sevenDaysMs)),
+    ).toBeLessThan(2000);
   });
 
   it("verifyRefreshToken throws on invalid JWT", async () => {
     const repo = createAuthRepositoryMock();
     const service = new AuthService(repo);
 
-    await expect(service.verifyRefreshToken("invalid.jwt.token")).rejects.toBeInstanceOf(AuthError);
+    await expect(
+      service.verifyRefreshToken("invalid.jwt.token"),
+    ).rejects.toBeInstanceOf(AuthError);
   });
 
   it("verifyRefreshToken throws when repository has no record", async () => {
@@ -87,7 +91,9 @@ describe("AuthService", () => {
     const service = new AuthService(repo);
 
     const valid = await service.generateRefreshToken(10);
-    await expect(service.verifyRefreshToken(valid)).rejects.toBeInstanceOf(AuthError);
+    await expect(service.verifyRefreshToken(valid)).rejects.toBeInstanceOf(
+      AuthError,
+    );
   });
 
   it("verifyRefreshToken returns record when JWT is valid and repo has record", async () => {

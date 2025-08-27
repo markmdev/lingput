@@ -3,7 +3,8 @@ import { AuthService } from "@/modules/auth/authService";
 import { Request, Response, NextFunction } from "express";
 
 export const createAuthMiddleware =
-  (authService: AuthService) => async (req: Request, res: Response, next: NextFunction) => {
+  (authService: AuthService) =>
+  async (req: Request, res: Response, next: NextFunction) => {
     const { accessToken } = req.cookies;
 
     if (!accessToken) {
@@ -14,11 +15,19 @@ export const createAuthMiddleware =
     try {
       const user = await authService.verifyAccessToken(accessToken);
       if (!user.userId) {
-        next(new AuthError("Unauthorized", null, { message: "Unable to verify access token" }));
+        next(
+          new AuthError("Unauthorized", null, {
+            message: "Unable to verify access token",
+          }),
+        );
       }
       req.user = { userId: user.userId };
       next();
     } catch (error) {
-      next(new AuthError("Unauthorized", error, { message: "Unable to verify access token" }));
+      next(
+        new AuthError("Unauthorized", error, {
+          message: "Unable to verify access token",
+        }),
+      );
     }
   };

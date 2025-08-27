@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RedisError } from "@/errors/RedisError";
 import { AppRedisClient } from "@/services/redis/redisClient";
 import { v4 as uuidv4 } from "uuid";
@@ -36,7 +37,10 @@ export class SessionRepository {
 
       return session;
     } catch (error) {
-      throw new RedisError("Unable to create a new session", error, { userId, state });
+      throw new RedisError("Unable to create a new session", error, {
+        userId,
+        state,
+      });
     }
   }
 
@@ -64,7 +68,9 @@ export class SessionRepository {
 
       return this.parseSession(session);
     } catch (error) {
-      throw new RedisError("Unable to retrieve a session", error, { sessionUUID });
+      throw new RedisError("Unable to retrieve a session", error, {
+        sessionUUID,
+      });
     }
   }
 
@@ -82,7 +88,10 @@ export class SessionRepository {
 
       return this.parseSession(session);
     } catch (error) {
-      throw new RedisError("Unable to update a session's state", error, { sessionUUID, state });
+      throw new RedisError("Unable to update a session's state", error, {
+        sessionUUID,
+        state,
+      });
     }
   }
 
@@ -101,7 +110,9 @@ export class SessionRepository {
 
       return this.parseSession(session);
     } catch (error) {
-      throw new RedisError("Unable to complete a session", error, { sessionUUID });
+      throw new RedisError("Unable to complete a session", error, {
+        sessionUUID,
+      });
     }
   }
 }

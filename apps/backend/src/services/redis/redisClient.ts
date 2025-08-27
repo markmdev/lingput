@@ -1,10 +1,11 @@
 import { RedisError } from "@/errors/RedisError";
 import { createClient } from "redis";
 import { logger } from "../../utils/logger";
-import { log } from "console";
 
 if (!process.env.REDIS_HOST || !process.env.REDIS_PORT) {
-  throw new Error("REDIS_HOST and REDIS_PORT environment variables are required");
+  throw new Error(
+    "REDIS_HOST and REDIS_PORT environment variables are required",
+  );
 }
 
 const redisHost = process.env.REDIS_HOST;

@@ -19,5 +19,9 @@ export function createUnknownWordModule(deps: {
   const service = new UnknownWordService(repository, cache, deps.queue);
   const controller = new UnknownWordController(service);
 
-  return { service, controller, router: buildUnknownWordRouter(controller, deps.authMiddleware) };
+  return {
+    service,
+    controller,
+    router: buildUnknownWordRouter(controller, deps.authMiddleware),
+  };
 }

@@ -1,9 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { UnknownWordService } from "./unknownWordService";
 import { validateData } from "@/validation/validateData";
 import { wordIdRequestSchema } from "./schemas/wordIdSchema";
 import { formatResponse } from "@/middlewares/responseFormatter";
-import { AuthError } from "@/errors/auth/AuthError";
 import { AuthedRequest } from "@/types/types";
 
 export class UnknownWordController {
@@ -12,7 +11,10 @@ export class UnknownWordController {
     const { wordId } = validateData(wordIdRequestSchema, req.params);
     const user = req.user;
 
-    const job = await this.unknownWordService.markAsLearned(wordId, user.userId);
+    const job = await this.unknownWordService.markAsLearned(
+      wordId,
+      user.userId,
+    );
     res.status(200).json(formatResponse(job));
   };
 
@@ -20,7 +22,10 @@ export class UnknownWordController {
     const { wordId } = validateData(wordIdRequestSchema, req.params);
     const user = req.user;
 
-    const job = await this.unknownWordService.markAsLearning(wordId, user.userId);
+    const job = await this.unknownWordService.markAsLearning(
+      wordId,
+      user.userId,
+    );
     res.status(200).json(formatResponse(job));
   };
 

@@ -16,7 +16,7 @@ export class TranslationService {
   constructor(private openai: OpenAI) {}
   async translateChunks(
     story: string,
-    originalLanguageCode: LanguageCode
+    originalLanguageCode: LanguageCode,
   ): Promise<ChunkTranslation[]> {
     let response: OpenAIResponse;
     try {
@@ -100,10 +100,15 @@ export class TranslationService {
     try {
       result = JSON.parse(content) as OpenAIChunkResponse;
     } catch (error) {
-      throw new OpenAIError("Invalid response format, try again", error, { content });
+      throw new OpenAIError("Invalid response format, try again", error, {
+        content,
+      });
     }
     if (!result.chunks || !Array.isArray(result.chunks)) {
-      throw new OpenAIError("Invalid response format, try again", null, { content, result });
+      throw new OpenAIError("Invalid response format, try again", null, {
+        content,
+        result,
+      });
     }
     return result;
   }

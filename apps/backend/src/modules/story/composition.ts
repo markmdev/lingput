@@ -40,11 +40,14 @@ export function createStoryModule(deps: {
     deps.vocabularyService,
     deps.storyGeneratorService,
     deps.translationService,
-    deps.unknownWordService
+    deps.unknownWordService,
   );
   const lemmaAssembler = new LemmaAssembler(deps.lemmatizationService);
   const storyAudioStorageService = new StoryAudioStorageService(repository);
-  const audioAssembler = new AudioAssembler(storyAudioStorageService, deps.textToSpeechService);
+  const audioAssembler = new AudioAssembler(
+    storyAudioStorageService,
+    deps.textToSpeechService,
+  );
   const service = new StoriesService(
     repository,
     storyAssembler,
@@ -53,8 +56,12 @@ export function createStoryModule(deps: {
     cache,
     deps.queue,
     deps.unknownWordService,
-    redisStoryLimits
+    redisStoryLimits,
   );
   const controller = new StoryController(service, deps.unknownWordService);
-  return { service, controller, router: buildStoryRouter(controller, deps.authMiddleware) };
+  return {
+    service,
+    controller,
+    router: buildStoryRouter(controller, deps.authMiddleware),
+  };
 }

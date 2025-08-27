@@ -11,19 +11,27 @@ function getRandomFileName(extension: string) {
 
 function base64ToArrayBuffer(base64: Base64) {
   const binary = Buffer.from(base64, "base64");
-  return binary.buffer.slice(binary.byteOffset, binary.byteOffset + binary.byteLength);
+  return binary.buffer.slice(
+    binary.byteOffset,
+    binary.byteOffset + binary.byteLength,
+  );
 }
 
 export class StoryRepository {
-  constructor(private prisma: PrismaClient, private storageClient: SupabaseClient) {}
+  constructor(
+    private prisma: PrismaClient,
+    private storageClient: SupabaseClient,
+  ) {}
 
-  private getClient(tx?: Prisma.TransactionClient): Prisma.TransactionClient | PrismaClient {
+  private getClient(
+    tx?: Prisma.TransactionClient,
+  ): Prisma.TransactionClient | PrismaClient {
     return tx ? tx : this.prisma;
   }
 
   async getAllStories(
     userId: number,
-    tx?: Prisma.TransactionClient
+    tx?: Prisma.TransactionClient,
   ): Promise<(Story & { unknownWords: UnknownWord[] })[]> {
     const client = this.getClient(tx);
     try {
@@ -45,7 +53,10 @@ export class StoryRepository {
     }
   }
 
-  async saveStoryToDB(story: CreateStoryDTO, tx?: Prisma.TransactionClient): Promise<Story> {
+  async saveStoryToDB(
+    story: CreateStoryDTO,
+    tx?: Prisma.TransactionClient,
+  ): Promise<Story> {
     const client = this.getClient(tx);
     try {
       const savedStory = await client.story.create({
@@ -69,10 +80,14 @@ export class StoryRepository {
       });
 
     if (error) {
-      throw new StorageError("Unable to save story audio to storage", error, { fileName });
+      throw new StorageError("Unable to save story audio to storage", error, {
+        fileName,
+      });
     }
     if (!data) {
-      throw new StorageError("Unable to save story audio to storage", error, { fileName });
+      throw new StorageError("Unable to save story audio to storage", error, {
+        fileName,
+      });
     }
 
     return data.path;
@@ -81,7 +96,7 @@ export class StoryRepository {
   async connectUnknownWords(
     storyId: number,
     wordIds: { id: number }[],
-    tx?: Prisma.TransactionClient
+    tx?: Prisma.TransactionClient,
   ): Promise<StoryWithUnknownWords> {
     const client = this.getClient(tx);
     try {
@@ -98,7 +113,10 @@ export class StoryRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Unable to connect unknown words", error, { storyId, wordIds });
+      throw new PrismaError("Unable to connect unknown words", error, {
+        storyId,
+        wordIds,
+      });
     }
   }
 }

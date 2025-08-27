@@ -5,10 +5,14 @@ import { AuthedRequest } from "@/types/types";
 
 export function buildJobsRouter(
   controller: JobsController,
-  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void,
 ) {
   const router = Router();
 
-  router.get("/status/:jobId", authMiddleware, asyncHandler<AuthedRequest>(controller.jobStatus));
+  router.get(
+    "/status/:jobId",
+    authMiddleware,
+    asyncHandler<AuthedRequest>(controller.jobStatus),
+  );
   return router;
 }

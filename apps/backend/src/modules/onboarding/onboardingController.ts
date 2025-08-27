@@ -33,14 +33,18 @@ export class OnboardingController {
   checkOnboarding = async (req: AuthedRequest, res: Response) => {
     const { userId } = req.user;
     try {
-      const result = await this.prisma.onboarding.findFirst({ where: { userId } });
+      const result = await this.prisma.onboarding.findFirst({
+        where: { userId },
+      });
       if (result) {
         res.status(200).json(formatResponse({ status: "completed" }));
       } else {
         res.status(200).json(formatResponse({ status: "not_started" }));
       }
     } catch (error) {
-      throw new PrismaError("Failed on check onboarding status", error, { userId });
+      throw new PrismaError("Failed on check onboarding status", error, {
+        userId,
+      });
     }
   };
 }

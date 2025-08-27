@@ -12,5 +12,9 @@ export function createVocabularyModule(deps: {
   const repository = new VocabularyRepository(deps.prisma);
   const service = new VocabularyService(repository);
   const controller = new VocabularyController(service);
-  return { service, controller, router: buildVocabularyRouter(controller, deps.authMiddleware) };
+  return {
+    service,
+    controller,
+    router: buildVocabularyRouter(controller, deps.authMiddleware),
+  };
 }

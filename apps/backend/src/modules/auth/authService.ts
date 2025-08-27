@@ -33,11 +33,13 @@ export class AuthService {
   }
 
   async generateRefreshToken(userId: number) {
-    const refreshToken = jwt.sign({ userId }, this.jwtSecret, { expiresIn: "7d" });
+    const refreshToken = jwt.sign({ userId }, this.jwtSecret, {
+      expiresIn: "7d",
+    });
     await this.authRepository.saveRefreshToken(
       refreshToken,
       new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-      userId
+      userId,
     );
     return refreshToken;
   }
@@ -46,7 +48,7 @@ export class AuthService {
     try {
       jwt.verify(token, this.jwtSecret);
     } catch (error) {
-      throw new AuthError("Invalid refresh token", { token });
+      throw new AuthError("Invalid refresh token", error, { token });
     }
 
     const record = await this.authRepository.getRefreshTokenRecord(token);

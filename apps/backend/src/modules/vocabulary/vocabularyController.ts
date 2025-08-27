@@ -1,9 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { VocabularyService } from "./vocabularyService";
 import { formatResponse } from "@/middlewares/responseFormatter";
 import { validateData } from "@/validation/validateData";
 import { z } from "zod";
-import { AuthError } from "@/errors/auth/AuthError";
 import { AuthedRequest } from "@/types/types";
 
 export class VocabularyController {
@@ -30,9 +29,13 @@ export class VocabularyController {
           .lt(200, { message: "Maximum pageSize is 200" })
           .default(20),
       }),
-      req.query
+      req.query,
     );
-    const result = await this.vocabularyService.getWords(userId, page, pageSize);
+    const result = await this.vocabularyService.getWords(
+      userId,
+      page,
+      pageSize,
+    );
     res.status(200).json(formatResponse(result.data, result.pagination));
   };
 
@@ -41,7 +44,8 @@ export class VocabularyController {
 
     const { userId } = user;
 
-    const result = await this.vocabularyService.getWordsWithoutPagination(userId);
+    const result =
+      await this.vocabularyService.getWordsWithoutPagination(userId);
     res.status(200).json(formatResponse(result));
   };
 
@@ -55,7 +59,7 @@ export class VocabularyController {
         translation: z.string().min(1).max(50),
         article: z.string().min(1).max(15).nullable(),
       }),
-      req.body
+      req.body,
     );
     const newWord = await this.vocabularyService.saveNewWord({
       word,
@@ -77,12 +81,15 @@ export class VocabularyController {
             word: z.string().min(1).max(50),
             translation: z.string().min(1).max(50),
             article: z.string().min(1).max(15).nullable(),
-          })
+          }),
         ),
       }),
-      req.body
+      req.body,
     );
-    const savedWords = await this.vocabularyService.saveManyWords(words, userId);
+    const savedWords = await this.vocabularyService.saveManyWords(
+      words,
+      userId,
+    );
     res.status(201).json(formatResponse(savedWords));
   };
 
@@ -115,9 +122,13 @@ export class VocabularyController {
         translation: z.string().min(1).max(50).optional(),
         article: z.string().min(1).max(15).nullable().optional(),
       }),
-      req.body
+      req.body,
     );
-    const updatedWord = await this.vocabularyService.updateWord(wordId, userId, wordData);
+    const updatedWord = await this.vocabularyService.updateWord(
+      wordId,
+      userId,
+      wordData,
+    );
     res.status(200).json(formatResponse(updatedWord));
   };
 }

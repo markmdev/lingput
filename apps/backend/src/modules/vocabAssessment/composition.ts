@@ -22,9 +22,12 @@ export function createVocabAssessmentModule(deps: {
     repository,
     deps.sessionService,
     deps.vocabularyService,
-    cache
+    cache,
   );
 
   const controller = new VocabAssessmentController(service);
-  return { controller, router: buildVocabAssessmentRouter(controller, deps.authMiddleware) };
+  return {
+    controller,
+    router: buildVocabAssessmentRouter(controller, deps.authMiddleware),
+  };
 }

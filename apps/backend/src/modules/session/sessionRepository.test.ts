@@ -9,7 +9,9 @@ function createRedisMock() {
     hSet: jest.fn().mockImplementation((key: string, data: any) => {
       store[key] = {
         ...(store[key] || {}),
-        ...Object.fromEntries(Object.entries(data).map(([k, v]) => [k, String(v)])),
+        ...Object.fromEntries(
+          Object.entries(data).map(([k, v]) => [k, String(v)]),
+        ),
       };
       pipelineOps.push(["hSet", key, data]);
       return pipeline;
@@ -64,7 +66,9 @@ describe("SessionRepository", () => {
   it("getSession throws when sessionUUID missing", async () => {
     const redis = createRedisMock();
     const repo = new SessionRepository(redis);
-    await expect(repo.getSession(1, "" as any)).rejects.toBeInstanceOf(RedisError);
+    await expect(repo.getSession(1, "" as any)).rejects.toBeInstanceOf(
+      RedisError,
+    );
   });
 
   it("updateSessionState updates only state JSON and returns parsed session", async () => {
@@ -89,8 +93,18 @@ describe("SessionRepository", () => {
   it("parseSession wraps invalid JSON in RedisError", async () => {
     const hGetAll = jest
       .fn()
-      .mockResolvedValue({ userId: "1", state: "{", sessionUUID: "u", status: "active" });
-    const redis: any = { hGetAll, multi: jest.fn(), hSet: jest.fn(), expire: jest.fn() };
+      .mockResolvedValue({
+        userId: "1",
+        state: "{",
+        sessionUUID: "u",
+        status: "active",
+      });
+    const redis: any = {
+      hGetAll,
+      multi: jest.fn(),
+      hSet: jest.fn(),
+      expire: jest.fn(),
+    };
     const repo = new SessionRepository(redis);
     await expect(repo.getSession(1, "u")).rejects.toBeInstanceOf(RedisError);
   });

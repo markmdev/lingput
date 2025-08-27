@@ -74,7 +74,7 @@ describe("StoryAssembler", () => {
       vocabularyServiceMock,
       storyGeneratorServiceMock,
       translationServiceMock,
-      unknownWordServiceMock
+      unknownWordServiceMock,
     );
 
     const expected = {
@@ -91,11 +91,11 @@ describe("StoryAssembler", () => {
     expect(storyGeneratorServiceMock.generateStory).toHaveBeenCalledWith(
       ["Hund", "Katze", "jagen"],
       "Pets",
-      "DE"
+      "DE",
     );
     expect(translationServiceMock.translateChunks).toHaveBeenCalledWith(
       "Der Hund jagt schnell die Katze.",
-      "EN"
+      "EN",
     );
   });
 
@@ -120,13 +120,13 @@ describe("StoryAssembler", () => {
       vocabularyServiceMock,
       storyGeneratorServiceMock,
       translationServiceMock,
-      unknownWordServiceMock
+      unknownWordServiceMock,
     );
     const jobStub = { updateProgress: jest.fn() } as unknown as Job;
 
-    await expect(assembler.assemble("Pets", 1, "DE", "EN", jobStub)).rejects.toBeInstanceOf(
-      CustomError
-    );
+    await expect(
+      assembler.assemble("Pets", 1, "DE", "EN", jobStub),
+    ).rejects.toBeInstanceOf(CustomError);
   });
 
   it("updates job progress across fetchingWords, generation, translation phases", async () => {
@@ -150,7 +150,7 @@ describe("StoryAssembler", () => {
       vocabularyServiceMock,
       storyGeneratorServiceMock,
       translationServiceMock,
-      unknownWordServiceMock
+      unknownWordServiceMock,
     );
 
     const jobStub = { updateProgress: jest.fn() } as unknown as Job;
@@ -158,13 +158,22 @@ describe("StoryAssembler", () => {
 
     const totalSteps = Object.keys(GENERATION_PHASES).length;
     expect((jobStub as any).updateProgress).toHaveBeenCalledWith(
-      expect.objectContaining({ phase: GENERATION_PHASES.fetchingWords, totalSteps })
+      expect.objectContaining({
+        phase: GENERATION_PHASES.fetchingWords,
+        totalSteps,
+      }),
     );
     expect((jobStub as any).updateProgress).toHaveBeenCalledWith(
-      expect.objectContaining({ phase: GENERATION_PHASES.generation, totalSteps })
+      expect.objectContaining({
+        phase: GENERATION_PHASES.generation,
+        totalSteps,
+      }),
     );
     expect((jobStub as any).updateProgress).toHaveBeenCalledWith(
-      expect.objectContaining({ phase: GENERATION_PHASES.translation, totalSteps })
+      expect.objectContaining({
+        phase: GENERATION_PHASES.translation,
+        totalSteps,
+      }),
     );
   });
 });

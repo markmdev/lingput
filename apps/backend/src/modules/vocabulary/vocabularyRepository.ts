@@ -7,7 +7,9 @@ export class VocabularyRepository {
 
   async getWordsCount(userId: number): Promise<number> {
     try {
-      const count = await this.prisma.userVocabulary.count({ where: { userId } });
+      const count = await this.prisma.userVocabulary.count({
+        where: { userId },
+      });
       return count;
     } catch (error) {
       throw new PrismaError("Unable to get words count", error, { userId });
@@ -26,7 +28,9 @@ export class VocabularyRepository {
     }
   }
 
-  async saveManyWords(words: UserVocabularyWithUserIdDTO[]): Promise<UserVocabulary[]> {
+  async saveManyWords(
+    words: UserVocabularyWithUserIdDTO[],
+  ): Promise<UserVocabulary[]> {
     try {
       const newWords = await this.prisma.userVocabulary.createManyAndReturn({
         data: words,
@@ -34,7 +38,9 @@ export class VocabularyRepository {
 
       return newWords;
     } catch (error) {
-      throw new PrismaError("Unable to save many words to DB", error, { words });
+      throw new PrismaError("Unable to save many words to DB", error, {
+        words,
+      });
     }
   }
 
@@ -47,14 +53,16 @@ export class VocabularyRepository {
       });
       return word;
     } catch (error) {
-      throw new PrismaError("Unable to retrieve word by ID from DB", error, { wordId });
+      throw new PrismaError("Unable to retrieve word by ID from DB", error, {
+        wordId,
+      });
     }
   }
 
   async getAllWords(
     userId: number,
     skip: number,
-    take: number
+    take: number,
   ): Promise<[UserVocabulary[], number]> {
     try {
       const whereClause = { userId };
@@ -68,17 +76,25 @@ export class VocabularyRepository {
       ]);
       return [words, totalItems];
     } catch (error) {
-      throw new PrismaError("Unable to get all words from DB", error, { userId, skip, take });
+      throw new PrismaError("Unable to get all words from DB", error, {
+        userId,
+        skip,
+        take,
+      });
     }
   }
 
-  async getAllWordsWithoutPagination(userId: number): Promise<UserVocabulary[]> {
+  async getAllWordsWithoutPagination(
+    userId: number,
+  ): Promise<UserVocabulary[]> {
     try {
       return this.prisma.userVocabulary.findMany({
         where: { userId },
       });
     } catch (error) {
-      throw new PrismaError("Unable to get all words from DB", error, { userId });
+      throw new PrismaError("Unable to get all words from DB", error, {
+        userId,
+      });
     }
   }
 
@@ -92,11 +108,17 @@ export class VocabularyRepository {
       });
       return deleted;
     } catch (error) {
-      throw new PrismaError("Unable to delete word from DB", error, { wordId, userId });
+      throw new PrismaError("Unable to delete word from DB", error, {
+        wordId,
+        userId,
+      });
     }
   }
 
-  async updateWord(wordId: number, wordData: Partial<UserVocabulary>): Promise<UserVocabulary> {
+  async updateWord(
+    wordId: number,
+    wordData: Partial<UserVocabulary>,
+  ): Promise<UserVocabulary> {
     try {
       const updated = await this.prisma.userVocabulary.update({
         where: {
@@ -106,7 +128,10 @@ export class VocabularyRepository {
       });
       return updated;
     } catch (error) {
-      throw new PrismaError("Unable to update the word from DB", error, { wordId, wordData });
+      throw new PrismaError("Unable to update the word from DB", error, {
+        wordId,
+        wordData,
+      });
     }
   }
 }

@@ -45,10 +45,12 @@ const wordsMock: UserVocabulary[] = [
 describe("VocabularyService", () => {
   const vocabularyRepositoryMock = {
     getAllWordsWithoutPagination: jest.fn().mockResolvedValue(wordsMock),
-    getAllWords: jest.fn().mockImplementation((userId: number, skip: number, take: number) => {
-      if (skip > wordsMock.length) return Promise.resolve([[], 5]);
-      return Promise.resolve([wordsMock.slice(skip, skip + take), 5]);
-    }),
+    getAllWords: jest
+      .fn()
+      .mockImplementation((userId: number, skip: number, take: number) => {
+        if (skip > wordsMock.length) return Promise.resolve([[], 5]);
+        return Promise.resolve([wordsMock.slice(skip, skip + take), 5]);
+      }),
   } as unknown as VocabularyRepository;
 
   it("getWords() returns all words without pagination", async () => {
@@ -134,24 +136,32 @@ describe("VocabularyService extended", () => {
   });
 
   it("saveManyWords throws BadRequestError when input is not array (negative)", async () => {
-    const repo: any = { saveManyWords: jest.fn() } as unknown as VocabularyRepository;
+    const repo: any = {
+      saveManyWords: jest.fn(),
+    } as unknown as VocabularyRepository;
     const svc = new VocabularyService(repo);
 
-    await expect(svc.saveManyWords({} as any, 1)).rejects.toBeInstanceOf(BadRequestError);
+    await expect(svc.saveManyWords({} as any, 1)).rejects.toBeInstanceOf(
+      BadRequestError,
+    );
   });
 
   it("saveManyWords throws BadRequestError when any item missing fields (negative)", async () => {
-    const repo: any = { saveManyWords: jest.fn() } as unknown as VocabularyRepository;
+    const repo: any = {
+      saveManyWords: jest.fn(),
+    } as unknown as VocabularyRepository;
     const svc = new VocabularyService(repo);
 
-    await expect(svc.saveManyWords([{ word: "Hund" } as any], 1)).rejects.toBeInstanceOf(
-      BadRequestError
-    );
+    await expect(
+      svc.saveManyWords([{ word: "Hund" } as any], 1),
+    ).rejects.toBeInstanceOf(BadRequestError);
   });
 
   it("getWordByID returns word if belongs to user (positive)", async () => {
     const repo: any = {
-      getWordByID: jest.fn().mockResolvedValue({ id: 5, userId: 22 } as UserVocabulary),
+      getWordByID: jest
+        .fn()
+        .mockResolvedValue({ id: 5, userId: 22 } as UserVocabulary),
     } as unknown as VocabularyRepository;
     const svc = new VocabularyService(repo);
 
@@ -161,7 +171,9 @@ describe("VocabularyService extended", () => {
 
   it("getWordByID throws NotFoundError if not belongs (negative)", async () => {
     const repo: any = {
-      getWordByID: jest.fn().mockResolvedValue({ id: 5, userId: 99 } as UserVocabulary),
+      getWordByID: jest
+        .fn()
+        .mockResolvedValue({ id: 5, userId: 99 } as UserVocabulary),
     } as unknown as VocabularyRepository;
     const svc = new VocabularyService(repo);
 
@@ -170,7 +182,9 @@ describe("VocabularyService extended", () => {
 
   it("updateWord updates when word belongs to user (positive)", async () => {
     const repo: any = {
-      getWordByID: jest.fn().mockResolvedValue({ id: 7, userId: 1 } as UserVocabulary),
+      getWordByID: jest
+        .fn()
+        .mockResolvedValue({ id: 7, userId: 1 } as UserVocabulary),
       updateWord: jest.fn().mockResolvedValue({ id: 7, translation: "New" }),
     } as unknown as VocabularyRepository;
     const svc = new VocabularyService(repo);
@@ -182,14 +196,16 @@ describe("VocabularyService extended", () => {
 
   it("updateWord throws NotFoundError when word not belongs (negative)", async () => {
     const repo: any = {
-      getWordByID: jest.fn().mockResolvedValue({ id: 7, userId: 2 } as UserVocabulary),
+      getWordByID: jest
+        .fn()
+        .mockResolvedValue({ id: 7, userId: 2 } as UserVocabulary),
       updateWord: jest.fn(),
     } as unknown as VocabularyRepository;
     const svc = new VocabularyService(repo);
 
-    await expect(svc.updateWord(7, 1, { translation: "New" } as any)).rejects.toBeInstanceOf(
-      NotFoundError
-    );
+    await expect(
+      svc.updateWord(7, 1, { translation: "New" } as any),
+    ).rejects.toBeInstanceOf(NotFoundError);
     expect(repo.updateWord).not.toHaveBeenCalled();
   });
 

@@ -3,18 +3,22 @@ import { IHandleableError, serializeError } from "./common";
 import { ErrorDetails } from "./ErrorDetails";
 
 export class CustomError extends Error implements IHandleableError {
-  originalError: any;
+  originalError: Error | unknown;
   constructor(
     public message: string,
     public statusCode: number,
     originalError: unknown,
-    public details?: ErrorDetails
+    public details?: ErrorDetails,
   ) {
     super(message);
     this.originalError = serializeError(originalError);
   }
 
-  formatResponse(): { message: string; statusCode: number; userDetails?: ZodIssue[] } {
+  formatResponse(): {
+    message: string;
+    statusCode: number;
+    userDetails?: ZodIssue[];
+  } {
     return {
       message: this.message,
       statusCode: this.statusCode,

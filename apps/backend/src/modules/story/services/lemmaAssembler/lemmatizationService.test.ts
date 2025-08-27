@@ -1,6 +1,9 @@
 import OpenAI from "openai";
 import { Lemma } from "../../story.types";
-import { LemmatizationService, OpenAILemmasResponse } from "./lemmatizationService";
+import {
+  LemmatizationService,
+  OpenAILemmasResponse,
+} from "./lemmatizationService";
 
 const lemmasMock: Lemma[] = [
   {

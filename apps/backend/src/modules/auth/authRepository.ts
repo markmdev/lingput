@@ -7,7 +7,11 @@ export class AuthRepository {
     return `refreshToken:${key}`;
   }
 
-  async saveRefreshToken(refreshToken: string, expiresAt: Date, userId: number) {
+  async saveRefreshToken(
+    refreshToken: string,
+    expiresAt: Date,
+    userId: number,
+  ) {
     const key = this.getKey(refreshToken);
     const timestampInSeconds = Math.floor(expiresAt.getTime() / 1000);
     await this.redis

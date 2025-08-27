@@ -4,6 +4,7 @@ import { logger } from "@/utils/logger";
 import { Job, Worker } from "bullmq";
 import { ConnectionOptions } from "bullmq";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type JobHandler = (job: Job) => Promise<any>;
 
 export class BullWorker {
@@ -12,9 +13,11 @@ export class BullWorker {
   constructor(
     queueName: string,
     connection: ConnectionOptions,
-    private handlers: Map<string, JobHandler>
+    private handlers: Map<string, JobHandler>,
   ) {
-    this.worker = new Worker(queueName, this.processor.bind(this), { connection });
+    this.worker = new Worker(queueName, this.processor.bind(this), {
+      connection,
+    });
 
     this.worker.on("completed", (job) => {
       logger.info(`Job ${job.id} has completed! ${job.returnvalue}`);
@@ -50,7 +53,9 @@ export class BullWorker {
         const result = await handler(job);
         return result;
       } else {
-        throw new CustomError("Unknown task name", 500, null, { name: job.name });
+        throw new CustomError("Unknown task name", 500, null, {
+          name: job.name,
+        });
       }
     } catch (error) {
       logger.error(`Error processing job ${job.id}:`, error);

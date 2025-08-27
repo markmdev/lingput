@@ -22,14 +22,14 @@ export class StoriesService {
     private redisStoryCache: RedisStoryCache,
     private jobQueue: Queue,
     private unknownWordService: UnknownWordService,
-    private redisStoryLimits: RedisStoryLimits
+    private redisStoryLimits: RedisStoryLimits,
   ) {}
 
   async generateFullStoryExperience(
     userId: number,
     languageCode: LanguageCode,
     originalLanguageCode: LanguageCode,
-    subject: string = ""
+    subject: string = "",
   ) {
     const isLimitReached = await this.redisStoryLimits.isLimitReached(userId);
     if (isLimitReached) {
@@ -52,20 +52,28 @@ export class StoriesService {
     return { jobId: job.id };
   }
 
-  async processStoryGenerationJob(job: Job, prisma: PrismaClient): Promise<StoryWithUnknownWords> {
+  async processStoryGenerationJob(
+    job: Job,
+    prisma: PrismaClient,
+  ): Promise<StoryWithUnknownWords> {
     const { userId, languageCode, originalLanguageCode, subject } = job.data;
     if (!userId || !languageCode || !originalLanguageCode || !subject) {
-      throw new CustomError("Unable to generate a story: Invalud parameters", 500, null, {
-        data: job.data,
-      });
+      throw new CustomError(
+        "Unable to generate a story: Invalud parameters",
+        500,
+        null,
+        {
+          data: job.data,
+        },
+      );
     }
 
-    const { story, unknownWords, knownWords } = await this.createStory(
+    const { story, unknownWords } = await this.createStory(
       subject,
       userId,
       languageCode,
       originalLanguageCode,
-      job
+      job,
     );
 
     job.updateProgress({
@@ -75,17 +83,18 @@ export class StoriesService {
     try {
       const storyWithUnknownWords = await prisma.$transaction(async (tx) => {
         const savedStory = await this.saveStoryToDB(story, tx);
-        const savedUnknownWords = await this.unknownWordService.saveUnknownWords(
-          unknownWords,
-          savedStory.id,
-          userId,
-          tx
-        );
+        const savedUnknownWords =
+          await this.unknownWordService.saveUnknownWords(
+            unknownWords,
+            savedStory.id,
+            userId,
+            tx,
+          );
         const unknownWordIds = this.extractUnknownWordIds(savedUnknownWords);
         const storyWithUnknownWords = await this.connectUnknownWords(
           savedStory.id,
           unknownWordIds,
-          tx
+          tx,
         );
         return storyWithUnknownWords;
       });
@@ -106,10 +115,16 @@ export class StoriesService {
     userId: number,
     languageCode: "DE",
     originalLanguageCode: "EN",
-    job: Job
+    job: Job,
   ) {
     const { story, fullTranslation, translationChunks, knownWords } =
-      await this.storyAssembler.assemble(subject, userId, languageCode, originalLanguageCode, job);
+      await this.storyAssembler.assemble(
+        subject,
+        userId,
+        languageCode,
+        originalLanguageCode,
+        job,
+      );
 
     const unknownWords = await this.lemmaAssembler.assemble(
       story,
@@ -117,7 +132,7 @@ export class StoriesService {
       userId,
       languageCode,
       originalLanguageCode,
-      job
+      job,
     );
     job.updateProgress({
       phase: GENERATION_PHASES["creatingAudio"],
@@ -127,7 +142,7 @@ export class StoriesService {
       translationChunks,
       unknownWords,
       languageCode,
-      originalLanguageCode
+      originalLanguageCode,
     );
 
     return {
@@ -142,7 +157,10 @@ export class StoriesService {
     };
   }
 
-  private async saveStoryToDB(story: CreateStoryDTO, tx: Prisma.TransactionClient): Promise<Story> {
+  private async saveStoryToDB(
+    story: CreateStoryDTO,
+    tx: Prisma.TransactionClient,
+  ): Promise<Story> {
     const res = await this.storyRepository.saveStoryToDB(story, tx);
     try {
       await this.redisStoryCache.invalidateStoryCache(story.userId);
@@ -153,7 +171,8 @@ export class StoriesService {
   }
 
   async getAllStories(userId: number): Promise<Story[]> {
-    const cachedStories = await this.redisStoryCache.getAllStoriesFromCache(userId);
+    const cachedStories =
+      await this.redisStoryCache.getAllStoriesFromCache(userId);
     if (cachedStories.length > 0) {
       return cachedStories;
     }
@@ -170,7 +189,7 @@ export class StoriesService {
   private async connectUnknownWords(
     storyId: number,
     wordIds: { id: number }[],
-    tx: Prisma.TransactionClient
+    tx: Prisma.TransactionClient,
   ): Promise<StoryWithUnknownWords> {
     return await this.storyRepository.connectUnknownWords(storyId, wordIds, tx);
   }

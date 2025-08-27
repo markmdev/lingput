@@ -4,7 +4,7 @@ import { VocabAssessmentController } from "./vocabAssessmentController";
 
 export function buildVocabAssessmentRouter(
   controller: VocabAssessmentController,
-  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void,
 ) {
   const router = Router();
 

@@ -1,5 +1,8 @@
 import { BadRequestError } from "@/errors/BadRequestError";
-import { UserVocabularyDTO, UserVocabularyWithUserIdDTO } from "./vocabulary.types";
+import {
+  UserVocabularyDTO,
+  UserVocabularyWithUserIdDTO,
+} from "./vocabulary.types";
 import { VocabularyRepository } from "./vocabularyRepository";
 import { UserVocabulary } from "@prisma/client";
 import { NotFoundError } from "@/errors/NotFoundError";
@@ -22,14 +25,19 @@ export class VocabularyService {
   async getWords(
     userId: number,
     page?: number,
-    pageSize?: number
+    pageSize?: number,
   ): Promise<{ data: UserVocabulary[]; pagination?: Pagination }> {
     if (!page || !pageSize) {
-      const words = await this.vocabularyRepository.getAllWordsWithoutPagination(userId);
+      const words =
+        await this.vocabularyRepository.getAllWordsWithoutPagination(userId);
       return { data: words };
     }
     const skip = (page - 1) * pageSize;
-    const [words, totalItems] = await this.vocabularyRepository.getAllWords(userId, skip, pageSize);
+    const [words, totalItems] = await this.vocabularyRepository.getAllWords(
+      userId,
+      skip,
+      pageSize,
+    );
     const totalPages = Math.ceil(totalItems / pageSize);
     return {
       data: words,
@@ -43,22 +51,34 @@ export class VocabularyService {
   }
 
   async getWordsWithoutPagination(userId: number): Promise<UserVocabulary[]> {
-    const words = await this.vocabularyRepository.getAllWordsWithoutPagination(userId);
+    const words =
+      await this.vocabularyRepository.getAllWordsWithoutPagination(userId);
     return words;
   }
 
-  async saveNewWord(word: UserVocabularyWithUserIdDTO): Promise<UserVocabulary> {
+  async saveNewWord(
+    word: UserVocabularyWithUserIdDTO,
+  ): Promise<UserVocabulary> {
     return this.vocabularyRepository.saveWord(word);
   }
 
-  async saveManyWords(words: UserVocabularyDTO[], userId: number): Promise<UserVocabulary[]> {
+  async saveManyWords(
+    words: UserVocabularyDTO[],
+    userId: number,
+  ): Promise<UserVocabulary[]> {
     if (!Array.isArray(words)) {
-      throw new BadRequestError("The request body must be an array of objects.");
+      throw new BadRequestError(
+        "The request body must be an array of objects.",
+      );
     }
 
-    const allWordsValid = words.every((wordObj) => wordObj.word && wordObj.translation);
+    const allWordsValid = words.every(
+      (wordObj) => wordObj.word && wordObj.translation,
+    );
     if (!allWordsValid) {
-      throw new BadRequestError("Each item must have a 'word' and a 'translation' property.");
+      throw new BadRequestError(
+        "Each item must have a 'word' and a 'translation' property.",
+      );
     }
 
     const wordsWithUserId = this.attachUserIdToWords(words, userId);
@@ -69,7 +89,11 @@ export class VocabularyService {
     return this.vocabularyRepository.deleteWord(wordId, userId);
   }
 
-  async updateWord(wordId: number, userId: number, wordData: Partial<UserVocabulary>) {
+  async updateWord(
+    wordId: number,
+    userId: number,
+    wordData: Partial<UserVocabulary>,
+  ) {
     // check if the user has the word
     await this.getWordByID(wordId, userId);
 
@@ -78,12 +102,15 @@ export class VocabularyService {
 
   private attachUserIdToWords(
     words: UserVocabularyDTO[],
-    userId: number
+    userId: number,
   ): UserVocabularyWithUserIdDTO[] {
     return words.map((word) => ({ ...word, userId }));
   }
 
-  private doesWordBelongToUser(word: UserVocabulary | null, userId: number): boolean {
+  private doesWordBelongToUser(
+    word: UserVocabulary | null,
+    userId: number,
+  ): boolean {
     return word !== null && word.userId === userId;
   }
 }

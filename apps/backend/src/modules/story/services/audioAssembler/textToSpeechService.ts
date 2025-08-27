@@ -9,7 +9,7 @@ export class TextToSpeechService {
     text: string,
     isTargetLanguage: boolean,
     languageCode: LanguageCode,
-    originalLanguageCode: LanguageCode
+    originalLanguageCode: LanguageCode,
   ): Promise<Base64> {
     const instructions = isTargetLanguage
       ? `"Speak as if you are doing a voiceover for a story using the 'Comprehensible Input' method of learning. You must speak at a slow pace, and speak expressively. The language is ${LANGUAGES_MAP[languageCode]}`

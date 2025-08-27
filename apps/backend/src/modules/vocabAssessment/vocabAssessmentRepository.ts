@@ -4,7 +4,10 @@ import { PrismaClient, WordRanking } from "@prisma/client";
 export class VocabAssessmentRepository {
   constructor(private prisma: PrismaClient) {}
 
-  async getWords(sourceLanguage: string, targetLanguage: string): Promise<WordRanking[]> {
+  async getWords(
+    sourceLanguage: string,
+    targetLanguage: string,
+  ): Promise<WordRanking[]> {
     try {
       const response = await this.prisma.wordRanking.findMany({
         where: {

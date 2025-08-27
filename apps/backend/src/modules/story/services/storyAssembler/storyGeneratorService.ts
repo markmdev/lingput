@@ -8,7 +8,7 @@ export class StoryGeneratorService {
   async generateStory(
     targetLanguageWords: string[],
     subject: string,
-    languageCode: LanguageCode
+    languageCode: LanguageCode,
   ): Promise<string> {
     let response: OpenAIResponse;
     try {
@@ -59,7 +59,10 @@ Requirements:
 
     const story = response.output_text;
     if (!story) {
-      throw new OpenAIError("Unable to generate a story", null, { targetLanguageWords, subject });
+      throw new OpenAIError("Unable to generate a story", null, {
+        targetLanguageWords,
+        subject,
+      });
     }
     return story;
   }

@@ -5,11 +5,19 @@ import { AuthedRequest } from "@/types/types";
 
 export function buildStoryRouter(
   controller: StoryController,
-  authMiddleware: (req: Request, res: Response, next: NextFunction) => void
+  authMiddleware: (req: Request, res: Response, next: NextFunction) => void,
 ) {
   const router = Router();
-  router.post("/generate", authMiddleware, asyncHandler<AuthedRequest>(controller.generateStory));
-  router.get("/", authMiddleware, asyncHandler<AuthedRequest>(controller.getAllStories));
+  router.post(
+    "/generate",
+    authMiddleware,
+    asyncHandler<AuthedRequest>(controller.generateStory),
+  );
+  router.get(
+    "/",
+    authMiddleware,
+    asyncHandler<AuthedRequest>(controller.getAllStories),
+  );
 
   return router;
 }

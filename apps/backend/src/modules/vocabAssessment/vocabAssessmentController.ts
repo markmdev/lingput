@@ -1,9 +1,8 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { formatResponse } from "@/middlewares/responseFormatter";
 import { VocabAssessmentService } from "./vocabAssessmentService";
 import { z } from "zod";
 import { validateData } from "@/validation/validateData";
-import { AuthError } from "@/errors/auth/AuthError";
 import { AuthedRequest } from "@/types/types";
 
 const answerSchema = z.object({
@@ -17,7 +16,11 @@ export class VocabAssessmentController {
   start = async (req: AuthedRequest, res: Response) => {
     const user = req.user;
 
-    const result = await this.vocabAssessmentService.startAssessment(user.userId, "en", "de");
+    const result = await this.vocabAssessmentService.startAssessment(
+      user.userId,
+      "en",
+      "de",
+    );
     res.status(200).json(formatResponse(result));
   };
 
@@ -28,7 +31,7 @@ export class VocabAssessmentController {
     const result = await this.vocabAssessmentService.continueAssessment(
       user.userId,
       sessionUUID,
-      wordsData
+      wordsData,
     );
     res.status(200).json(formatResponse(result));
   };
