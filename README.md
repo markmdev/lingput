@@ -1,5 +1,8 @@
 # Lingput - AI-Powered Comprehensible Input for Language Learning
 
+[![Tests](https://github.com/mark-mdev/lingput/actions/workflows/pr-tests.yml/badge.svg)](https://github.com/mark-mdev/lingput/actions/workflows/pr-tests.yml)
+[![Deploy](https://github.com/mark-mdev/lingput/actions/workflows/deploy.yml/badge.svg)](https://github.com/mark-mdev/lingput/actions/workflows/deploy.yml)
+
 **Demo:**  
 https://lingput.dev/  
 https://app.lingput.dev/  
