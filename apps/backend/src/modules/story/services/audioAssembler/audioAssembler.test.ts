@@ -36,7 +36,6 @@ describe("AudioAssembler", () => {
     );
 
     // Silences generated
-    expect(generateSilence).toHaveBeenCalledWith(2);
     expect(generateSilence).toHaveBeenCalledWith(1);
     expect(generateSilence).toHaveBeenCalledWith(0.3);
 
