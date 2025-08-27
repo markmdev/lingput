@@ -21,7 +21,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  lemma:
+  lemmas:
     build:
       context: ./apps/lemmas
   backend:
@@ -62,7 +62,7 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      lemma:
+      lemmas:
         condition: service_started
   frontend:
     build:

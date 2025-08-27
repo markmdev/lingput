@@ -16,7 +16,7 @@ Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **
 
 ---
 
-## 🚀 Architectural & Technical Highlights
+## Architectural & Technical Highlights
 
 This project was built to production-grade standards, demonstrating expertise in full-stack development, system design, and scalability. Here are the key technical features:
 
@@ -26,6 +26,38 @@ This project was built to production-grade standards, demonstrating expertise in
 - **Secure Authentication:** Implements a secure, modern authentication system using **HTTP-only cookies** with access and refresh tokens to protect against XSS attacks.
 - **Advanced Frontend State Management:** The Next.js frontend features a **custom React hook (`handleJob`)** to intelligently manage the lifecycle of background jobs, abstracting away the complexity of polling and providing optimistic UI updates.
 - **Containerized for Production:** The entire application is containerized using **Docker and Docker Compose**, ensuring consistent, reproducible deployments for all services (backend, frontend, workers, NGINX).
+
+---
+
+## CI/CD
+
+This repo ships with a simple, reliable pipeline built around **Docker**, **GitHub Actions**, and **CapRover** on a DigitalOcean droplet.
+
+### Branch strategy & protections
+
+- `main` is **protected**: direct pushes are blocked; changes land via Pull Requests.
+- Status checks (tests + ESLint) are **required** to merge.
+
+### Continuous Integration — `pr-tests.yml`
+
+On every **Pull Request** and on **pushes to `main`**, GitHub Actions runs:
+
+- **ESLint** for the codebase.
+- **Unit/Integration tests**.
+- Dependency caching to keep CI fast.
+
+### Continuous Delivery — `deploy.yml` (CapRover on DigitalOcean)
+
+- **Trigger:** Runs when the PR Tests workflow completes on commits to `main`.
+- **Docker images:** Services are built via Docker and tagged (with the commit SHA).
+- **CapRover release:** The workflow updates CapRover apps using the new image tags.
+- **What gets built and deployed:**
+  - Backend API (`lingput-backend`)
+  - Worker (BullMQ worker) (`lingput-worker`)
+  - Frontend app (`lingput-frontend`)
+  - Marketing/landing site (`lingput-landing`)
+  - API/docs site (`lingput-docs`)
+- **NGINX:** Not deployed by this workflow. On CapRover, NGINX is provided by the platform (you configure routes/SSL there). The `lingput-nginx` image in compose is only for self-hosted Docker setups.
 
 ---
 

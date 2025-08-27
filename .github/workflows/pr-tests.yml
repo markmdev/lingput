@@ -14,8 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    name: ESLint
+  lint-backend:
+    name: ESLint backend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -35,8 +35,50 @@ jobs:
         run: npx eslint .
         working-directory: apps/backend
 
-  node-tests:
-    name: Node.js tests
+  lint-frontend:
+    name: ESLint frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: apps/frontend/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+        working-directory: apps/frontend
+
+      - name: Run ESLint
+        run: npx eslint .
+        working-directory: apps/frontend
+
+  lint-landing:
+    name: ESLint landing
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: apps/landing/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+        working-directory: apps/landing
+
+      - name: Run ESLint
+        run: npx eslint .
+        working-directory: apps/landing
+
+  tests-backend:
+    name: Backend tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

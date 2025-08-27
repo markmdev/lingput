@@ -2,9 +2,8 @@ import js from "@eslint/js";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 import react from "eslint-plugin-react";
-import { defineConfig } from "eslint/config";
 
-export default defineConfig([
+export default [
   {
     ignores: ["**/*.test.{js,mjs,cjs,ts,mts,cts}", "**/*.config.{js,mjs,cjs,ts,mts,cts}", ".next/"],
   },
@@ -28,4 +27,4 @@ export default defineConfig([
       "react/jsx-uses-react": "off",
     },
   },
-]);
+];
