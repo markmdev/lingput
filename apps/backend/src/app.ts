@@ -9,7 +9,10 @@ import { requestLogger } from "./middlewares/requestLogger";
 import { logger } from "./utils/logger";
 import { prisma } from "./services/prisma";
 import { ApiResponse } from "./types/response.types";
-import { closeRedisConnection, connectRedis } from "./services/redis/redisClient";
+import {
+  closeRedisConnection,
+  connectRedis,
+} from "./services/redis/redisClient";
 import {
   authRouter,
   jobsModule,

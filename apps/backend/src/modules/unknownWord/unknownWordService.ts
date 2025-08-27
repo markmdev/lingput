@@ -9,21 +9,35 @@ export class UnknownWordService {
   constructor(
     private unknownWordRepository: UnknownWordRepository,
     private redisStoryCache: RedisStoryCache,
-    private jobQueue: Queue
+    private jobQueue: Queue,
   ) {}
   async saveUnknownWords(
     unknownWords: CreateUnknownWordDTO[],
     storyId: number,
     userId: number,
-    tx: Prisma.TransactionClient
+    tx: Prisma.TransactionClient,
   ): Promise<UnknownWord[]> {
-    const existingWords = await this.unknownWordRepository.getUnknownWords(userId, tx);
+    const existingWords = await this.unknownWordRepository.getUnknownWords(
+      userId,
+      tx,
+    );
     const existingWordsMap = this.createWordsMap(existingWords);
 
-    const { wordsToSave, wordsToUpdate } = this.partitionWords(unknownWords, existingWordsMap);
+    const { wordsToSave, wordsToUpdate } = this.partitionWords(
+      unknownWords,
+      existingWordsMap,
+    );
 
-    const updatedWords = await this.updateExistingWords(wordsToUpdate, storyId, userId, tx);
-    const savedWords = await this.unknownWordRepository.saveUnknownWords(wordsToSave, tx);
+    const updatedWords = await this.updateExistingWords(
+      wordsToUpdate,
+      storyId,
+      userId,
+      tx,
+    );
+    const savedWords = await this.unknownWordRepository.saveUnknownWords(
+      wordsToSave,
+      tx,
+    );
 
     return [...updatedWords, ...savedWords];
   }
@@ -34,7 +48,7 @@ export class UnknownWordService {
 
   private partitionWords(
     unknownWords: CreateUnknownWordDTO[],
-    existingWordsMap: Map<string, UnknownWord>
+    existingWordsMap: Map<string, UnknownWord>,
   ): {
     wordsToSave: CreateUnknownWordDTO[];
     wordsToUpdate: UnknownWord[];
@@ -63,15 +77,15 @@ export class UnknownWordService {
     wordsToUpdate: UnknownWord[],
     storyId: number,
     userId: number,
-    tx: Prisma.TransactionClient
+    tx: Prisma.TransactionClient,
   ): Promise<UnknownWord[]> {
     const tasks = wordsToUpdate.map((word) =>
       this.unknownWordRepository.updateTimesSeenAndConnectStory(
         word.id,
         word.timesSeen,
         storyId,
-        tx
-      )
+        tx,
+      ),
     );
     return await Promise.all(tasks);
   }
@@ -100,7 +114,9 @@ export class UnknownWordService {
     const userId = jobData.userId;
     const wordStatus = jobData.wordStatus;
     if (!wordId || !userId || !wordStatus) {
-      throw new CustomError("Unable to update word status", 500, null, { jobData });
+      throw new CustomError("Unable to update word status", 500, null, {
+        jobData,
+      });
     }
 
     if (wordStatus === "learned") {

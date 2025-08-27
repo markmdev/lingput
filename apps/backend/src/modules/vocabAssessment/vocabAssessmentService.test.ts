@@ -23,9 +23,13 @@ describe("VocabAssessmentService", () => {
 
   it("startAssessment uses cache hit and returns words chunk", async () => {
     const words = generateWords(300);
-    const repository = { getWords: jest.fn() } as unknown as VocabAssessmentRepository;
+    const repository = {
+      getWords: jest.fn(),
+    } as unknown as VocabAssessmentRepository;
     const sessionService = {
-      createSession: jest.fn().mockResolvedValue({ sessionUUID: "abc", status: "active" }),
+      createSession: jest
+        .fn()
+        .mockResolvedValue({ sessionUUID: "abc", status: "active" }),
     } as unknown as SessionService;
     const vocabularyService = {} as unknown as VocabularyService;
     const cache = {
@@ -37,9 +41,13 @@ describe("VocabAssessmentService", () => {
       repository,
       sessionService,
       vocabularyService,
-      cache
+      cache,
     );
-    const res = await service.startAssessment(1, sourceLanguage, targetLanguage);
+    const res = await service.startAssessment(
+      1,
+      sourceLanguage,
+      targetLanguage,
+    );
 
     expect(cache.getWords).toHaveBeenCalledWith(sourceLanguage, targetLanguage);
     expect(repository.getWords).not.toHaveBeenCalled();
@@ -57,7 +65,9 @@ describe("VocabAssessmentService", () => {
       getWords: jest.fn().mockResolvedValue(words),
     } as unknown as VocabAssessmentRepository;
     const sessionService = {
-      createSession: jest.fn().mockResolvedValue({ sessionUUID: "abc", status: "active" }),
+      createSession: jest
+        .fn()
+        .mockResolvedValue({ sessionUUID: "abc", status: "active" }),
     } as unknown as SessionService;
     const vocabularyService = {} as unknown as VocabularyService;
     const cache = {
@@ -69,11 +79,18 @@ describe("VocabAssessmentService", () => {
       repository,
       sessionService,
       vocabularyService,
-      cache
+      cache,
     );
-    const res = await service.startAssessment(1, sourceLanguage, targetLanguage);
+    const res = await service.startAssessment(
+      1,
+      sourceLanguage,
+      targetLanguage,
+    );
 
-    expect(repository.getWords).toHaveBeenCalledWith(sourceLanguage, targetLanguage);
+    expect(repository.getWords).toHaveBeenCalledWith(
+      sourceLanguage,
+      targetLanguage,
+    );
     expect(cache.saveWords).toHaveBeenCalled();
     expect(res.wordsToReview.length).toBe(15);
   });
@@ -90,11 +107,17 @@ describe("VocabAssessmentService", () => {
       repository,
       sessionService,
       vocabularyService,
-      cache
+      cache,
     );
 
     await expect(
-      service.continueAssessment(1, "sess", undefined, sourceLanguage, targetLanguage)
+      service.continueAssessment(
+        1,
+        "sess",
+        undefined,
+        sourceLanguage,
+        targetLanguage,
+      ),
     ).rejects.toBeInstanceOf(VocabAssessmentError);
   });
 
@@ -110,7 +133,12 @@ describe("VocabAssessmentService", () => {
       isLastStep: false,
       step: 3,
     };
-    const session: Session = { userId: 1, state, sessionUUID: "s", status: "active" };
+    const session: Session = {
+      userId: 1,
+      state,
+      sessionUUID: "s",
+      status: "active",
+    };
     const sessionService = {
       getSession: jest.fn().mockResolvedValue(session),
     } as unknown as SessionService;
@@ -118,9 +146,20 @@ describe("VocabAssessmentService", () => {
     const cache = {
       getWords: jest.fn().mockResolvedValue(words),
     } as unknown as RedisWordsCache;
-    const service = new VocabAssessmentService({} as any, sessionService, vocabularyService, cache);
+    const service = new VocabAssessmentService(
+      {} as any,
+      sessionService,
+      vocabularyService,
+      cache,
+    );
 
-    const res = await service.continueAssessment(1, "s", undefined, sourceLanguage, targetLanguage);
+    const res = await service.continueAssessment(
+      1,
+      "s",
+      undefined,
+      sourceLanguage,
+      targetLanguage,
+    );
     expect(res).toEqual({
       sessionId: "s",
       status: "active",
@@ -142,24 +181,31 @@ describe("VocabAssessmentService", () => {
       isLastStep: false,
       step: 1,
     };
-    const session: Session = { userId: 1, state, sessionUUID: "s1", status: "active" };
+    const session: Session = {
+      userId: 1,
+      state,
+      sessionUUID: "s1",
+      status: "active",
+    };
     const sessionService = {
       getSession: jest.fn().mockResolvedValue(session),
       updateSessionState: jest.fn().mockResolvedValue({ ...session, state }),
     } as unknown as SessionService;
     const repository = {} as unknown as VocabAssessmentRepository;
-    const cache = { getWords: jest.fn().mockResolvedValue(words) } as unknown as RedisWordsCache;
+    const cache = {
+      getWords: jest.fn().mockResolvedValue(words),
+    } as unknown as RedisWordsCache;
     const vocabularyService = {} as unknown as VocabularyService;
 
     const service = new VocabAssessmentService(
       repository,
       sessionService,
       vocabularyService,
-      cache
+      cache,
     );
 
     const answer: Record<string, boolean> = Object.fromEntries(
-      state.wordsToReview.map((w: any) => [String(w.id), true])
+      state.wordsToReview.map((w: any) => [String(w.id), true]),
     );
 
     const res: any = await service.continueAssessment(
@@ -167,7 +213,7 @@ describe("VocabAssessmentService", () => {
       "s1",
       answer,
       sourceLanguage,
-      targetLanguage
+      targetLanguage,
     );
 
     expect(sessionService.updateSessionState).toHaveBeenCalled();
@@ -197,11 +243,17 @@ describe("VocabAssessmentService", () => {
     };
     const sessionService = {
       getSession: jest.fn().mockResolvedValue(session),
-      completeSession: jest.fn().mockResolvedValue({ ...session, status: "completed" }),
-      updateSessionState: jest.fn().mockResolvedValue({ ...session, status: "completed" }),
+      completeSession: jest
+        .fn()
+        .mockResolvedValue({ ...session, status: "completed" }),
+      updateSessionState: jest
+        .fn()
+        .mockResolvedValue({ ...session, status: "completed" }),
     } as unknown as SessionService;
     const repository = {} as unknown as VocabAssessmentRepository;
-    const cache = { getWords: jest.fn().mockResolvedValue(words) } as unknown as RedisWordsCache;
+    const cache = {
+      getWords: jest.fn().mockResolvedValue(words),
+    } as unknown as RedisWordsCache;
     const vocabularyService = {
       saveManyWords: jest.fn().mockResolvedValue([]),
     } as unknown as VocabularyService;
@@ -210,15 +262,24 @@ describe("VocabAssessmentService", () => {
       repository,
       sessionService,
       vocabularyService,
-      cache
+      cache,
     );
 
     // Provide an answer that results in knowledge ratio below threshold so max = mid
     const answer: Record<string, boolean> = Object.fromEntries(
-      initialState.wordsToReview.map((w: any, idx: number) => [String(w.id), idx % 2 === 0])
+      initialState.wordsToReview.map((w: any, idx: number) => [
+        String(w.id),
+        idx % 2 === 0,
+      ]),
     );
 
-    const res = await service.continueAssessment(2, "sx", answer, sourceLanguage, targetLanguage);
+    const res = await service.continueAssessment(
+      2,
+      "sx",
+      answer,
+      sourceLanguage,
+      targetLanguage,
+    );
 
     expect(sessionService.completeSession).toHaveBeenCalledWith(2, "sx");
     expect(vocabularyService.saveManyWords).toHaveBeenCalled();
@@ -239,24 +300,37 @@ describe("VocabAssessmentService", () => {
       isLastStep: false,
       step: 1,
     };
-    const session: Session = { userId: 1, state, sessionUUID: "s2", status: "active" };
+    const session: Session = {
+      userId: 1,
+      state,
+      sessionUUID: "s2",
+      status: "active",
+    };
     const sessionService = {
       getSession: jest.fn().mockResolvedValue(session),
     } as unknown as SessionService;
     const repository = {} as unknown as VocabAssessmentRepository;
-    const cache = { getWords: jest.fn().mockResolvedValue(words) } as unknown as RedisWordsCache;
+    const cache = {
+      getWords: jest.fn().mockResolvedValue(words),
+    } as unknown as RedisWordsCache;
     const vocabularyService = {} as unknown as VocabularyService;
 
     const service = new VocabAssessmentService(
       repository,
       sessionService,
       vocabularyService,
-      cache
+      cache,
     );
 
     const badAnswer: Record<string, boolean> = { "999": true };
     await expect(
-      service.continueAssessment(1, "s2", badAnswer, sourceLanguage, targetLanguage)
+      service.continueAssessment(
+        1,
+        "s2",
+        badAnswer,
+        sourceLanguage,
+        targetLanguage,
+      ),
     ).rejects.toBeInstanceOf(VocabAssessmentError);
   });
 });

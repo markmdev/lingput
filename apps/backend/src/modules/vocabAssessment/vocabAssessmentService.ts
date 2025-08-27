@@ -28,16 +28,27 @@ export class VocabAssessmentService {
     private vocabAssessmentRepository: VocabAssessmentRepository,
     private sessionService: SessionService,
     private vocabularyService: VocabularyService,
-    private redisWordsCache: RedisWordsCache
+    private redisWordsCache: RedisWordsCache,
   ) {}
 
-  async startAssessment(userId: number, sourceLanguage: string, targetLanguage: string) {
+  async startAssessment(
+    userId: number,
+    sourceLanguage: string,
+    targetLanguage: string,
+  ) {
     let words: WordRanking[] | null;
     words = await this.redisWordsCache.getWords(sourceLanguage, targetLanguage);
     if (!words) {
-      words = await this.vocabAssessmentRepository.getWords(sourceLanguage, targetLanguage);
+      words = await this.vocabAssessmentRepository.getWords(
+        sourceLanguage,
+        targetLanguage,
+      );
       try {
-        await this.redisWordsCache.saveWords(sourceLanguage, targetLanguage, words);
+        await this.redisWordsCache.saveWords(
+          sourceLanguage,
+          targetLanguage,
+          words,
+        );
       } catch (error) {
         logger.error("[cache] Failed to save words in Redis", error);
       }
@@ -46,7 +57,10 @@ export class VocabAssessmentService {
     const max = words.length - 1;
     const min = 0;
     const mid = (max + min) / 2;
-    const wordsToReview = words.slice(mid - WORDS_PER_BATCH / 2, mid + WORDS_PER_BATCH / 2);
+    const wordsToReview = words.slice(
+      mid - WORDS_PER_BATCH / 2,
+      mid + WORDS_PER_BATCH / 2,
+    );
     const state: SessionState = {
       min: 1,
       max: words.length,
@@ -71,15 +85,21 @@ export class VocabAssessmentService {
     sessionUUID: string,
     answer: Record<string, boolean> | undefined,
     sourceLanguage = "en",
-    targetLanguage = "de"
+    targetLanguage = "de",
   ) {
     const session = await this.sessionService.getSession(userId, sessionUUID);
     if (!session?.state)
-      throw new VocabAssessmentError("Session not found or invalid state", null, { session });
+      throw new VocabAssessmentError(
+        "Session not found or invalid state",
+        null,
+        { session },
+      );
 
     const state = session.state as unknown as SessionState;
     if (!this.isValidSessionState(state)) {
-      throw new VocabAssessmentError("Invalid session state format", null, { state });
+      throw new VocabAssessmentError("Invalid session state format", null, {
+        state,
+      });
     }
 
     if (!answer) {
@@ -96,9 +116,16 @@ export class VocabAssessmentService {
     let words: WordRanking[] | null;
     words = await this.redisWordsCache.getWords(sourceLanguage, targetLanguage);
     if (!words) {
-      words = await this.vocabAssessmentRepository.getWords(sourceLanguage, targetLanguage);
+      words = await this.vocabAssessmentRepository.getWords(
+        sourceLanguage,
+        targetLanguage,
+      );
       try {
-        await this.redisWordsCache.saveWords(sourceLanguage, targetLanguage, words);
+        await this.redisWordsCache.saveWords(
+          sourceLanguage,
+          targetLanguage,
+          words,
+        );
       } catch (error) {
         logger.error("[cache] Failed to save words in Redis", error);
       }
@@ -124,13 +151,9 @@ export class VocabAssessmentService {
 
       state.wordsToReview = words.slice(
         state.mid - WORDS_PER_BATCH / 2,
-        state.mid + WORDS_PER_BATCH / 2
+        state.mid + WORDS_PER_BATCH / 2,
       );
-      const updatedSession = await this.sessionService.updateSessionState(
-        userId,
-        sessionUUID,
-        state
-      );
+      await this.sessionService.updateSessionState(userId, sessionUUID, state);
       return {
         sessionId: sessionUUID,
         status: "active",
@@ -146,7 +169,7 @@ export class VocabAssessmentService {
     state: SessionState,
     words: WordRanking[],
     sessionUUID: string,
-    session: Session
+    session: Session,
   ) {
     const knownVocabularyCount = state.mid;
     const knownVocabulary = words.slice(0, knownVocabularyCount);
@@ -161,37 +184,53 @@ export class VocabAssessmentService {
     state.range = 0;
     state.vocabularySize = vocabularyDTO.length;
     await this.sessionService.updateSessionState(userId, sessionUUID, state);
-    return { sessionId: sessionUUID, status: "completed", vocabularySize: vocabularyDTO.length };
+    return {
+      sessionId: sessionUUID,
+      status: "completed",
+      vocabularySize: vocabularyDTO.length,
+    };
   }
 
-  private checkAnswer(answer: Record<string, boolean>, wordsToReview: WordRanking[]) {
+  private checkAnswer(
+    answer: Record<string, boolean>,
+    wordsToReview: WordRanking[],
+  ) {
     if (
       !this.arraysEqual(
         Object.keys(answer),
-        wordsToReview.map((item) => String(item.id))
+        wordsToReview.map((item) => String(item.id)),
       )
     ) {
-      throw new VocabAssessmentError("Answer doesn't contain all required words", null, {
-        answer,
-        wordsToReview,
-      });
+      throw new VocabAssessmentError(
+        "Answer doesn't contain all required words",
+        null,
+        {
+          answer,
+          wordsToReview,
+        },
+      );
     }
 
     let identifiedWordsCount = 0;
-    for (const [word, isKnown] of Object.entries(answer)) {
+    for (const [, isKnown] of Object.entries(answer)) {
       if (isKnown) identifiedWordsCount++;
     }
     return identifiedWordsCount / Object.keys(answer).length;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private arraysEqual(arr1: any[], arr2: any[]) {
     if (arr1.length !== arr2.length) return false;
 
-    return arr1.every((item) => arr2.includes(item)) && arr2.every((item) => arr1.includes(item));
+    return (
+      arr1.every((item) => arr2.includes(item)) &&
+      arr2.every((item) => arr1.includes(item))
+    );
   }
 
   private isValidSessionState(state: unknown): state is SessionState {
     if (!state || typeof state !== "object") return false;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const s = state as any;
     return (
       typeof s.min === "number" &&

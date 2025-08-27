@@ -1,20 +1,45 @@
 name: PR Tests
 
-on: pull_request
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
 
 concurrency:
-  group: pr-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: apps/backend/package-lock.json
+
+      - name: Install deps
+        run: npm ci
+        working-directory: apps/backend
+
+      - name: Run ESLint
+        run: npx eslint .
+        working-directory: apps/backend
+
   node-tests:
     name: Node.js tests
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node
@@ -36,7 +61,7 @@ jobs:
     name: Python tests (lemmas)
     runs-on: ubuntu-latest
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python

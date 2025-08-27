@@ -5,13 +5,15 @@ import { Prisma, PrismaClient, UnknownWord } from "@prisma/client";
 export class UnknownWordRepository {
   constructor(private prisma: PrismaClient) {}
 
-  private getClient(tx?: Prisma.TransactionClient): Prisma.TransactionClient | PrismaClient {
+  private getClient(
+    tx?: Prisma.TransactionClient,
+  ): Prisma.TransactionClient | PrismaClient {
     return tx ? tx : this.prisma;
   }
 
   async saveUnknownWords(
     unknownWords: CreateUnknownWordDTO[],
-    tx?: Prisma.TransactionClient
+    tx?: Prisma.TransactionClient,
   ): Promise<UnknownWord[]> {
     const client = this.getClient(tx);
     try {
@@ -20,11 +22,17 @@ export class UnknownWordRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Unable to save unknown words", error, { unknownWords });
+      throw new PrismaError("Unable to save unknown words", error, {
+        unknownWords,
+      });
     }
   }
 
-  async markAsLearned(wordId: number, userId: number, tx?: Prisma.TransactionClient) {
+  async markAsLearned(
+    wordId: number,
+    userId: number,
+    tx?: Prisma.TransactionClient,
+  ) {
     const client = this.getClient(tx);
     try {
       const response = await client.unknownWord.update({
@@ -38,11 +46,17 @@ export class UnknownWordRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Unable to mark word as 'learned'", error, { wordId });
+      throw new PrismaError("Unable to mark word as 'learned'", error, {
+        wordId,
+      });
     }
   }
 
-  async markAsLearning(wordId: number, userId: number, tx?: Prisma.TransactionClient) {
+  async markAsLearning(
+    wordId: number,
+    userId: number,
+    tx?: Prisma.TransactionClient,
+  ) {
     const client = this.getClient(tx);
     try {
       const response = await client.unknownWord.update({
@@ -56,11 +70,16 @@ export class UnknownWordRepository {
       });
       return response;
     } catch (error) {
-      throw new PrismaError("Unable to mark word as learning", error, { wordId });
+      throw new PrismaError("Unable to mark word as learning", error, {
+        wordId,
+      });
     }
   }
 
-  async getUnknownWords(userId: number, tx?: Prisma.TransactionClient): Promise<UnknownWord[]> {
+  async getUnknownWords(
+    userId: number,
+    tx?: Prisma.TransactionClient,
+  ): Promise<UnknownWord[]> {
     const client = this.getClient(tx);
     try {
       const response = await client.unknownWord.findMany({ where: { userId } });
@@ -74,7 +93,7 @@ export class UnknownWordRepository {
     wordId: number,
     timesSeen: number,
     storyId: number,
-    tx?: Prisma.TransactionClient
+    tx?: Prisma.TransactionClient,
   ): Promise<UnknownWord> {
     const client = this.getClient(tx);
     try {
@@ -92,11 +111,15 @@ export class UnknownWordRepository {
 
       return response;
     } catch (error) {
-      throw new PrismaError("Unable to update times seen and connect story", error, {
-        wordId,
-        timesSeen,
-        storyId,
-      });
+      throw new PrismaError(
+        "Unable to update times seen and connect story",
+        error,
+        {
+          wordId,
+          timesSeen,
+          storyId,
+        },
+      );
     }
   }
 }

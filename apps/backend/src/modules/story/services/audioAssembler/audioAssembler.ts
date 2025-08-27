@@ -9,20 +9,20 @@ import { LanguageCode } from "@/utils/languages";
 export class AudioAssembler {
   constructor(
     private storyAudioStorageService: StoryAudioStorageService,
-    private textToSpeechService: TextToSpeechService
+    private textToSpeechService: TextToSpeechService,
   ) {}
 
   async assemble(
     translationChunks: ChunkTranslation[],
     unknownWords: CreateUnknownWordDTO[],
     languageCode: LanguageCode,
-    originalLanguageCode: LanguageCode
+    originalLanguageCode: LanguageCode,
   ): Promise<string> {
     const audio = await this.createAudioForStory(
       translationChunks,
       unknownWords,
       languageCode,
-      originalLanguageCode
+      originalLanguageCode,
     );
     const audioUrl = await this.storyAudioStorageService.saveToStorage(audio);
     return audioUrl;
@@ -32,9 +32,8 @@ export class AudioAssembler {
     translationChunks: ChunkTranslation[],
     newWords: CreateUnknownWordDTO[],
     languageCode: LanguageCode,
-    originalLanguageCode: LanguageCode
+    originalLanguageCode: LanguageCode,
   ): Promise<Base64> {
-    const longSilenceBase64 = await generateSilence(2);
     const shortSilenceBase64 = await generateSilence(1);
     const veryShortSilenceBase64 = await generateSilence(0.3);
 
@@ -44,17 +43,17 @@ export class AudioAssembler {
           chunk.chunk,
           true,
           languageCode,
-          originalLanguageCode
+          originalLanguageCode,
         ),
         veryShortSilenceBase64,
-      ])
+      ]),
     );
 
     const transitionAudioBase64 = await this.textToSpeechService.textToSpeech(
       "Now listen to the story with translation.",
       false,
       languageCode,
-      originalLanguageCode
+      originalLanguageCode,
     );
 
     // const translationTransitionAudioBase64 = await this.textToSpeechService.textToSpeech(
@@ -70,17 +69,17 @@ export class AudioAssembler {
           chunk.chunk,
           true,
           languageCode,
-          originalLanguageCode
+          originalLanguageCode,
         ),
         shortSilenceBase64,
         this.textToSpeechService.textToSpeech(
           chunk.translatedChunk,
           false,
           languageCode,
-          originalLanguageCode
+          originalLanguageCode,
         ),
         shortSilenceBase64,
-      ])
+      ]),
     );
 
     // const newWordsAudioBase64 = await Promise.all(

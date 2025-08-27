@@ -6,10 +6,12 @@ jest.mock("bullmq", () => {
   const actual = jest.requireActual("bullmq");
   return {
     ...actual,
-    Worker: jest.fn().mockImplementation((_queue: string, _proc: any, _opts: any) => ({
-      on: jest.fn(),
-      close: jest.fn(),
-    })),
+    Worker: jest
+      .fn()
+      .mockImplementation((_queue: string, _proc: any, _opts: any) => ({
+        on: jest.fn(),
+        close: jest.fn(),
+      })),
   };
 });
 
@@ -48,7 +50,9 @@ describe("BullWorker", () => {
     const worker = new BullWorker("q", connection, handlers);
     const job = { id: "1", name: "unknown" } as unknown as Job;
 
-    await expect(worker.processor(job)).rejects.toMatchObject({ message: "Unknown task name" });
+    await expect(worker.processor(job)).rejects.toMatchObject({
+      message: "Unknown task name",
+    });
   });
 
   it("propagates handler errors", async () => {

@@ -31,13 +31,17 @@ export abstract class BaseRedisCache {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async set(key: string, value: object | any[]): Promise<void> {
     try {
       await this.redis.set(key, JSON.stringify(value), {
         expiration: { type: "EX", value: this.ttl },
       });
     } catch (error) {
-      throw new RedisError("Failed to set value for a key", error, { key, value });
+      throw new RedisError("Failed to set value for a key", error, {
+        key,
+        value,
+      });
     }
   }
 
@@ -53,9 +57,17 @@ export abstract class BaseRedisCache {
 
   async setList(key: string, values: string[]): Promise<void> {
     try {
-      await this.redis.multi().del(key).rPush(key, values).expire(key, this.ttl).exec();
+      await this.redis
+        .multi()
+        .del(key)
+        .rPush(key, values)
+        .expire(key, this.ttl)
+        .exec();
     } catch (error) {
-      throw new RedisError("Failed to set list in Redis", error, { key, values });
+      throw new RedisError("Failed to set list in Redis", error, {
+        key,
+        values,
+      });
     }
   }
 }

@@ -33,7 +33,10 @@ export const authModule = createAuthModule({
 
 const authMiddleware = createAuthMiddleware(authModule.service);
 
-export const authRouter = buildAuthRouter(authModule.controller, authMiddleware);
+export const authRouter = buildAuthRouter(
+  authModule.controller,
+  authMiddleware,
+);
 export const jobsModule = createJobsModule(authMiddleware);
 export const sessionModule = createSessionModule({ redis: redisClient });
 
@@ -44,7 +47,10 @@ export const unknownWordModule = createUnknownWordModule({
   authMiddleware,
 });
 
-export const vocabularyModule = createVocabularyModule({ prisma, authMiddleware });
+export const vocabularyModule = createVocabularyModule({
+  prisma,
+  authMiddleware,
+});
 
 export const storyModule = createStoryModule({
   prisma,

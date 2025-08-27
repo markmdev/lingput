@@ -1,0 +1,7 @@
+# Ignore artifacts:
+build
+coverage
+logs
+prisma
+node_modules
+*.md

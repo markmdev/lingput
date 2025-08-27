@@ -41,7 +41,9 @@ describe("OnboardingController", () => {
     const req: any = { user: { userId: 1 } };
     const res = resStub();
 
-    await expect(controller.completeOnboarding(req, res)).rejects.toBeInstanceOf(PrismaError);
+    await expect(
+      controller.completeOnboarding(req, res),
+    ).rejects.toBeInstanceOf(PrismaError);
   });
 
   it("checkOnboarding returns completed when record found", async () => {
@@ -62,7 +64,9 @@ describe("OnboardingController", () => {
   });
 
   it("checkOnboarding returns not_started when not found", async () => {
-    const prisma: any = { onboarding: { findFirst: jest.fn().mockResolvedValue(null) } };
+    const prisma: any = {
+      onboarding: { findFirst: jest.fn().mockResolvedValue(null) },
+    };
     const controller = new OnboardingController(prisma);
     const req: any = { user: { userId: 10 } };
     const res = resStub();
@@ -76,11 +80,15 @@ describe("OnboardingController", () => {
   });
 
   it("checkOnboarding wraps errors in PrismaError", async () => {
-    const prisma: any = { onboarding: { findFirst: jest.fn().mockRejectedValue(new Error("db")) } };
+    const prisma: any = {
+      onboarding: { findFirst: jest.fn().mockRejectedValue(new Error("db")) },
+    };
     const controller = new OnboardingController(prisma);
     const req: any = { user: { userId: 10 } };
     const res = resStub();
 
-    await expect(controller.checkOnboarding(req, res)).rejects.toBeInstanceOf(PrismaError);
+    await expect(controller.checkOnboarding(req, res)).rejects.toBeInstanceOf(
+      PrismaError,
+    );
   });
 });

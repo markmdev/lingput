@@ -1,7 +1,9 @@
 import IORedis from "ioredis";
 
 if (!process.env.REDIS_HOST || !process.env.REDIS_PORT) {
-  throw new Error("REDIS_HOST and REDIS_PORT environment variables are required");
+  throw new Error(
+    "REDIS_HOST and REDIS_PORT environment variables are required",
+  );
 }
 
 const redisHost = process.env.REDIS_HOST;

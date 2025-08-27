@@ -12,7 +12,9 @@ export class RedisStoryCache extends BaseRedisCache {
     super(redis);
   }
 
-  private parseRedisStory(storyString: string): Story & { unknownWords: UnknownWord[] } {
+  private parseRedisStory(
+    storyString: string,
+  ): Story & { unknownWords: UnknownWord[] } {
     try {
       const storyJson = JSON.parse(storyString);
       return {
@@ -25,7 +27,9 @@ export class RedisStoryCache extends BaseRedisCache {
       };
     } catch (error) {
       logger.error("Failed to parse cached story", error, storyString);
-      throw new RedisError("Invalid cached story format", error, { storyString });
+      throw new RedisError("Invalid cached story format", error, {
+        storyString,
+      });
     }
   }
 
@@ -36,12 +40,15 @@ export class RedisStoryCache extends BaseRedisCache {
   }
 
   async getAllStoriesFromCache(
-    userId: number
+    userId: number,
   ): Promise<(Story & { unknownWords: UnknownWord[] })[]> {
     const cacheKey = this.getKey(userId);
     const cachedStories = await this.lRange(cacheKey);
     if (cachedStories.length > 0) {
-      logger.info("Cache hit for stories", { userId, count: cachedStories.length });
+      logger.info("Cache hit for stories", {
+        userId,
+        count: cachedStories.length,
+      });
     } else {
       logger.info("Cache miss for stories", { userId });
     }
@@ -50,7 +57,7 @@ export class RedisStoryCache extends BaseRedisCache {
 
   async saveStoriesToCache(
     userId: number,
-    stories: (Story & { unknownWords: UnknownWord[] })[]
+    stories: (Story & { unknownWords: UnknownWord[] })[],
   ): Promise<void> {
     if (stories.length === 0) {
       logger.info("Stories array is empty. Not saving to cache");
@@ -59,7 +66,7 @@ export class RedisStoryCache extends BaseRedisCache {
     const cacheKey = this.getKey(userId);
     await this.setList(
       cacheKey,
-      stories.map((item) => JSON.stringify(item))
+      stories.map((item) => JSON.stringify(item)),
     );
     logger.info("Stories saved to cache", { userId, count: stories.length });
   }

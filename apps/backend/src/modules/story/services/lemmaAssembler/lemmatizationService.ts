@@ -14,19 +14,26 @@ export class LemmatizationService {
   // TODO: add support for other languages
   async lemmatize(text: string): Promise<Lemma[]> {
     try {
-      const response = await axios.post(`${process.env.LEMMA_SERVICE_URL}/lemmatize`, {
-        text,
-      });
+      const response = await axios.post(
+        `${process.env.LEMMA_SERVICE_URL}/lemmatize`,
+        {
+          text,
+        },
+      );
       return response.data.lemmas;
     } catch (error) {
-      throw new LemmatizationError("Server error: Unable to lemmatize text", error, { text });
+      throw new LemmatizationError(
+        "Server error: Unable to lemmatize text",
+        error,
+        { text },
+      );
     }
   }
 
   async translateLemmas(
     lemmas: Lemma[],
     languageCode: LanguageCode,
-    originalLanguageCode: LanguageCode
+    originalLanguageCode: LanguageCode,
   ): Promise<LemmaWithTranslation[]> {
     let response: OpenAIResponse;
     try {
@@ -71,7 +78,7 @@ Your task is to translate the given **lemmas (base word forms)** into natural ${
               lemmas.map((lemma) => ({
                 lemma: lemma.lemma,
                 sentence: lemma.sentence,
-              }))
+              })),
             )}`,
           },
         ],
@@ -128,10 +135,15 @@ Your task is to translate the given **lemmas (base word forms)** into natural ${
     try {
       result = JSON.parse(content) as OpenAILemmasResponse;
     } catch (error) {
-      throw new OpenAIError("Invalid response format, try again", error, { content });
+      throw new OpenAIError("Invalid response format, try again", error, {
+        content,
+      });
     }
     if (!result.lemmas || !Array.isArray(result.lemmas)) {
-      throw new OpenAIError("Invalid response format, try again", null, { content, result });
+      throw new OpenAIError("Invalid response format, try again", null, {
+        content,
+        result,
+      });
     }
     return result;
   }

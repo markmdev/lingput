@@ -11,7 +11,10 @@ export class RedisWordsCache extends BaseRedisCache {
     super(redis);
   }
 
-  async getWords(sourceLanguage: string, targetLanguage: string): Promise<WordRanking[] | null> {
+  async getWords(
+    sourceLanguage: string,
+    targetLanguage: string,
+  ): Promise<WordRanking[] | null> {
     const cacheKey = this.getKey(sourceLanguage, targetLanguage);
     const cachedWords = await this.get<WordRanking[]>(cacheKey);
     if (cachedWords) {
@@ -25,7 +28,7 @@ export class RedisWordsCache extends BaseRedisCache {
   async saveWords(
     sourceLanguage: string,
     targetLanguage: string,
-    words: WordRanking[]
+    words: WordRanking[],
   ): Promise<void> {
     const cacheKey = this.getKey(sourceLanguage, targetLanguage);
     await this.set(cacheKey, words);

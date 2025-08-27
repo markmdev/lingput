@@ -15,7 +15,7 @@ export class LemmaAssembler {
     userId: number,
     languageCode: LanguageCode,
     originalLanguageCode: LanguageCode,
-    job: Job
+    job: Job,
   ): Promise<CreateUnknownWordDTO[]> {
     job.updateProgress({
       phase: GENERATION_PHASES["lemmatization"],
@@ -27,39 +27,46 @@ export class LemmaAssembler {
       phase: GENERATION_PHASES["creatingExamples"],
       totalSteps: Object.keys(GENERATION_PHASES).length,
     });
-    const translatedUnknownLemmas = await this.lemmatizationService.translateLemmas(
-      unknownLemmas,
-      languageCode,
-      originalLanguageCode
-    );
+    const translatedUnknownLemmas =
+      await this.lemmatizationService.translateLemmas(
+        unknownLemmas,
+        languageCode,
+        originalLanguageCode,
+      );
     const unknownWords = this.mapUnknownLemmasToCreateUnknownWordDTO(
       translatedUnknownLemmas,
       unknownLemmas,
-      userId
+      userId,
     );
 
     return unknownWords;
   }
 
-  private filterUnknownLemmas(storyLemmas: Lemma[], knownWords: UserVocabulary[]): Lemma[] {
+  private filterUnknownLemmas(
+    storyLemmas: Lemma[],
+    knownWords: UserVocabulary[],
+  ): Lemma[] {
     return storyLemmas.filter(
       (lemma: Lemma) =>
         !knownWords.some(
-          (targetWord) => targetWord.word.toLowerCase() === lemma.lemma.toLowerCase()
-        )
+          (targetWord) =>
+            targetWord.word.toLowerCase() === lemma.lemma.toLowerCase(),
+        ),
     );
   }
 
   private mapUnknownLemmasToCreateUnknownWordDTO(
     translatedUnknownLemmas: LemmaWithTranslation[],
     originalLemmas: Lemma[],
-    userId: number
+    userId: number,
   ): CreateUnknownWordDTO[] {
     return translatedUnknownLemmas.map((lemma) => ({
       userId: userId,
       word: lemma.lemma,
       translation: lemma.translation,
-      article: originalLemmas.find((word) => word.lemma === lemma.lemma)?.article ?? null,
+      article:
+        originalLemmas.find((word) => word.lemma === lemma.lemma)?.article ??
+        null,
       exampleSentence: lemma.exampleSentence,
       exampleSentenceTranslation: lemma.exampleSentenceTranslation,
     }));

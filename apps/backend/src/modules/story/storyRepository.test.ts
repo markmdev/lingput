@@ -54,7 +54,9 @@ describe("StoryRepository", () => {
     });
 
     prisma.story.create.mockRejectedValue(new Error("db"));
-    await expect(repo.saveStoryToDB({} as any)).rejects.toBeInstanceOf(PrismaError);
+    await expect(repo.saveStoryToDB({} as any)).rejects.toBeInstanceOf(
+      PrismaError,
+    );
   });
 
   it("saveStoryAudioToStorage uploads mp3 and returns path; wraps storage errors", async () => {
@@ -62,7 +64,9 @@ describe("StoryRepository", () => {
     const storage = {
       storage: {
         from: jest.fn().mockReturnValue({
-          upload: jest.fn().mockResolvedValue({ data: { path: "path.mp3" }, error: null }),
+          upload: jest
+            .fn()
+            .mockResolvedValue({ data: { path: "path.mp3" }, error: null }),
         }),
       },
     } as any;
@@ -76,17 +80,24 @@ describe("StoryRepository", () => {
     const storageErr = {
       storage: {
         from: jest.fn().mockReturnValue({
-          upload: jest.fn().mockResolvedValue({ data: null, error: new Error("storage") }),
+          upload: jest
+            .fn()
+            .mockResolvedValue({ data: null, error: new Error("storage") }),
         }),
       },
     } as any;
     const repo2 = new StoryRepository(prisma, storageErr);
-    await expect(repo2.saveStoryAudioToStorage("QkFTRTY0")).rejects.toBeInstanceOf(StorageError);
+    await expect(
+      repo2.saveStoryAudioToStorage("QkFTRTY0"),
+    ).rejects.toBeInstanceOf(StorageError);
   });
 
   it("connectUnknownWords updates with connect and includes unknownWords; wraps errors", async () => {
     const prisma = prismaWithStory();
-    prisma.story.update.mockResolvedValue({ id: 1, unknownWords: [{ id: 2 }] } as any);
+    prisma.story.update.mockResolvedValue({
+      id: 1,
+      unknownWords: [{ id: 2 }],
+    } as any);
     const repo = new StoryRepository(prisma, {} as any);
 
     const res = await repo.connectUnknownWords(1, [{ id: 2 }]);
@@ -98,7 +109,9 @@ describe("StoryRepository", () => {
     });
 
     prisma.story.update.mockRejectedValue(new Error("db"));
-    await expect(repo.connectUnknownWords(1, [{ id: 2 }])).rejects.toBeInstanceOf(PrismaError);
+    await expect(
+      repo.connectUnknownWords(1, [{ id: 2 }]),
+    ).rejects.toBeInstanceOf(PrismaError);
   });
 
   it("methods use provided tx when present", async () => {

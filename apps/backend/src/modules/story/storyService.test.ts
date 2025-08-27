@@ -70,8 +70,13 @@ describe("StoriesService", () => {
       decrementCount: jest.fn().mockResolvedValue(undefined),
     } as unknown as RedisStoryLimits;
 
-    const jobStub = { id: "job-123", updateProgress: jest.fn() } as unknown as Job;
-    const jobQueueMock = { add: jest.fn().mockResolvedValue(jobStub) } as unknown as Queue;
+    const jobStub = {
+      id: "job-123",
+      updateProgress: jest.fn(),
+    } as unknown as Job;
+    const jobQueueMock = {
+      add: jest.fn().mockResolvedValue(jobStub),
+    } as unknown as Queue;
     const unknownWordServiceMock = {} as unknown as UnknownWordService;
 
     const service = new StoriesService(
@@ -82,10 +87,15 @@ describe("StoriesService", () => {
       redisStoryCacheMock,
       jobQueueMock,
       unknownWordServiceMock,
-      redisStoryLimitsMock
+      redisStoryLimitsMock,
     );
 
-    const res = await service.generateFullStoryExperience(1, "DE", "EN", "Pets");
+    const res = await service.generateFullStoryExperience(
+      1,
+      "DE",
+      "EN",
+      "Pets",
+    );
 
     expect(res).toEqual({ jobId: "job-123" });
     expect((jobQueueMock as any).add).toHaveBeenCalledWith("generateStory", {
@@ -95,24 +105,33 @@ describe("StoriesService", () => {
       subject: "Pets",
     });
     expect(jobStub.updateProgress).toHaveBeenCalled();
-    expect((redisStoryLimitsMock as any).isLimitReached).toHaveBeenCalledWith(1);
-    expect((redisStoryLimitsMock as any).incrementCount).toHaveBeenCalledWith(1);
+    expect((redisStoryLimitsMock as any).isLimitReached).toHaveBeenCalledWith(
+      1,
+    );
+    expect((redisStoryLimitsMock as any).incrementCount).toHaveBeenCalledWith(
+      1,
+    );
   });
 
   it("processStoryGenerationJob runs full pipeline, saves data in transaction, invalidates cache", async () => {
     const storyRepositoryMock: any = {
       saveStoryToDB: jest
         .fn()
-        .mockImplementation(async (story: any, tx: any) => ({ id: 42, ...story })),
+        .mockImplementation(async (story: any, tx: any) => ({
+          id: 42,
+          ...story,
+        })),
       connectUnknownWords: jest
         .fn()
-        .mockImplementation(async (storyId: number, wordIds: { id: number }[], tx: any) => ({
-          id: storyId,
-          storyText: "Der Hund jagt die Katze.",
-          translationText: "The dog chases the cat.",
-          audioUrl: "audioUrl",
-          unknownWords: wordIds,
-        })),
+        .mockImplementation(
+          async (storyId: number, wordIds: { id: number }[], tx: any) => ({
+            id: storyId,
+            storyText: "Der Hund jagt die Katze.",
+            translationText: "The dog chases the cat.",
+            audioUrl: "audioUrl",
+            unknownWords: wordIds,
+          }),
+        ),
       getAllStories: jest.fn(),
     } as unknown as StoryRepository;
 
@@ -145,7 +164,12 @@ describe("StoriesService", () => {
     } as unknown as RedisStoryLimits;
 
     const job = {
-      data: { userId: 1, languageCode: "DE", originalLanguageCode: "EN", subject: "Pets" },
+      data: {
+        userId: 1,
+        languageCode: "DE",
+        originalLanguageCode: "EN",
+        subject: "Pets",
+      },
       updateProgress: jest.fn(),
     } as unknown as Job;
 
@@ -160,7 +184,7 @@ describe("StoriesService", () => {
       redisStoryCacheMock,
       { add: jest.fn() } as unknown as Queue,
       unknownWordServiceMock,
-      redisStoryLimitsMock
+      redisStoryLimitsMock,
     );
 
     const res = await service.processStoryGenerationJob(job, prisma);
@@ -175,7 +199,7 @@ describe("StoriesService", () => {
       unknownWordsMock,
       42,
       1,
-      tx
+      tx,
     );
     expect(storyRepositoryMock.connectUnknownWords).toHaveBeenCalled();
     expect(redisStoryCacheMock.invalidateStoryCache).toHaveBeenCalledWith(1);

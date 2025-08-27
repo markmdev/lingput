@@ -23,10 +23,17 @@ describe("AudioAssembler", () => {
 
     const assembler = new AudioAssembler(storage, tts);
 
-    const translationChunks = [{ chunk: "Hallo Welt", translatedChunk: "Hello world" }];
+    const translationChunks = [
+      { chunk: "Hallo Welt", translatedChunk: "Hello world" },
+    ];
     const unknownWords: any[] = [];
 
-    const url = await assembler.assemble(translationChunks, unknownWords, "DE", "EN");
+    const url = await assembler.assemble(
+      translationChunks,
+      unknownWords,
+      "DE",
+      "EN",
+    );
 
     // Silences generated
     expect(generateSilence).toHaveBeenCalledWith(2);
@@ -35,19 +42,36 @@ describe("AudioAssembler", () => {
 
     // TTS calls: N chunks -> german N, translation 2N, plus 1 transition = 3N + 1
     expect((tts as any).textToSpeech).toHaveBeenCalledTimes(4);
-    expect((tts as any).textToSpeech).toHaveBeenCalledWith("Hallo Welt", true, "DE", "EN");
+    expect((tts as any).textToSpeech).toHaveBeenCalledWith(
+      "Hallo Welt",
+      true,
+      "DE",
+      "EN",
+    );
     expect((tts as any).textToSpeech).toHaveBeenCalledWith(
       "Now listen to the story with translation.",
       false,
       "DE",
-      "EN"
+      "EN",
     );
-    expect((tts as any).textToSpeech).toHaveBeenCalledWith("Hallo Welt", true, "DE", "EN");
-    expect((tts as any).textToSpeech).toHaveBeenCalledWith("Hello world", false, "DE", "EN");
+    expect((tts as any).textToSpeech).toHaveBeenCalledWith(
+      "Hallo Welt",
+      true,
+      "DE",
+      "EN",
+    );
+    expect((tts as any).textToSpeech).toHaveBeenCalledWith(
+      "Hello world",
+      false,
+      "DE",
+      "EN",
+    );
 
     // Combining and saving
     expect(combineAudioFromBase64).toHaveBeenCalled();
-    expect((storage as any).saveToStorage).toHaveBeenCalledWith("COMBINED_AUDIO");
+    expect((storage as any).saveToStorage).toHaveBeenCalledWith(
+      "COMBINED_AUDIO",
+    );
     expect(url).toBe("audio-url.mp3");
   });
 });

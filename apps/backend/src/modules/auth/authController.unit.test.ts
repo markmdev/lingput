@@ -9,10 +9,12 @@ function createResponseStub() {
   const cookies: Record<string, any> = {};
   const res: any = {
     _json: null as any,
-    cookie: jest.fn().mockImplementation((name: string, value: any, opts: any) => {
-      cookies[name] = { value, opts };
-      return res;
-    }),
+    cookie: jest
+      .fn()
+      .mockImplementation((name: string, value: any, opts: any) => {
+        cookies[name] = { value, opts };
+        return res;
+      }),
     clearCookie: jest.fn().mockImplementation((name: string) => {
       delete cookies[name];
       return res;
@@ -41,7 +43,9 @@ describe("AuthController (unit)", () => {
   it("register sets cookies and returns user id", async () => {
     const authService = {
       hashPassword: jest.fn().mockResolvedValue("hashed"),
-      issueTokens: jest.fn().mockResolvedValue({ accessToken: "a", refreshToken: "r" }),
+      issueTokens: jest
+        .fn()
+        .mockResolvedValue({ accessToken: "a", refreshToken: "r" }),
     } as unknown as AuthService;
     const userRepository = {
       getUserByEmail: jest.fn().mockResolvedValue(null),
@@ -70,10 +74,14 @@ describe("AuthController (unit)", () => {
   it("login validates password and sets tokens", async () => {
     const authService = {
       comparePassword: jest.fn().mockResolvedValue(true),
-      issueTokens: jest.fn().mockResolvedValue({ accessToken: "a2", refreshToken: "r2" }),
+      issueTokens: jest
+        .fn()
+        .mockResolvedValue({ accessToken: "a2", refreshToken: "r2" }),
     } as unknown as AuthService;
     const userRepository = {
-      getUserByEmail: jest.fn().mockResolvedValue({ id: 7, password: "hashed" }),
+      getUserByEmail: jest
+        .fn()
+        .mockResolvedValue({ id: 7, password: "hashed" }),
     } as unknown as UserRepository;
 
     const controller = new AuthController(authService, userRepository);
@@ -160,7 +168,9 @@ describe("AuthController (unit)", () => {
     const req: any = { body: { email: "user@example.com", password: "1234" } };
     const res = createResponseStub();
 
-    await expect(controller.register(req, res)).rejects.toBeInstanceOf(RegisterError);
+    await expect(controller.register(req, res)).rejects.toBeInstanceOf(
+      RegisterError,
+    );
   });
 
   it("login throws LoginError when user not found", async () => {
@@ -219,12 +229,16 @@ describe("AuthController (unit)", () => {
     const req: any = { cookies: {} };
     const res = createResponseStub();
 
-    await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(AuthError);
+    await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(
+      AuthError,
+    );
   });
 
   it("refresh propagates service error when rotate fails", async () => {
     const authService = {
-      rotateRefreshToken: jest.fn().mockRejectedValue(new AuthError("Invalid refresh token", null)),
+      rotateRefreshToken: jest
+        .fn()
+        .mockRejectedValue(new AuthError("Invalid refresh token", null)),
       generateAccessToken: jest.fn(),
     } as unknown as AuthService;
     const userRepository = {} as unknown as UserRepository;
@@ -233,6 +247,8 @@ describe("AuthController (unit)", () => {
     const req: any = { cookies: { refreshToken: "bad" } };
     const res = createResponseStub();
 
-    await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(AuthError);
+    await expect(controller.refresh(req, res)).rejects.toBeInstanceOf(
+      AuthError,
+    );
   });
 });

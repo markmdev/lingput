@@ -80,7 +80,14 @@ describe("LemmaAssember", () => {
     ];
 
     const jobStub = { updateProgress: jest.fn() } as unknown as Job;
-    const result = await assembler.assemble(storyMock, knownWordsMock, 1, "DE", "EN", jobStub);
+    const result = await assembler.assemble(
+      storyMock,
+      knownWordsMock,
+      1,
+      "DE",
+      "EN",
+      jobStub,
+    );
 
     expect(result).toEqual(expectedResult);
   });
@@ -110,7 +117,7 @@ describe("LemmaAssember", () => {
       1,
       "DE",
       "EN",
-      jobStub
+      jobStub,
     );
 
     expect(result).toEqual([expect.objectContaining({ word: "Katze" })]);
@@ -129,10 +136,16 @@ describe("LemmaAssember", () => {
 
     const totalSteps = Object.keys(GENERATION_PHASES).length;
     expect((jobStub as any).updateProgress).toHaveBeenCalledWith(
-      expect.objectContaining({ phase: GENERATION_PHASES.lemmatization, totalSteps })
+      expect.objectContaining({
+        phase: GENERATION_PHASES.lemmatization,
+        totalSteps,
+      }),
     );
     expect((jobStub as any).updateProgress).toHaveBeenCalledWith(
-      expect.objectContaining({ phase: GENERATION_PHASES.creatingExamples, totalSteps })
+      expect.objectContaining({
+        phase: GENERATION_PHASES.creatingExamples,
+        totalSteps,
+      }),
     );
   });
 });

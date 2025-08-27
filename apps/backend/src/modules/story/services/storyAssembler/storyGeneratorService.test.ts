@@ -16,7 +16,11 @@ describe("StoryGeneratorService", () => {
 
     const generator = new StoryGeneratorService(openaiMock);
 
-    const result = await generator.generateStory(["Hund", "Katze"], "Pets", "DE");
+    const result = await generator.generateStory(
+      ["Hund", "Katze"],
+      "Pets",
+      "DE",
+    );
     expect(result).toBe(storyMock);
   });
 

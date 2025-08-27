@@ -7,6 +7,8 @@ export class UserRepository {
   }
 
   async createUser(email: string, hashedPassword: string) {
-    return this.prisma.user.create({ data: { email, password: hashedPassword } });
+    return this.prisma.user.create({
+      data: { email, password: hashedPassword },
+    });
   }
 }

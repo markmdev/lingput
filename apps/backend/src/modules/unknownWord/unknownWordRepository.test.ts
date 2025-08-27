@@ -15,7 +15,9 @@ function prismaWithUnknownWord(overrides: any = {}) {
 describe("UnknownWordRepository", () => {
   it("saveUnknownWords uses client and returns created rows", async () => {
     const prisma = prismaWithUnknownWord();
-    prisma.unknownWord.createManyAndReturn.mockResolvedValue([{ id: 1 }] as any);
+    prisma.unknownWord.createManyAndReturn.mockResolvedValue([
+      { id: 1 },
+    ] as any);
     const repo = new UnknownWordRepository(prisma);
 
     const res = await repo.saveUnknownWords([{ word: "Hund" } as any]);
@@ -29,7 +31,9 @@ describe("UnknownWordRepository", () => {
     const prisma = prismaWithUnknownWord();
     prisma.unknownWord.createManyAndReturn.mockRejectedValue(new Error("db"));
     const repo = new UnknownWordRepository(prisma);
-    await expect(repo.saveUnknownWords([] as any)).rejects.toBeInstanceOf(PrismaError);
+    await expect(repo.saveUnknownWords([] as any)).rejects.toBeInstanceOf(
+      PrismaError,
+    );
   });
 
   it("markAsLearned updates by id+userId and returns row", async () => {
@@ -72,7 +76,9 @@ describe("UnknownWordRepository", () => {
 
     const res = await repo.getUnknownWords(5);
     expect(res).toEqual([{ id: 1 }]);
-    expect(prisma.unknownWord.findMany).toHaveBeenCalledWith({ where: { userId: 5 } });
+    expect(prisma.unknownWord.findMany).toHaveBeenCalledWith({
+      where: { userId: 5 },
+    });
   });
 
   it("getUnknownWords wraps errors", async () => {
@@ -99,7 +105,9 @@ describe("UnknownWordRepository", () => {
     const prisma = prismaWithUnknownWord();
     prisma.unknownWord.update.mockRejectedValue(new Error("db"));
     const repo = new UnknownWordRepository(prisma);
-    await expect(repo.updateTimesSeenAndConnectStory(1, 1, 1)).rejects.toBeInstanceOf(PrismaError);
+    await expect(
+      repo.updateTimesSeenAndConnectStory(1, 1, 1),
+    ).rejects.toBeInstanceOf(PrismaError);
   });
 
   it("methods use provided transaction client when present", async () => {

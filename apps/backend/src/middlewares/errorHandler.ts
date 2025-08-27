@@ -1,9 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
 import { formatErrorResponse } from "./responseFormatter";
 import { logger } from "@/utils/logger";
 import { IHandleableError } from "@/errors/common";
 
-export const errorHandler = (err: unknown, req: Request, res: Response, next: NextFunction) => {
+export const errorHandler = (err: unknown, req: Request, res: Response) => {
   const user = req.user;
   const logBase = {
     method: req.method,
@@ -12,7 +12,12 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
   };
 
   // Check if err matches IHandleableError
-  if (err instanceof Error && "formatResponse" in err && "log" in err && "statusCode" in err) {
+  if (
+    err instanceof Error &&
+    "formatResponse" in err &&
+    "log" in err &&
+    "statusCode" in err
+  ) {
     const handleableError = err as IHandleableError;
     const logObject = {
       ...logBase,
@@ -30,12 +35,17 @@ export const errorHandler = (err: unknown, req: Request, res: Response, next: Ne
     return;
   }
 
-  const unknownError = err instanceof Error ? err : new Error("Unknown server error");
+  const unknownError =
+    err instanceof Error ? err : new Error("Unknown server error");
 
   logger.error({
     ...logBase,
     message: unknownError.message,
     stack: unknownError.stack,
   });
-  res.status(500).json(formatErrorResponse({ message: unknownError.message, statusCode: 500 }));
+  res
+    .status(500)
+    .json(
+      formatErrorResponse({ message: unknownError.message, statusCode: 500 }),
+    );
 };

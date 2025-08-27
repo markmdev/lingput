@@ -5,7 +5,10 @@ export class RedisStoryLimits extends BaseRedisCache {
   protected ttl = 86400;
   protected prefix = "stories:limits";
 
-  constructor(redis: AppRedisClient, private limit = 5) {
+  constructor(
+    redis: AppRedisClient,
+    private limit = 5,
+  ) {
     super(redis);
   }
 
@@ -22,10 +25,14 @@ export class RedisStoryLimits extends BaseRedisCache {
     await this.redis.incr(key);
     if (!exists) {
       const now = new Date();
-      const laNow = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+      const laNow = new Date(
+        now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }),
+      );
       const laMidnight = new Date(laNow);
       laMidnight.setHours(24, 0, 0, 0);
-      const secondsToMidnight = Math.floor((laMidnight.getTime() - laNow.getTime()) / 1000);
+      const secondsToMidnight = Math.floor(
+        (laMidnight.getTime() - laNow.getTime()) / 1000,
+      );
       await this.redis.expire(key, secondsToMidnight);
     }
   }
