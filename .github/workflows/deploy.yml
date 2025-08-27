@@ -1,9 +1,10 @@
 name: "Deploy Lingput"
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["PR Tests"]
+    types: [completed]
+    branches: [main]
 
 jobs:
   build:
