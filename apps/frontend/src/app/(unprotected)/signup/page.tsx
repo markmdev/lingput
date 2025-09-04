@@ -61,6 +61,19 @@ export default function SignupPage() {
               Log in
             </Link>
           </p>
+
+          <p className="text-xs text-slate-500 text-center mt-3">
+            By signing up, you agree to our{" "}
+            <Link href="/terms" className="underline hover:text-indigo-600">
+              Terms of Service
+            </Link>{" "}
+            and{" "}
+            <Link href="/privacy" className="underline hover:text-indigo-600">
+              Privacy Policy
+            </Link>
+            .
+          </p>
+
           <p className="text-rose-600 text-sm text-center">{error?.message}</p>
         </div>
       </form>
