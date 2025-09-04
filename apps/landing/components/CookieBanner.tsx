@@ -16,11 +16,9 @@ export default function CookieBanner() {
       const hasChoice = localStorage.getItem(STORAGE_KEY) !== null;
       if (!hasChoice) setVisible(true);
     } catch {
-      // SSR / restricted storage: keep banner visible by default
       setVisible(true);
     }
 
-    // expose reopen API
     (window as any).showCookieBanner = () => setVisible(true);
   }, []);
 
@@ -39,7 +37,6 @@ export default function CookieBanner() {
       return true;
     };
     if (!call()) {
-      // retry for up to ~8s while gtag loads
       let tries = 0;
       const t = setInterval(() => {
         tries++;
@@ -66,7 +63,7 @@ export default function CookieBanner() {
       aria-label="Cookie notice"
       className="fixed left-1/2 -translate-x-1/2 bottom-4 z-50 w-[min(720px,calc(100%-1.5rem))] rounded-xl border border-border bg-secondary text-secondary-foreground shadow-xl"
     >
-      <div className="flex items-start gap-3 p-3">
+      <div className="flex flex-col gap-3 p-3">
         <p className="text-sm leading-snug">
           We use cookies for <strong>analytics</strong> only. Ads & personalization are off by
           default. Choose <em>Accept</em> to enable analytics or <em>Reject</em> to continue with
@@ -76,7 +73,7 @@ export default function CookieBanner() {
           </a>
           .
         </p>
-        <div className="ml-auto flex shrink-0 gap-2">
+        <div className="flex justify-end gap-2">
           <button
             onClick={() => choose("reject")}
             className="inline-flex items-center rounded-md border border-border px-3 py-1.5 text-sm font-medium hover:bg-muted"
