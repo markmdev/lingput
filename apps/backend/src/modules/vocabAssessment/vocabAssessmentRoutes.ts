@@ -9,6 +9,7 @@ export function buildVocabAssessmentRouter(
   const router = Router();
 
   router.get("/start", authMiddleware, asyncHandler(controller.start));
+  router.post("/skip", authMiddleware, asyncHandler(controller.skip));
   router.post("/answer", authMiddleware, asyncHandler(controller.answer));
 
   return router;

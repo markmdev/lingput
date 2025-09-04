@@ -1,7 +1,7 @@
 # Lingput - AI-Powered Comprehensible Input for Language Learning
 
-[![Tests](https://github.com/mark-mdev/lingput/actions/workflows/pr-tests.yml/badge.svg)](https://github.com/mark-mdev/lingput/actions/workflows/pr-tests.yml)
-[![Deploy](https://github.com/mark-mdev/lingput/actions/workflows/deploy.yml/badge.svg)](https://github.com/mark-mdev/lingput/actions/workflows/deploy.yml)
+[![Tests](https://github.com/markmdev/lingput/actions/workflows/pr-tests.yml/badge.svg)](https://github.com/markmdev/lingput/actions/workflows/pr-tests.yml)
+[![Deploy](https://github.com/markmdev/lingput/actions/workflows/deploy.yml/badge.svg)](https://github.com/markmdev/lingput/actions/workflows/deploy.yml)
 
 **Demo:**  
 https://lingput.dev/  
@@ -18,14 +18,14 @@ Unlike generic flashcard apps, Lingput adapts to your vocabulary and provides **
 
 ## Architectural & Technical Highlights
 
-This project was built to production-grade standards, demonstrating expertise in full-stack development, system design, and scalability. Here are the key technical features:
-
 - **Scalable Background Processing:** Utilizes a robust **Job Queue System (BullMQ & Redis)** to handle complex, long-running AI tasks (story and audio generation) asynchronously. This ensures the API remains fast and responsive, providing a seamless user experience with real-time progress updates on the frontend.
 - **Clean Backend Architecture:** The Express.js backend is built on a **testable, multi-layered architecture** (Controller, Service, Repository) with **Dependency Injection** for loose coupling and maintainability.
-- **Robust Caching Strategy:** Leverages **Redis** for caching frequently accessed data (like stories and word lists), significantly reducing database load and improving API response times.
+- **Robust Caching Strategy:** Leverages **Redis** for caching frequently accessed data (like stories and word lists), significantly **reducing database load** and improving API response times.
 - **Secure Authentication:** Implements a secure, modern authentication system using **HTTP-only cookies** with access and refresh tokens to protect against XSS attacks.
 - **Advanced Frontend State Management:** The Next.js frontend features a **custom React hook (`handleJob`)** to intelligently manage the lifecycle of background jobs, abstracting away the complexity of polling and providing optimistic UI updates.
 - **Containerized for Production:** The entire application is containerized using **Docker and Docker Compose**, ensuring consistent, reproducible deployments for all services (backend, frontend, workers, NGINX).
+
+Full tech stack: [Tech Stack](#tech-stack)
 
 ---
 
@@ -42,7 +42,7 @@ This repo ships with a simple, reliable pipeline built around **Docker**, **GitH
 
 On every **Pull Request** and on **pushes to `main`**, GitHub Actions runs:
 
-- **ESLint** for the codebase.
+- **ESLint**.
 - **Unit/Integration tests**.
 - Dependency caching to keep CI fast.
 
@@ -71,7 +71,6 @@ On every **Pull Request** and on **pushes to `main`**, GitHub Actions runs:
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Quickstart](#quickstart)
-- [Production Deploy](#production-deploy)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -88,14 +87,14 @@ On every **Pull Request** and on **pushes to `main`**, GitHub Actions runs:
 
 ## Features
 
-- 🔐 **Auth with secure cookies** - register/login with HTTP-only tokens, refresh flow included.
-- 📊 **Vocabulary assessment** - quick test estimates your vocab size using a frequency list.
-- 📚 **Personalized story generation** - AI generates stories with your known words (plus a few new).
-- 🌍 **Chunked translation** - story is split into chunks with translations for easier comprehension.
-- 🎧 **Audio generation** - full audio track (story + translations with pauses), stored in Supabase.
-- 📝 **Smart word tracking** - The app doesn't just show translations, it saves words with examples and helps you track your progress.
-- ⚡ **Background jobs** - BullMQ workers handle long-running tasks with progress updates.
-- 🚀 **Caching** - Redis caches stories and word lists for fast responses.
+- **Auth with secure cookies** - register/login with HTTP-only tokens, refresh flow included.
+- **Vocabulary assessment** - quick test estimates your vocab size using a frequency list.
+- **Personalized story generation** - AI generates stories with your known words (plus a few new).
+- **Chunked translation** - story is split into chunks with translations for easier comprehension.
+- **Audio generation** - full audio track (story + translations with pauses), stored in Supabase.
+- **Smart word tracking** - The app doesn't just show translations, it saves words with examples and helps you track your progress.
+- **Background jobs** - BullMQ workers handle long-running tasks with progress updates.
+- **Caching** - Redis caches stories and word lists for fast responses.
 
 ---
 
@@ -151,7 +150,7 @@ On every **Pull Request** and on **pushes to `main`**, GitHub Actions runs:
 
 ```bash
 # Clone the repository
-git clone https://github.com/mark-mdev/lingput
+git clone https://github.com/markmdev/lingput
 ```
 
 Create `.env` files for backend and frontend:
@@ -182,25 +181,6 @@ docker compose -f docker-compose-dev.yml up -d
 [How to create supabase audio bucket](docs/supabase-guide.md)
 
 App: [http://localhost:3050](http://localhost:3050)
-
----
-
-## Production Deploy
-
-Use `docker-compose.yml` with prebuilt images:
-
-- `markmdev/lingput-backend`
-- `markmdev/lingput-worker`
-- `markmdev/lingput-frontend`
-- `markmdev/lingput-lemma`
-- `markmdev/lingput-nginx`
-
-Steps:
-
-1. Build & push images to your registry.
-2. Update image names in `docker-compose.yml`.
-3. Provide production env vars (`OPENAI_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_API_KEY`, `DATABASE_URL`, `REDIS_HOST`, `REDIS_PORT`, `JWT_SECRET`, etc).
-4. Expose NGINX (`80` by default).
 
 ---
 

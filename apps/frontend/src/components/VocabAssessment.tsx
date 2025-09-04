@@ -5,6 +5,8 @@ import Word from "@/features/vocabAssessment/components/Word";
 import ContinueButton from "@/features/vocabAssessment/components/ContinueButton";
 import StartButton from "@/features/vocabAssessment/components/StartButton";
 import { AssessmentResponse } from "@/features/vocabAssessment/types";
+import SkipButton from "@/features/vocabAssessment/components/SkipButton";
+import Link from "next/link";
 
 type AssessmentStatus = "loading" | "ready" | "started" | "completed";
 
@@ -53,12 +55,20 @@ export default function VocabAssessment({
                 content to your level, ensuring you get the right amount of challenge and support as
                 you learn. Please answer honestly for the best experience!
               </p>
-              <StartButton onClick={handleStart} />
+              <div className="flex flex-col gap-2">
+                <StartButton onClick={handleStart} />
+                <SkipButton />
+              </div>
             </div>
           )}
 
           {status === "started" && (
             <div className="flex flex-col gap-4 items-center w-full">
+              <p>
+                <Link href="/vocab-assessment/skip" className="underline text-blue-400">
+                  Skip assessment
+                </Link>
+              </p>
               <p className="text-slate-700">
                 Step {apiResponse?.step}{" "}
                 {apiResponse?.lastStep ? <span className="italic">(Last)</span> : ""}

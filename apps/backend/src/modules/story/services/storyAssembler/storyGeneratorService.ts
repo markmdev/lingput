@@ -13,8 +13,8 @@ export class StoryGeneratorService {
     let response: OpenAIResponse;
     try {
       response = await this.openai.responses.create({
-        model: "gpt-5-mini",
-        reasoning: { effort: "low" },
+        model: "gpt-5",
+        reasoning: { effort: "minimal" },
         input: [
           {
             role: "system",

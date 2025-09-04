@@ -13,6 +13,13 @@ const answerSchema = z.object({
 export class VocabAssessmentController {
   constructor(private vocabAssessmentService: VocabAssessmentService) {}
 
+  skip = async (req: AuthedRequest, res: Response) => {
+    const user = req.user;
+
+    await this.vocabAssessmentService.skipAssessment(user.userId, "en", "de");
+    res.status(200).json(formatResponse({ success: true }));
+  };
+
   start = async (req: AuthedRequest, res: Response) => {
     const user = req.user;
 
