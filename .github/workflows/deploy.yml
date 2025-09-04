@@ -25,6 +25,7 @@ jobs:
       - name: Build landing Docker image
         run: |
           docker build --build-arg NEXT_PUBLIC_APP_URL=${{ secrets.NEXT_PUBLIC_APP_URL }} \
+                      --build-arg NEXT_PUBLIC_GA_ID=G-N8FTR16C4L \
                       -t markmdev/lingput-landing:${{ github.sha }} \
                       -t markmdev/lingput-landing \
                       ./apps/landing

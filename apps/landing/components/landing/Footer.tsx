@@ -13,6 +13,11 @@ export default function Footer() {
             <p className="text-sm text-muted-foreground mt-1">
               © {new Date().getFullYear()} Lingput. All rights reserved.
             </p>
+            <p className="text-sm text-muted-foreground mt-1 flex flex-row gap-2">
+              <Link href="/privacy">Privacy Policy</Link>
+              <Link href="/terms">Terms of Service</Link>
+              <Link href="/cookie">Cookie Policy</Link>
+            </p>
           </div>
           <div className="flex space-x-6">
             <a

@@ -1,8 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // TODO: Replace with actual URL
-  const baseUrl = "https://lingput.com";
+  const baseUrl = "https://lingput.dev";
 
   return [
     {
