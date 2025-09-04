@@ -19,7 +19,7 @@ export default function VocabAssessmentPage() {
     sessionUUID ? "loading" : "ready"
   );
 
-  const { wordsCount, isLoading } = useWordsCount();
+  const { wordsCount, isWordsCountLoading } = useWordsCount();
   const [apiResponse, setApiResponse] = useState<AssessmentResponse | null>(null);
   const [answer, setAnswer] = useState<Record<number, boolean>>({});
 
@@ -32,14 +32,18 @@ export default function VocabAssessmentPage() {
   useEffect(() => {
     const fetch = async () => {
       if (sessionUUID && apiResponse === null) {
-        const clientApi = new ClientApi();
-        const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
-        const result = await vocabAssessmentApi.continue(sessionUUID);
-        setApiResponse(result);
-        if (result.status === "active") {
-          setStatus("started");
-        } else if (result.status === "completed") {
-          setStatus("completed");
+        try {
+          const clientApi = new ClientApi();
+          const vocabAssessmentApi = new VocabAssessmentApi(clientApi);
+          const result = await vocabAssessmentApi.continue(sessionUUID);
+          setApiResponse(result);
+          if (result.status === "active") {
+            setStatus("started");
+          } else if (result.status === "completed") {
+            setStatus("completed");
+          }
+        } catch {
+          throw new Error("Unknown server error");
         }
       }
     };
@@ -98,7 +102,7 @@ export default function VocabAssessmentPage() {
   return (
     <VocabAssessment
       status={status}
-      isLoading={isLoading}
+      isLoading={isWordsCountLoading}
       wordsCount={wordsCount}
       apiResponse={apiResponse}
       answer={answer}

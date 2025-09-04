@@ -11,7 +11,6 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
     toast.error(error.message);
   }, [error]);
 

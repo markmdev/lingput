@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 
 export default function Dashboard({
   wordsCount,
+  isWordsCountLoading,
   viewMode,
   handleChangeToNewStoryViewMode,
   handleChangeToAllStoriesViewMode,
@@ -31,6 +32,7 @@ export default function Dashboard({
   mutate,
 }: {
   wordsCount: number | undefined;
+  isWordsCountLoading: boolean;
   viewMode: "chosenStory" | "newStory" | "allStories";
   handleChangeToNewStoryViewMode: () => void;
   handleChangeToAllStoriesViewMode: () => void;
@@ -70,7 +72,9 @@ export default function Dashboard({
 
   return (
     <div className="flex flex-col bg-transparent h-screen overflow-y-scroll">
-      <AssessmentRequiredOverlay wordsCount={typeof wordsCount === "number" ? wordsCount : -1} />
+      <AssessmentRequiredOverlay
+        wordsCount={isWordsCountLoading || typeof wordsCount === "number" ? wordsCount : -1}
+      />
       {showOnboarding && !hasIntroShown && <OnboardingOverlay onComplete={completeIntro} />}
       {showOnboarding && hasIntroShown && coachmarkIndex !== null && (
         <OnboardingCoachmarks

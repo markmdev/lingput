@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-export default function AssessmentRequiredOverlay({ wordsCount }: { wordsCount: number }) {
+export default function AssessmentRequiredOverlay({
+  wordsCount,
+}: {
+  wordsCount: number | undefined;
+}) {
   if (wordsCount !== 0) return null;
 
   return (
@@ -11,12 +15,21 @@ export default function AssessmentRequiredOverlay({ wordsCount }: { wordsCount: 
           Please complete the <span className="font-semibold">vocab-assessment</span> first so we
           can prepare personalized stories for you.
         </p>
-        <Link
-          href="/vocab-assessment"
-          className="inline-block bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
-        >
-          Take assessment
-        </Link>
+        <p className="text-green-400 font-semibold">You can skip it for the demo purposes.</p>
+        <div className="flex flex-col gap-2">
+          <Link
+            href="/vocab-assessment/skip"
+            className="inline-block bg-green-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+          >
+            Skip and Continue
+          </Link>
+          <Link
+            href="/vocab-assessment"
+            className="inline-block bg-indigo-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition-colors"
+          >
+            Take assessment
+          </Link>
+        </div>
       </div>
     </div>
   );

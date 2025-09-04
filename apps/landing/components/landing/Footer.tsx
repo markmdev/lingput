@@ -16,7 +16,7 @@ export default function Footer() {
           </div>
           <div className="flex space-x-6">
             <a
-              href="https://github.com/mark-mdev/lingput"
+              href="https://github.com/markmdev/lingput"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"

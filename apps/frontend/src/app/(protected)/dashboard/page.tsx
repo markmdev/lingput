@@ -15,7 +15,7 @@ import useAuthRedirect from "@/features/auth/hooks/useAuthRedirect";
 export default function DashboardPage() {
   const { viewMode, setViewMode, chosenStoryId } = useViewMode();
   const { stories, error, isLoading, mutateStories } = useStories();
-  const { wordsCount } = useWordsCount();
+  const { wordsCount, isWordsCountLoading } = useWordsCount();
   const chosenStory = stories?.find((s) => String(s.id) === chosenStoryId) ?? null;
   const { setWordStatus } = useWordStatus(chosenStory, mutateStories);
 
@@ -38,6 +38,7 @@ export default function DashboardPage() {
     <OnboardingProvider wordsCount={wordsCount} useCoachmarkSteps={useCoachmarkSteps}>
       <Dashboard
         wordsCount={wordsCount}
+        isWordsCountLoading={isWordsCountLoading}
         viewMode={viewMode}
         handleChangeToNewStoryViewMode={() => setViewMode("newStory")}
         handleChangeToAllStoriesViewMode={() => setViewMode("allStories")}

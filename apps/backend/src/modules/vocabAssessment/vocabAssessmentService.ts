@@ -31,6 +31,21 @@ export class VocabAssessmentService {
     private redisWordsCache: RedisWordsCache,
   ) {}
 
+  async skipAssessment(
+    userId: number,
+    sourceLanguage: string,
+    targetLanguage: string,
+  ) {
+    const words = await this.getWordRanking(sourceLanguage, targetLanguage);
+    const knownVocabulary = words.slice(0, 50);
+    const vocabularyDTO: UserVocabularyDTO[] = knownVocabulary.map((word) => ({
+      word: word.word,
+      translation: word.translation,
+      article: null,
+    }));
+    await this.vocabularyService.saveManyWords(vocabularyDTO, userId);
+  }
+
   async startAssessment(
     userId: number,
     sourceLanguage: string,
@@ -113,23 +128,7 @@ export class VocabAssessmentService {
       };
     }
 
-    let words: WordRanking[] | null;
-    words = await this.redisWordsCache.getWords(sourceLanguage, targetLanguage);
-    if (!words) {
-      words = await this.vocabAssessmentRepository.getWords(
-        sourceLanguage,
-        targetLanguage,
-      );
-      try {
-        await this.redisWordsCache.saveWords(
-          sourceLanguage,
-          targetLanguage,
-          words,
-        );
-      } catch (error) {
-        logger.error("[cache] Failed to save words in Redis", error);
-      }
-    }
+    const words = await this.getWordRanking(sourceLanguage, targetLanguage);
 
     const wordsToReview = state.wordsToReview;
     const result = this.checkAnswer(answer, wordsToReview);
@@ -189,6 +188,31 @@ export class VocabAssessmentService {
       status: "completed",
       vocabularySize: vocabularyDTO.length,
     };
+  }
+
+  private async getWordRanking(
+    sourceLanguage: string,
+    targetLanguage: string,
+  ): Promise<WordRanking[]> {
+    let words: WordRanking[] | null;
+    words = await this.redisWordsCache.getWords(sourceLanguage, targetLanguage);
+    if (!words) {
+      words = await this.vocabAssessmentRepository.getWords(
+        sourceLanguage,
+        targetLanguage,
+      );
+      try {
+        await this.redisWordsCache.saveWords(
+          sourceLanguage,
+          targetLanguage,
+          words,
+        );
+      } catch (error) {
+        logger.error("[cache] Failed to save words in Redis", error);
+      }
+    }
+
+    return words;
   }
 
   private checkAnswer(
