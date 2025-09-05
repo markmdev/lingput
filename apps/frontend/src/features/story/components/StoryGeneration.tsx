@@ -49,7 +49,6 @@ export default function StoryGeneration({
       }
       setToNewStory(story);
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onError = ({ error, data }: { error?: Error; data?: any }) => {
       // Display form errors
       const normalizedErrors = errorNormalizer(error);

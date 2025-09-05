@@ -7,7 +7,6 @@ export type JobStatusChecker = (jobId: string) => Promise<JobStatusResponse>;
 
 export type OptimisticUpdate<T> = (data: T | undefined) => T | undefined;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type onProgress = (progress: any) => void;
 
 export async function handleJob<T>({
