@@ -21,7 +21,7 @@ export default [
   ...tseslint.configs.recommended,
   react.configs.flat.recommended,
   {
-    plugins: { react },
+    plugins: { "@typescript-eslint": tseslint.plugin, react },
     rules: {
       "react/react-in-jsx-scope": "off",
       "react/jsx-uses-react": "off",

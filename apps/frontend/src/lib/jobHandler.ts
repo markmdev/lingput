@@ -22,9 +22,7 @@ export async function handleJob<T>({
   jobStatusChecker: JobStatusChecker;
   mutate: KeyedMutator<T>;
   optimisticUpdate?: OptimisticUpdate<T>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccess?: (result: any) => void;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onError?: ({ error, data }: { error?: Error; data?: any }) => void;
   onProgress?: onProgress;
 }) {

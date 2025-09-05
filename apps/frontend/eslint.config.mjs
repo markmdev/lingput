@@ -6,7 +6,12 @@ import { defineConfig } from "eslint/config";
 
 export default defineConfig([
   {
-    ignores: ["**/*.test.{js,mjs,cjs,ts,mts,cts}", "**/*.config.{js,mjs,cjs,ts,mts,cts}", ".next/"],
+    ignores: [
+      "**/*.test.{js,mjs,cjs,ts,mts,cts}",
+      "**/*.config.{js,mjs,cjs,ts,mts,cts}",
+      ".next/",
+      "next-env.d.ts",
+    ],
   },
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
@@ -22,7 +27,7 @@ export default defineConfig([
   ...tseslint.configs.recommended,
   react.configs.flat.recommended,
   {
-    plugins: { react },
+    plugins: { "@typescript-eslint": tseslint.plugin, react },
     rules: {
       "react/react-in-jsx-scope": "off",
       "react/jsx-uses-react": "off",
