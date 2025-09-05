@@ -8,14 +8,12 @@ export interface JobStatusResponse {
   status: "completed" | "failed" | "waiting" | "active" | "delayed" | "paused";
   value?: unknown;
   failedReason?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   progress?: any;
 }
 
 export class BackendApi {
   constructor(private clientApi: ClientApi) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected post<T>(path: string, body?: any): Promise<T> {
     return this.clientApi.api<T>({
       path,

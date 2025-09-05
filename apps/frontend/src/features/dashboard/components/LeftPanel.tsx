@@ -2,6 +2,7 @@ import Button from "@/components/Button";
 import Skeleton from "react-loading-skeleton";
 import StoryList from "@/features/story/components/StoryList";
 import { Story } from "@/features/story/types";
+import Image from "next/image";
 
 export default function LeftPanel({
   isLoading,
@@ -25,7 +26,7 @@ export default function LeftPanel({
         <div className="flex flex-row justify-between items-center">
           <h2 className="font-semibold text-xl tracking-tight text-slate-900">Stories</h2>
           <p className="text-2xl font-bold text-slate-900">
-            <img
+            <Image
               src="/logo_min.png"
               alt="Lingput Logo"
               className="h-12 w-auto inline-block align-middle"
