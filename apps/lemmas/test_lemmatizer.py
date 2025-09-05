@@ -212,10 +212,6 @@ def test_multiple_articles_in_sentence(text, noun, expected_article):
     assert item is not None
     assert item["article"] == expected_article
 
-# Дополнительные тесты для проверки обработки отделяемых глаголов
-
-# Тест: если частица отделяемого глагола находится в другом предложении,
-# она не должна объединяться с глаголом.
 @pytest.mark.parametrize("text, expected_lemmas", [
     ("Er steht. Auf!", ["stehen", "auf"]),
 ])
@@ -225,5 +221,4 @@ def test_separable_verb_different_sentence(text, expected_lemmas):
     lemmas = [x["lemma"] for x in data]
     for lemma in expected_lemmas:
         assert lemma in lemmas
-    # Проверяем, что объединённая форма отсутствует
     assert "aufstehen" not in lemmas
