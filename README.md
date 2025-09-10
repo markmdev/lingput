@@ -13,9 +13,9 @@ Traditional language learning apps rely on flashcards and repetitive drills. **L
 
 ## Impact & Performance
 
-- **85% faster API responses** (600ms → 85ms) through Redis caching strategies
+- **85% faster page load** (600ms → 85ms) by implementing Redis caching to eliminate multiple redundant database queries
 - **Zero-downtime deployments** with 80% reduction in deployment time (25min → 5min)
-- **Non-blocking user experience** for 30-second AI story generation via async job queues
+- **Non-blocking user experience** replacing 30-second blocking API requests with async job queues and real-time progress updates
 - **Production-ready architecture** handling concurrent AI processing and real-time progress updates
 
 <p align="center" id="video-demo">
